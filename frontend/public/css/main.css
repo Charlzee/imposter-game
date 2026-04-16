@@ -50,7 +50,7 @@ body {
 
 .small-grid {
     display: grid;
-    grid-template-rows: repeat(2, 1fr);
+    grid-template-rows: repeat(auto, 1fr);
 
     gap: 20px;
     padding: 10px;
