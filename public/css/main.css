@@ -1,6 +1,6 @@
 body {
     background-color: #ff00fb; 
-    background-image: linear-gradient(0deg, rgb(111, 0, 255) 0%, rgba(156, 69, 255, 1) 100%);
+    background-image: linear-gradient(180deg, rgb(111, 0, 255) 0%, rgba(156, 69, 255, 1) 100%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 
