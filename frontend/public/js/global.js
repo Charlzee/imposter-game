@@ -1,13 +1,4 @@
-export function getURLParameter(sParam)
-{
-    var sPageURL = window.location.search.substring(1);
-    var sURLVariables = sPageURL.split('&');
-    for (var i = 0; i < sURLVariables.length; i++) 
-    {
-        var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] == sParam) 
-        {
-            return sParameterName[1];
-        }
-    }
-}​
+export function getURLParameter(sParam) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(sParam);
+}
