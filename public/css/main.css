@@ -1,9 +1,16 @@
 html {
     background-color: #ff00fb; 
-    background-image: linear-gradient(180deg, rgb(65, 0, 149) 0%, rgba(156, 69, 255, 1) 100%);
+    background-image: linear-gradient(180deg, rgb(65, 0, 149) 0%, rgb(101, 41, 169) 100%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 
     min-height: 100vh;
     margin: 0;
+}
+
+#big-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
