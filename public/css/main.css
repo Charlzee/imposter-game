@@ -1,6 +1,12 @@
 html {
     background-color: #410095;
-    background-image: linear-gradient(180deg, rgb(65, 0, 149) 0%, rgb(101, 41, 169) 100%);
+    background-image: linear-gradient(
+        180deg,
+        rgb(65, 0, 149) 0%,
+        rgb(101, 41, 169) 60%,
+        rgb(180, 20, 100) 80%,
+        rgb(255, 0, 0) 100%
+    );
     background-repeat: no-repeat;
     background-attachment: scroll;
 
@@ -44,7 +50,7 @@ body {
 
 .small-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
 
     gap: 20px;
     padding: 10px;
@@ -72,7 +78,6 @@ body {
 }
 
 .small-button {
-    aspect-ratio: 1 / 1;
     cursor: pointer;
 
     -webkit-tap-highlight-color: transparent;
