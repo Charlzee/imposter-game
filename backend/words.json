@@ -2,7 +2,7 @@
     {
         "id":"foods_and_drinks",
         "display_name": "Foods and Drinks",
-        "difficulty_imposter":3
+        "difficulty_imposter":3,
         "words":[
             "Pizza",
             "Burger",
