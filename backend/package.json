@@ -1,0 +1,6 @@
+{
+    "name": "imposter-game-backend",
+    "dependencies": {
+        "hono": "^4.0.0"
+    }
+}
