@@ -1,5 +1,5 @@
 {
     "name": "imposter-game-backend",
-    "main": "backend/index.js",
+    "main": "index.js",
     "compatibility_date": "2026-04-21"
 }
