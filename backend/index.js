@@ -5,5 +5,5 @@ const app = new Hono()
 app.use("*", cors())
 
 app.get("/words", (c) => {
-    
+    return c.json()
 })
