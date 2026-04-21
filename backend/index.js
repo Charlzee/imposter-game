@@ -1,10 +1,9 @@
-export default {
-    async fetch(request, env, ctx) {
-        return new Response(JSON.stringify({ message: "Hello!" }), {
-            headers: { 
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-            },
-        });
-    },
-};
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+
+const app = new Hono()
+app.use("*", cors())
+
+app.get("/words", (c) => {
+    
+})
