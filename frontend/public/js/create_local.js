@@ -1,6 +1,6 @@
 const topic_container = document.getElementById("topic-container");
 
-const response = await fetch("https://imposter-game-backend.charlierw1028.workers.dev/words");
+const response = await fetch("https://imposter-game-backend.charlzee.workers.dev/words");
 const data = await response.json();
 
 if (Array.isArray(data)) {
