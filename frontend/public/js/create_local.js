@@ -8,6 +8,8 @@ if (Array.isArray(data)) {
         //Element
         const topic_element = document.createElement("div");
         topic_element.classList.add("topic");
+        topic_element.setAttribute("id", topic.id);
+        topic_element.addEventListener("click", () => selectTopic(topic.id));
 
         //Title
         const topic_title = document.createElement("h2");
@@ -30,10 +32,26 @@ if (Array.isArray(data)) {
         //Append
         topic_element.appendChild(topic_title);
         topic_element.appendChild(stats_container);
-        
+
         stats_container.appendChild(difficulty);
         stats_container.appendChild(word_count);
 
         topic_container.appendChild(topic_element);
     }
+}
+
+async function selectTopic(topic_id) {
+    const topic_element = document.getElementById(topic_id);
+    const computedStyle = window.getComputedStyle(topic_element);
+    console.log(`Selected topic: ${topic_id}`);
+
+    // Change Style
+    if (localStorage.getItem("selected_topic")) {
+        let current_selected = document.getElementById(localStorage.getItem("selected_topic"));
+        current_selected.classList.remove("is-selected");
+    }
+
+    localStorage.setItem("selected_topic", topic_id);
+
+    topic_element.classList.add("is-selected");
 }
