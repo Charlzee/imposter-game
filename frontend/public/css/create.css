@@ -9,7 +9,7 @@
     background: none;
 }
 
-.topic, .player-tile{
+.topic, .player-tile, .player-add-button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -35,13 +35,54 @@
     color: aliceblue;
 }
 
+.player-container, .player-add-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
 
-.topic:hover, .player-tile:hover {
+    border-radius: 15px;
+
+    width: 85%;
+
+    border: none;
+    outline: 3px solid black;
+
+    background-image: linear-gradient(180deg, rgb(28, 40, 65) 0%, rgb(85, 75, 141) 100%);
+}
+
+.player-add-button {
+    width: 10%;
+    height: 100%
+}
+
+.player-count-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    width: 100%;
+}
+
+.player-name-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    outline: 3px solid black;
+    font-family: "Titan One", sans-serif;
+    font-size: 1.5em;
+}
+
+.topic:hover, .player-tile:hover, .player-add-button:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
 }
 
-.topic:active, .player-tile:active {
+.topic:active, .player-tile:active, .player-add-button:active {
     transform: scale(0.95);
     filter: brightness(0.8);
     transition: transform 0.05s;

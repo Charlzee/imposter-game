@@ -21,9 +21,18 @@
     <div class="topics" id="topic-container"></div>
 
     <div class="big-container">
-        PLAYER AMOUNT
+        PLAYER COUNT
     </div>
-    <button class="player-tile" id="player-tile"></button>
+    <div class="player-count-container" id="player-count-container">
+        <div class="player-add-container" id="player-add-container">
+            <input type="text" class="player-name-input" id="player-name-input" placeholder="Player Name" maxlength="20">
+            <button class="player-add-button" id="player-add-button">Add Player</button>
+        </div>
+
+        <div class="player-container" id="player-container">
+            <button class="player-tile" id="player-tile"></button>
+        </div>
+    </div>
 </body>
 
 <script type="module" src="../../js/create_local.js"></script>
