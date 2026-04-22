@@ -9,13 +9,14 @@
             "Beer",
             "Tomato",
             "Cucumber",
-            "Pickle"
+            "Pickle",
+            "cuCUMber"
         ]
     },
     {
         "id":"test",
         "display_name": "Test thing",
-        "difficulty_imposter":9,
+        "difficulty_imposter":9999,
         "words":[
             "Word1",
             "Word2",
@@ -26,7 +27,17 @@
             "Word7",
             "Word8",
             "Word9",
-            "Word10"
+            "Word10",
+            "Word11",
+            "Word12",
+            "Word13",
+            "Word14",
+            "Word15",
+            "Word16",
+            "Word17",
+            "Word18",
+            "Word19",
+            "Word20"
         ]
     }
 ]
