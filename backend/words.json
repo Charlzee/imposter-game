@@ -11,5 +11,18 @@
             "Cucumber",
             "Pickle"
         ]
+    },
+    {
+        "id":"test",
+        "display_name": "Test thing",
+        "difficulty_imposter":9,
+        "words":[
+            "Word1",
+            "Word2",
+            "Word3",
+            "Word4",
+            "Word5",
+            "Word6"
+        ]
     }
 ]
