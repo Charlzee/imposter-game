@@ -5,22 +5,8 @@
     gap: 20px;
     padding: 20px;
 
-    cursor: pointer;
-
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    transition: transform 0.1s ease, filter 0.1s ease;
-}
-
-.topics:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
-}
-
-.topics:active {
-    transform: scale(0.95);
-    filter: brightness(0.8);
-    transition: transform 0.05s;
+    border:none;
+    background: none;
 }
 
 .topic {
@@ -28,13 +14,30 @@
     flex-direction: column;
     width: 100%;
     max-width: 500px;
-
+    
+    cursor: pointer;
+    
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.1s ease, filter 0.1s ease;
+    
     padding: 20px;
     border-radius: 15px;
     outline: 3px solid black;
     background-image: linear-gradient(180deg, rgb(85, 0, 130) 0%, rgb(85, 20, 90) 100%);
     font-family: "Titan One", sans-serif;
     color: aliceblue;
+}
+
+.topic:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.topic:active {
+    transform: scale(0.95);
+    filter: brightness(0.8);
+    transition: transform 0.05s;
 }
 
 .topic-stats {
