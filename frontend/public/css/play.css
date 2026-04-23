@@ -1,7 +1,6 @@
 .main-screen {
     width: 90%;
-    height: 90%;
-    min-height: 90%;
+    height: 1vh;
     
     display: flex;
     flex-direction: column;
