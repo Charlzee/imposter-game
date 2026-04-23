@@ -1,5 +1,5 @@
-import { getURLParameter } from './js/global.js';
+import { getURLParameter } from '../js/global.js';
 
-const isLocal = getURLParameter('local');
+const isLocal = getURLParameter('local') === 'true' ? true : false;
 
 console.log(isLocal)

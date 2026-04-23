@@ -116,6 +116,7 @@ function removePlayer(index) {
 
 async function startGame() {
     const players = JSON.parse(localStorage.getItem("current_players")) || [];
+    window.location.href = "../play.html?local=true";
     console.log("Starting game with players:", players);
 }
 
