@@ -17,4 +17,4 @@ function decidePlayerList(players){
     let maxImpostersReached = false
     console.log(getRandomInt(players.length))
 }
-decidePlayerList(localStorage.getItem('players'))
+decidePlayerList(localStorage.getItem('current_players'))
