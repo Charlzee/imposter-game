@@ -100,12 +100,31 @@
     font-size: 1.5em;
 }
 
-.topic:hover, .player-tile:hover, .player-add-button:hover {
+.start-button {
+    width: 200px;
+    height: 50px;
+    font-size: 1.5em;
+    font-family: "Titan One", sans-serif;
+    color: aliceblue;
+    background-image: linear-gradient(180deg, rgb(0, 78, 0) 0%, rgb(0, 98, 0) 100%);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    outline: 3px solid black;
+    transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.player-number {
+    font-size: 1.2em;
+    color: lightgray;
+}
+
+.topic:hover, .player-tile:hover, .player-add-button:hover, .start-button:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
 }
 
-.topic:active, .player-tile:active, .player-add-button:active {
+.topic:active, .player-tile:active, .player-add-button:active, .start-button:active {
     transform: scale(0.95);
     filter: brightness(0.8);
     transition: transform 0.05s;
