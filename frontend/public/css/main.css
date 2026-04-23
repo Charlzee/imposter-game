@@ -101,6 +101,36 @@ body {
     transition: transform 0.05s;
 }
 
+/* Educational Context */
+
+.big-container[data-label="revision-session"]::before {
+    content: "PLAY ONLINE";
+}
+
+.small-button[data-label="host-study"]::before {
+    content: "CREATE ROOM";
+}
+
+.small-button[data-label="join-study"]::before {
+    content: "JOIN WITH ROOM CODE";
+}
+
+.big-container[data-label="local-session"]::before {
+    content: "PLAY LOCALLY";
+}
+
+.small-button[data-label="create-local"]::before {
+    content: "CREATE LOCAL ROOM";
+}
+
+.small-button[data-label="create-lan"]::before {
+    content: "CREATE LAN ROOM";
+}
+
+.small-button[data-label="join-lan"]::before {
+    content: "JOIN LAN ROOM";
+}
+
 footer {
     margin-top: auto;
     padding: 10px;
