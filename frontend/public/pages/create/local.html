@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../../css/main.css">
     <link rel="stylesheet" href="../../css/create.css">
 
+    <script type="module" src="../../js/create_local.js"></script>
 </head>
 <body>
     <div class="big-container">
@@ -26,14 +27,11 @@
     <div class="player-count-container" id="player-count-container">
         <div class="player-add-container" id="player-add-container">
             <input type="text" class="player-name-input" id="player-name-input" placeholder="Player Name" maxlength="20">
-            <button class="player-add-button" id="player-add-button">Add Player</button>
+            <button class="player-add-button" id="player-add-button" onclick="addPlayer()">Add Player</button>
         </div>
 
         <div class="player-container" id="player-container">
-            <button class="player-tile" id="player-tile">[PLAYER NAME]</button>
         </div>
     </div>
 </body>
-
-<script type="module" src="../../js/create_local.js"></script>
 </html>

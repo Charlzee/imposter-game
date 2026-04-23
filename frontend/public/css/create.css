@@ -58,9 +58,26 @@
     text-align: center;
 }
 
+.player-tile span {
+    font-size: 1rem;
+    line-height: 1;
+}
+
 .player-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    flex-wrap: wrap;
+
     text-align: center;
     font-size: 100%;
+    height: auto;
+    width: auto;
+}
+
+.player-container {
+    flex-wrap: wrap;
 }
 
 .player-count-container {

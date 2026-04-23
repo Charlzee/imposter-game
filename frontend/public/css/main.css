@@ -1,4 +1,4 @@
-html {
+:root {
     background-color: #410095;
     background-image: linear-gradient(
         180deg,
@@ -99,4 +99,14 @@ body {
     transform: scale(0.95);
     filter: brightness(0.8);
     transition: transform 0.05s;
+}
+
+footer {
+    margin-top: auto;
+    padding: 10px;
+    font-size: 0.8em;
+    color: #ddd;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 10px;
 }
