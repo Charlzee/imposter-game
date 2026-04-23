@@ -9,9 +9,11 @@ function getLocal(){
     return isLocal
 }
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
 function decidePlayerList(players){
     let maxImpostersReached = false
-    players.forEach((player) => {
-        Math.random()
-    });
+    console.log(getRandomInt(players.length))
 }
