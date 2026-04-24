@@ -5,7 +5,7 @@ import words from './words.json'
 const app = new Hono()
 app.use("*", cors())
 
-const 
+const docs
 
 app.get("/words", (c) => {
     return c.json(words)
