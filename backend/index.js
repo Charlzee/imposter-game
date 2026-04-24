@@ -5,12 +5,10 @@ import words from './words.json'
 const app = new Hono()
 app.use("*", cors())
 
+const 
+
 app.get("/words", (c) => {
     return c.json(words)
-})
-
-app.get("/words/docs", (c) => {
-    return c.json(null)
 })
 
 export default app
