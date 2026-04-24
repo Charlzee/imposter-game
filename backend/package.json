@@ -1,6 +1,8 @@
 {
     "name": "imposter-game-backend",
     "dependencies": {
-        "hono": "^4.0.0"
+        "hono": "^4.0.0",
+        "googleapis": "^171.4.0",
+        "@hono/node-server": "^1.8.0"
     }
 }
