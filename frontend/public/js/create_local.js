@@ -93,7 +93,7 @@ async function addPlayer() {
     const player_name = input.value.trim();
 
     let current_players = JSON.parse(localStorage.getItem("current_players")) || [];
-    
+
     if (player_name === "" || (current_players.some(p => p.player_name.toLowerCase() === player_name.toLowerCase()))) {
         alert("Please enter a valid name.");
         return;
@@ -124,6 +124,15 @@ function init() {
 
 async function startGame() {
     const players = JSON.parse(localStorage.getItem("current_players")) || [];
+
+    if (players.length < 1) {
+        alert("Not enough players to start the game.");
+        return;
+    }
+    if (!localStorage.getItem("selected_topic")) {
+        alert("Please select a topic before starting the game.");
+        return;
+    }
     window.location.href = "../play.html?local=true";
     console.log("Starting game with players:", players);
 }
