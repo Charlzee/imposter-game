@@ -31,6 +31,7 @@ function decidePlayerList(players){
     localStorage.setItem('imposter', imposter);
 
     console.log(imposter);
+    console.log('test')
 }
 
 function displayRole(playerIndex){

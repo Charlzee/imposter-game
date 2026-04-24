@@ -92,12 +92,13 @@ async function addPlayer() {
     const input = document.getElementById("player-name-input");
     const player_name = input.value.trim();
 
-    if (player_name === "") {
+    let current_players = JSON.parse(localStorage.getItem("current_players")) || [];
+    
+    if (player_name === "" || (current_players.some(p => p.player_name.toLowerCase() === player_name.toLowerCase()))) {
         alert("Please enter a valid name.");
         return;
     }
 
-    let current_players = JSON.parse(localStorage.getItem("current_players")) || [];
     current_players.push({ player_name: player_name });
     localStorage.setItem("current_players", JSON.stringify(current_players));
 
