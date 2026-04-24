@@ -2,7 +2,7 @@
     {
         "id": "foods_and_drinks",
         "display_name": "Foods and Drinks",
-        "difficulty_imposter": 3,
+        "difficulty_imposter": 5,
         "words":[
             "Pizza",
             "Burger",
@@ -57,6 +57,29 @@
             "Donuts",
             "Cookies",
             "Christmas Dinner"
+        ]
+    },
+        {
+        "id": "colors",
+        "display_name": "Colours",
+        "difficulty_imposter": 3,
+        "words":[
+            "Red",
+            "Blue",
+            "Green",
+            "Purple",
+            "Yellow",
+            "Cyan",
+            "White",
+            "Black",
+            "Brown",
+            "Grey",
+            "Pink",
+            "Hot Pink",
+            "Turquoise",
+            "Rainbow",
+            "Neon",
+            "Pastel"
         ]
     }
 ]
