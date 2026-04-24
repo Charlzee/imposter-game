@@ -7,12 +7,12 @@ app.use("*", cors())
 
 const docsWords = {
     "id": "docs",
-    "display_name": "DOCS WORDS,
+    "display_name": "DOCS WORDS",
     "difficulty_imposter": '???',
     "words":["test"]
 }
 
-const words = words.append(docsWords)
+const words = words.push(docsWords)
 
 app.get("/words", (c) => {
     return c.json(words)
