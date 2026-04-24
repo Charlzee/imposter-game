@@ -5,7 +5,7 @@ import { google } from 'googleapis'
 import path from 'path'
 import words from './words.json'
 
-const credentials = JSON.parse(process.)
+const credentials = JSON.parse(process.env.SERVICE_ACCOUNT)
 
 const app = new Hono()
 app.use("*", cors())
