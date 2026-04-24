@@ -114,13 +114,18 @@ function removePlayer(index) {
     renderPlayers();
 }
 
+function init() {
+    window.addPlayer = addPlayer;
+    window.startGame = startGame;
+    fetchTopics();
+    localStorage.setItem('game_started', false);
+}
+
 async function startGame() {
     const players = JSON.parse(localStorage.getItem("current_players")) || [];
     window.location.href = "../play.html?local=true";
     console.log("Starting game with players:", players);
 }
 
-window.addPlayer = addPlayer;
-window.startGame = startGame;
+init();
 
-fetchTopics();

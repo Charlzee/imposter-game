@@ -1,5 +1,5 @@
 * {
-    word-break: break-all;
+    word-break: break-word;
 }
 
 :root {
@@ -39,8 +39,6 @@ body {
     margin: 10px;
     outline: 3px solid black;
     color: aliceblue;
-
-    font-family: "Titan One", sans-serif;
 
     background-color: #1c0041;
     background-image: linear-gradient(180deg, rgb(28, 0, 65) 0%, rgb(85, 35, 141) 100%);
@@ -143,4 +141,22 @@ footer {
     background-color: rgba(0, 0, 0, 0.5);
     border: none;
     border-radius: 10px;
+}
+
+.unkempt-regular {
+  font-family: "Unkempt", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.unkempt-bold {
+  font-family: "Unkempt", cursive;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.titan-one-regular {
+  font-family: "Titan One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }

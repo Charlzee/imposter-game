@@ -15,6 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unkempt:wght@400;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/play.css">
@@ -24,16 +25,18 @@
 <body>
     <h1 style="font-size: 1px; color: transparent; margin: 0;">Interactive English Grammar & Vocabulary Revision Tool</h1>
 
-    <div class="main-screen" id="main">
+    <div class="main-screen titan-one-regular" id="main">
         <h1>VIEW ROLE</h1>
-        <div id="role-display">
-            <h2 id="role-title"></h2>
+        <div class="titan-one-regular" id="role-display">
+            <h2 class="titan-one-regular" id="role-title"></h2>
             <h3 class="imposter" id="role-status"></h3>
-            <h4 id="word"></h4>
-            <p id="role-description"></p>
+            <h4 class="titan-one-regular" id="word"></h4>
+            <p class="titan-one-regular" id="role-description"></p>
             <h2 class="imposter" id="role-tip"></h2>
         </div>
-        <button id="ready-button">NEXT →</button>
+        <button class="titan-one-regular" id="ready-button">NEXT →</button>
+        <br>
+        <button class="titan-one-regular" id="back-button" onclick="window.location.href='create/local.html'">← LOBBY</button>
     </div>
 </body>
 <div id="educational-context">
