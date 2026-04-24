@@ -9,4 +9,8 @@ app.get("/words", (c) => {
     return c.json(words)
 })
 
+app.get("/words/docs", (c) => {
+    return c.json(null)
+})
+
 export default app
