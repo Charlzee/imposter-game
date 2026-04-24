@@ -1,8 +1,8 @@
 [
     {
-        "id":"foods_and_drinks",
+        "id": "foods_and_drinks",
         "display_name": "Foods and Drinks",
-        "difficulty_imposter":3,
+        "difficulty_imposter": 3,
         "words":[
             "Pizza",
             "Burger",
@@ -57,33 +57,6 @@
             "Donuts",
             "Cookies",
             "Christmas Dinner"
-        ]
-    },
-    {
-        "id":"test",
-        "display_name": "Test thing",
-        "difficulty_imposter":9999,
-        "words":[
-            "Word1",
-            "Word2",
-            "Word3",
-            "Word4",
-            "Word5",
-            "Word6",
-            "Word7",
-            "Word8",
-            "Word9",
-            "Word10",
-            "Word11",
-            "Word12",
-            "Word13",
-            "Word14",
-            "Word15",
-            "Word16",
-            "Word17",
-            "Word18",
-            "Word19",
-            "Word20"
         ]
     }
 ]
