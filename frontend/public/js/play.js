@@ -106,7 +106,8 @@ function startGame() {
     main.insertBefore(timerDisplay, document.getElementById('back-button'));
 
     const viewRolesBtn = document.createElement('button')
-    viewRolesBtn.id = 'titan-one-regular view-roles'
+    viewRolesBtn.id = 'view-roles'
+    viewRolesBtn.classList.add('titan-one-regular')
     viewRolesBtn.textContent = "View Roles"
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
 
