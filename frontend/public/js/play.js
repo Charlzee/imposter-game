@@ -111,6 +111,8 @@ function startGame() {
     viewRolesBtn.textContent = "View Roles"
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
 
+    const bigText = document.getElementById('big-text')
+    bigText.textContent = 'DISCUSS'
     
     const timer = setInterval(() => {
         time--;
