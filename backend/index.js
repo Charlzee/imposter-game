@@ -1,6 +1,5 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { serve } from '@hono/node-server'
 import { google } from 'googleapis'
 import path from 'path'
 import localWords from './words.json'
@@ -61,8 +60,4 @@ app.get("/words", async (c) => {
     }
 })
 
-console.log("Server running on http://localhost:3000")
-serve({
-    fetch: app.fetch,
-    port: 3000
-})
+export default app

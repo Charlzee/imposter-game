@@ -1,5 +1,8 @@
 {
     "name": "imposter-game-backend",
     "main": "index.js",
-    "compatibility_date": "2026-04-21"
+    "compatibility_date": "2026-04-21",
+    "compatibility_flags": [
+        "nodejs_compat"
+    ]
 }
