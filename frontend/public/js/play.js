@@ -107,8 +107,10 @@ function startGame() {
 
     const viewRolesBtn = document.createElement('button')
     viewRolesBtn.classList.add('titan-one-regular')
-    viewRolesBtn.textContent('Test')
+    viewRolesBtn.textContent = "View Roles"
+    main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
 
+    
     const timer = setInterval(() => {
         time--;
         timerDisplay.textContent = `Time Remaining: ${time}s`;
