@@ -105,6 +105,10 @@ function startGame() {
     timerDisplay.style.fontSize = '1.5rem';
     main.insertBefore(timerDisplay, document.getElementById('back-button'));
 
+    const viewRolesBtn = document.createElement('button')
+    viewRolesBtn.classList.add('titan-one-regular')
+    viewRolesBtn.textContent('Test')
+
     const timer = setInterval(() => {
         time--;
         timerDisplay.textContent = `Time Remaining: ${time}s`;
