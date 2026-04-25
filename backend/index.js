@@ -9,6 +9,10 @@ const credentials = JSON.parse(process.env.SERVICE_ACCOUNT)
 const app = new Hono()
 app.use("*", cors())
 
+let cachedWords = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 5 * 1000; // 5 seconds
+
 const docsWords = {
     "id": "docs",
     "display_name": "DOCS WORDS",
@@ -43,17 +47,23 @@ async function getDocsWords(docId) {
 }
 
 app.get("/words", async (c) => {
+    const now = Date.now();
+
+    if (cachedWords && (now - lastFetchTime < CACHE_TTL)) {
+        return c.json([...localWords, cachedWords]);
+    }
+
     try {
         const docsWords = await getDocsWords(process.env.DOCS_ID)
 
-        const docsWordsCategory = {
+        cachedWords = {
             "id": "docs",
             "display_name": "DOCS WORDS",
             "difficulty_imposter": '???',
             "words": docsWords
         }
 
-        return c.json([...localWords, docsWordsCategory])
+        return c.json([...localWords, cachedWords])
     } catch (err) {
         console.error(err)
         return c.json(localWords)
