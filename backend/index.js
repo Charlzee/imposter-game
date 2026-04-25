@@ -11,7 +11,7 @@ app.use("*", cors())
 
 let cachedWords = null;
 let lastFetchTime = 0;
-const CACHE_TTL = 5 * 1000; // 5 seconds
+const CACHE_TTL = 30 * 1000; // 30 seconds
 
 const docsWords = {
     "id": "docs",
