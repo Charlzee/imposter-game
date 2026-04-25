@@ -95,6 +95,10 @@ function hideRole(playerIndex){
     wordDisplay.textContent = 'Click \'Next\' to reveal!';
 }
 
+function viewRoles() {
+    const playerContainer = docum
+}
+
 function startGame() {
     const maxTime = 120;
     let time = maxTime;
