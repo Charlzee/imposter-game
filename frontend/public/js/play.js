@@ -96,7 +96,7 @@ function hideRole(playerIndex){
 }
 
 function viewRoles() {
-    const playerContainer = docum
+    const playerContainer = document.createElement('de')
 }
 
 function startGame() {
