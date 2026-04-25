@@ -3,6 +3,8 @@ import { getURLParameter, getRandomInt } from '../js/global.js';
 const response = await fetch("https://imposter-game-backend.charlzee.workers.dev/words");
 const data = await response.json();
 
+console.log("Fetched topics:", data);
+
 const main = document.getElementById('main')
 const roleDisplay = document.getElementById('role-display');
 

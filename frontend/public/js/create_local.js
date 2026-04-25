@@ -1,43 +1,52 @@
 const topic_container = document.getElementById("topic-container");
 
-const response = await fetch("https://imposter-game-backend.charlzee.workers.dev/words");
-const data = await response.json();
-
 async function fetchTopics() {
-    if (Array.isArray(data)) {
-        topic_container.innerHTML = "";
-        for (const topic of data) {
-            const topic_element = document.createElement("div");
-            topic_element.classList.add("topic");
-            topic_element.setAttribute("id", topic.id);
-            topic_element.addEventListener("click", () => selectTopic(topic.id));
+    try {
+        const response = await fetch("https://imposter-game-backend.charlzee.workers.dev/words");
+        const topics = await response.json();
 
-            const topic_title = document.createElement("h2");
-            topic_title.textContent = topic.display_name; 
-            
-            const stats_container = document.createElement("div");
-            stats_container.classList.add("topic-stats");
+        console.log("Fetched topics:", topics);
 
-            const difficulty = document.createElement("span");
-            difficulty.textContent = `Difficulty: ${topic.difficulty_imposter}`;
-            difficulty.style.fontSize = "0.8rem";
+        if (Array.isArray(topics)) {
+            topic_container.innerHTML = "";
+            for (const topic of topics) {
+                const topic_element = document.createElement("div");
+                topic_element.classList.add("topic");
+                topic_element.setAttribute("id", topic.id);
+                topic_element.addEventListener("click", () => selectTopic(topic.id));
 
-            const word_count = document.createElement("span");
-            word_count.textContent = `Word Count: ${topic.words.length}`;
-            word_count.style.fontSize = "0.8rem";
+                const topic_title = document.createElement("h2");
+                topic_title.textContent = topic.display_name; 
 
-            topic_element.appendChild(topic_title);
-            topic_element.appendChild(stats_container);
-            stats_container.appendChild(difficulty);
-            stats_container.appendChild(word_count);
-            topic_container.appendChild(topic_element);
+                const stats_container = document.createElement("div");
+                stats_container.classList.add("topic-stats");
+
+                const difficulty = document.createElement("span");
+                difficulty.textContent = `Difficulty: ${topic.difficulty_imposter}`;
+                difficulty.style.fontSize = "0.8rem";
+
+                const word_count = document.createElement("span");
+                word_count.textContent = `Word Count: ${topic.words.length}`;
+                word_count.style.fontSize = "0.8rem";
+
+                topic_element.appendChild(topic_title);
+                topic_element.appendChild(stats_container);
+                stats_container.appendChild(difficulty);
+                stats_container.appendChild(word_count);
+                topic_container.appendChild(topic_element);
+
+                if (topic.id === "docs") {
+                    topic_element.style.backgroundImage = "linear-gradient(180deg, rgb(255, 0, 212) 0%, rgb(167, 91, 255) 100%)";
+                }
+            }
         }
+    } catch (error) {
+        console.error("Failed to fetch topics:", error);
+        topic_container.innerHTML = "<span>Error loading topics.</span>";
     }
 
     const savedTopic = localStorage.getItem("selected_topic");
-    if (savedTopic) {
-        selectTopic(savedTopic);
-    }
+    if (savedTopic) selectTopic(savedTopic);
 
     renderPlayers();
 }
@@ -48,15 +57,22 @@ async function selectTopic(topic_id) {
 
     const previousId = localStorage.getItem("selected_topic");
     if (previousId) {
-        const current_selected = document.getElementById(previousId);
-        if (current_selected) current_selected.classList.remove("is-selected");
+        const prev_element = document.getElementById(previousId);
+        if (prev_element) {
+            prev_element.classList.remove("is-selected", "docs");
+        }
     }
 
     localStorage.setItem("selected_topic", topic_id);
+
     topic_element.classList.add("is-selected");
+    if (topic_id === "docs") {
+        topic_element.classList.add("docs");
+    }
 }
 
 function renderPlayers() {
+    console.log("Rendering players...");
     const player_container = document.getElementById("player-container");
     player_container.innerHTML = "";
 

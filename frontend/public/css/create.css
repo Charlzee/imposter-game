@@ -132,6 +132,10 @@
     background-image: linear-gradient(180deg, rgb(0, 78, 0) 0%, rgb(0, 98, 0) 100%) !important;
 }
 
+.topic.is-selected.docs {
+    background-image: linear-gradient(180deg, rgb(43, 255, 0) 0%, rgb(245, 130, 255) 100%) !important;
+}
+
 .topic-stats {
     display: flex;
     gap: 20px;
