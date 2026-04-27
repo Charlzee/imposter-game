@@ -12,7 +12,9 @@ const selectedTopicId = localStorage.getItem('selected_topic');
 const selectedTopic = data.find(topic => topic.id === selectedTopicId);
 
 const words = selectedTopic.words;
-const selectedWord = words[getRandomInt(words.length)];
+let selectedWord = null;
+
+let viewingRoles = false;
 
 let imposter = null;
 let imposterIndex = null;
@@ -24,6 +26,12 @@ function getLocal(){
     return isLocal
 }
 
+function createSelectedWord(){
+    const selectedWord = words[getRandomInt(words.length)];
+    localStorage.setItem('selected_word', btoa(selectedWord));
+    return selectedWord;
+}
+
 function decidePlayerList(players){
     let maxImpostersReached = false;
 
@@ -33,7 +41,6 @@ function decidePlayerList(players){
     localStorage.setItem('imposter', imposter);
 
     console.log(imposter);
-    console.log('test')
 }
 
 function displayRole(playerIndex){
@@ -96,10 +103,39 @@ function hideRole(playerIndex){
 }
 
 function viewRoles() {
-    const playerContainer = document.createElement('div')
-    const players = localStorage.getItem('current_players')
-    
-    console.log(players)
+    const playerContainer = document.createElement('div');
+    const players = JSON.parse(localStorage.getItem('current_players'));
+    const word = selectedWord;
+    const imposter = localStorage.getItem('imposter');
+
+    if (viewingRoles === false) {
+        viewingRoles = true;
+
+        const wordDisplay = document.createElement('div');
+        wordDisplay.id = 'word-display';
+        wordDisplay.textContent = `Word: ${word}`;
+        main.appendChild(wordDisplay, document.getElementById('view-roles'));
+
+        players.forEach(player => {
+            const playerElement = document.createElement('div');
+
+            playerContainer.id = 'roles-list';
+
+            playerElement.classList.add('player-view-role');
+            playerElement.textContent = player.player_name + (player.player_name === imposter ? ' (Imposter)' : '');
+            playerContainer.appendChild(playerElement);
+        });
+    }else{
+        if (document.getElementById('roles-list')) {
+            viewingRoles = false;
+            document.getElementById('roles-list').remove();
+            document.getElementById('word-display').remove();
+        }
+    }
+
+    console.log(players, imposter);
+
+    main.appendChild(playerContainer, document.getElementById('view-roles'));
 }
 
 function startGame() {
@@ -116,6 +152,7 @@ function startGame() {
     viewRolesBtn.id = 'view-roles'
     viewRolesBtn.classList.add('titan-one-regular')
     viewRolesBtn.textContent = "View Roles"
+    viewRolesBtn.addEventListener('click', viewRoles)
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
 
     const bigText = document.getElementById('big-text')
@@ -138,11 +175,13 @@ function init() {
     if (localStorage.getItem('game_started') === 'true') {
         roleDisplay.remove();
         document.getElementById('ready-button').remove();
+        selectedWord = atob(localStorage.getItem('selected_word'));
         startGame();
         return;
     }
 
     decidePlayerList(localStorage.getItem('current_players'));
+    selectedWord = createSelectedWord();
     hideRole(currentIndex);
 }
 
@@ -162,5 +201,7 @@ document.getElementById('ready-button').addEventListener('click', () => {
         startGame();
     }
 });
+
+
 
 init();
