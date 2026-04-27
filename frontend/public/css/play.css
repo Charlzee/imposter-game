@@ -140,12 +140,12 @@
     margin-bottom: 20px;
 }
 
-#ready-button:hover, #back-button:hover {
+#ready-button:hover, #back-button:hover, #view-roles:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
 }
 
-#ready-button:active, #back-button:active {
+#ready-button:active, #back-button:active, #view-roles:active {
     transform: scale(0.95);
     filter: brightness(0.8);
     transition: transform 0.05s;
