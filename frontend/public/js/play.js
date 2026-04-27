@@ -97,6 +97,9 @@ function hideRole(playerIndex){
 
 function viewRoles() {
     const playerContainer = document.createElement('div')
+    const players = localStorage.getItem('current_players')
+    
+    console.log(players)
 }
 
 function startGame() {
@@ -159,6 +162,5 @@ document.getElementById('ready-button').addEventListener('click', () => {
         startGame();
     }
 });
-
 
 init();
