@@ -122,7 +122,7 @@ function viewRoles() {
             playerContainer.id = 'roles-list';
 
             playerElement.classList.add('player-view-role');
-            playerElement.textContent = player.player_name + (player.player_name === imposter ? ' (Imposter)' : '');
+            playerElement.textContent = player.player_name + (player.player_name === imposter ? ' (Imposter)' : ' (Innocent)');
             playerContainer.appendChild(playerElement);
         });
     }else{
