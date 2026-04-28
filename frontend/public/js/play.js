@@ -28,7 +28,7 @@ function getLocal(){
 
 function createSelectedWord(){
     const selectedWord = words[getRandomInt(words.length)];
-    localStorage.setItem('selected_word', btoa(selectedWord));
+    localStorage.setItem('selected_word', btoa(encodeURIComponent(selectedWord)));
     return selectedWord;
 }
 
@@ -175,7 +175,7 @@ function init() {
     if (localStorage.getItem('game_started') === 'true') {
         roleDisplay.remove();
         document.getElementById('ready-button').remove();
-        selectedWord = atob(localStorage.getItem('selected_word'));
+        selectedWord = decodeURIComponent(atob(localStorage.getItem('selected_word')));
         startGame();
         return;
     }
