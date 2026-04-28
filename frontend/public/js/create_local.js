@@ -2,7 +2,7 @@ const topic_container = document.getElementById("topic-container");
 
 async function fetchTopics() {
     try {
-        const response = await fetch("/api/words");
+        const response = await fetch("https://imposter-gm.com/api/words");
         const topics = await response.json();
 
         console.log("Fetched topics:", topics);

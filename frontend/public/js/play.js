@@ -1,6 +1,6 @@
 import { getURLParameter, getRandomInt } from '../js/global.js';
 
-const response = await fetch("/api/words");
+const response = await fetch("https://imposter-gm.com/api/words");
 const data = await response.json();
 
 console.log("Fetched topics:", data);
