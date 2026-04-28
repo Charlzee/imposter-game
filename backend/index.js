@@ -15,13 +15,6 @@ let cachedWords = null;
 let lastFetchTime = 0;
 const CACHE_TTL = 30 * 1000; // 30 seconds
 
-const docsWords = {
-    "id": "docs",
-    "display_name": "DOCS WORDS",
-    "difficulty_imposter": '???',
-    "words":[]
-}
-
 async function getDocsWords(docId, auth) {
     const docs = google.docs({ version: 'v1', auth });
     const res = await docs.documents.get({ 
