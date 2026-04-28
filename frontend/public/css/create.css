@@ -1,11 +1,13 @@
-.topics { /*Topic Container*/
+.topics {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
     gap: 20px;
     padding: 20px;
-
-    border:none;
+    
+    border: none;
     background: none;
 }
 
@@ -32,6 +34,12 @@
     background-image: linear-gradient(180deg, rgb(85, 0, 130) 0%, rgb(85, 20, 90) 100%);
     background-attachment: scroll;
     color: aliceblue;
+}
+
+.topic {
+    justify-content: center;
+    text-align: center;
+    align-items: center;
 }
 
 .player-container, .player-add-container {
