@@ -35,15 +35,21 @@ async function getDocsWords(docId, auth) {
         tabs.forEach(tab => {
             console.log("Tab Object Keys:", Object.keys(tab));
 
-            const tabData = tab.documentTab || tab; 
+            const actualTabId = tab.tabId || "unknown-id";
 
-            const actualTabId = tab.tabId || tabData.tabId;
-            const actualTitle = tabData.title || tab.title || "Untitled Tab";
+            let actualTitle = "Untitled Tab";
+            if (tab.documentTab && tab.documentTab.title) {
+                actualTitle = tab.documentTab.title;
+            } else if (tab.title) {
+                actualTitle = tab.title;
+            }
 
-            console.log(`Processing Tab: ID=${actualTabId}, Title=${actualTitle}`);
+            console.log(`Successfully identified -> ID: ${actualTabId}, Title: ${actualTitle}`);
 
-            if (tabData.body) {
-                const words = extractWordsFromContent(tabData.body.content || []);
+            const bodySource = tab.documentTab ? tab.documentTab.body : tab.body;
+            
+            if (bodySource && bodySource.content) {
+                const words = extractWordsFromContent(bodySource.content);
                 tabsResult.push({
                     tabId: actualTabId, 
                     title: actualTitle,
@@ -51,7 +57,7 @@ async function getDocsWords(docId, auth) {
                 });
             }
 
-            if (tab.childTabs) {
+            if (tab.childTabs && tab.childTabs.length > 0) {
                 processTabs(tab.childTabs);
             }
         });
@@ -69,7 +75,7 @@ async function getDocsWords(docId, auth) {
         content.forEach(value => {
             if (value.paragraph) {
                 value.paragraph.elements.forEach(el => {
-                    if (el.textRun){text += el.textRun.content; console.log(el.textRun.content);}
+                    if (el.textRun) text += el.textRun.content;
 
                 });
             }
