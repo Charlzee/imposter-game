@@ -29,25 +29,32 @@ async function getDocsWords(docId, auth) {
     
     let tabsResult = [];
 
-    if (res.data.tabs) { // With Tabs
-        res.data.tabs.forEach(tab => {
-            if (tab.documentTab && tab.documentTab.body) {
-                const words = extractWordsFromContent(tab.documentTab.body.content);
+    const processTabs = (tabs) => {
+        if (!tabs) return;
+
+        tabs.forEach(tab => {
+            if (tab.documentTab) {
+                const docTab = tab.documentTab;
+                const words = extractWordsFromContent(docTab.body?.content || []);
+                
                 tabsResult.push({
-                    tabId: tab.tabId,
-                    title: tab.documentTab.title || "Untitled Tab",
+                    tabId: tab.tabId, 
+                    title: docTab.title || "Untitled Tab",
                     words: words
                 });
             }
+
+            if (tab.childTabs) {
+                processTabs(tab.childTabs);
+            }
         });
-    }
-    else if (res.data.body && res.data.body.content) { // No Tabs
-        const words = extractWordsFromContent(res.data.body.content);
-        tabsResult.push({
-            tabId: "main",
-            title: "Main Document",
-            words: words
-        });
+    };
+
+    if (res.data.tabs) {
+        processTabs(res.data.tabs);
+    } else if (res.data.body) {
+        const words = extractWordsFromContent(res.data.body.content || []);
+        tabsResult.push({ tabId: "main", title: "Main Document", words });
     }
 
     function extractWordsFromContent(content) {
@@ -59,10 +66,7 @@ async function getDocsWords(docId, auth) {
                 });
             }
         });
-
-        return text.split('\n')
-            .map(word => word.trim())
-            .filter(word => word.length > 0);
+        return text.split('\n').map(w => w.trim()).filter(w => w.length > 0);
     }
 
     return tabsResult;
