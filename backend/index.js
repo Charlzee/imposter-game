@@ -33,23 +33,14 @@ async function getDocsWords(docId, auth) {
         if (!tabs) return;
 
         tabs.forEach(tab => {
-            console.log("Tab Object Keys:", Object.keys(tab));
-
-            const actualTabId = tab.tabId || "unknown-id";
-
-            let actualTitle = "Untitled Tab";
-            if (tab.documentTab && tab.documentTab.title) {
-                actualTitle = tab.documentTab.title;
-            } else if (tab.title) {
-                actualTitle = tab.title;
-            }
+            const props = tab.tabProperties || {};
+            const actualTabId = props.tabId || "unknown-id";
+            const actualTitle = props.title || "Untitled Tab";
 
             console.log(`Successfully identified -> ID: ${actualTabId}, Title: ${actualTitle}`);
 
-            const bodySource = tab.documentTab ? tab.documentTab.body : tab.body;
-            
-            if (bodySource && bodySource.content) {
-                const words = extractWordsFromContent(bodySource.content);
+            if (tab.documentTab && tab.documentTab.body) {
+                const words = extractWordsFromContent(tab.documentTab.body.content || []);
                 tabsResult.push({
                     tabId: actualTabId, 
                     title: actualTitle,
@@ -57,7 +48,7 @@ async function getDocsWords(docId, auth) {
                 });
             }
 
-            if (tab.childTabs && tab.childTabs.length > 0) {
+            if (tab.childTabs) {
                 processTabs(tab.childTabs);
             }
         });
@@ -76,7 +67,6 @@ async function getDocsWords(docId, auth) {
             if (value.paragraph) {
                 value.paragraph.elements.forEach(el => {
                     if (el.textRun) text += el.textRun.content;
-
                 });
             }
         });
