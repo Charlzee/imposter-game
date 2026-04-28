@@ -28,8 +28,12 @@ const auth = new google.auth.GoogleAuth({
 
 async function getDocsWords(docId) {
     const docs = google.docs({ version: 'v1', auth })
-    const res = await docs.documents.get({ documentId: docId })
+    const res = await docs.documents.get({ documentId: docId, includeTabsContent: true})
     
+    let tabs = []
+    
+    console.log(docs.tabs)
+
     const content = res.data.body.content || []
     let text = ""
     
