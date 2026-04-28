@@ -35,7 +35,7 @@ async function fetchTopics() {
                 stats_container.appendChild(word_count);
                 topic_container.appendChild(topic_element);
 
-                if (topic.id === "docs") {
+                if (topic.id.includes("docs")) {
                     topic_element.style.backgroundImage = "linear-gradient(180deg, rgb(255, 0, 212) 0%, rgb(167, 91, 255) 100%)";
                 }
             }
@@ -66,7 +66,7 @@ async function selectTopic(topic_id) {
     localStorage.setItem("selected_topic", topic_id);
 
     topic_element.classList.add("is-selected");
-    if (topic_id === "docs") {
+    if (topic_id.includes("docs")) {
         topic_element.classList.add("docs");
     }
 }

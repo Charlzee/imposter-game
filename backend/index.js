@@ -78,24 +78,31 @@ app.get("/words", async (c) => {
     const now = Date.now();
 
     if (cachedWords && (now - lastFetchTime < CACHE_TTL)) {
-        return c.json([...localWords, cachedWords]);
+        return c.json([...localWords, ...cachedWords]);
     }
 
     try {
-        const docsWords = await getDocsWords(process.env.DOCS_ID)
+        const credentials = JSON.parse(c.env.SERVICE_ACCOUNT);
+        const docId = c.env.DOCS_ID;
 
-        cachedWords = {
-            "id": "docs",
-            "display_name": "DOCS WORDS",
+        const tabsData = await getDocsWords(docId, credentials);
+
+        const formattedTabs = tabsData.map(tab => ({
+            "id": `docs_${tab.tabId}`,
+            "display_name": tab.title.toUpperCase(),
             "difficulty_imposter": '???',
-            "words": docsWords
-        }
+            "words": tab.words
+        }));
 
-        return c.json([...localWords, cachedWords])
+        cachedWords = formattedTabs;
+        lastFetchTime = now;
+
+        return c.json([...localWords, ...formattedTabs]);
     } catch (err) {
-        console.error(err)
-        return c.json(localWords)
+        console.error("Fetch Error:", err.message);
+        if (cachedWords) return c.json([...localWords, ...cachedWords]);
+        return c.json(localWords);
     }
-})
+});
 
 export default app
