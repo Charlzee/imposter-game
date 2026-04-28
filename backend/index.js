@@ -33,19 +33,17 @@ async function getDocsWords(docId, auth) {
         if (!tabs) return;
 
         tabs.forEach(tab => {
+            console.log(`Processing Tab: ID=${tab.tabId}, Title=${tab.documentTab?.title}`);
+
             if (tab.documentTab) {
                 const docTab = tab.documentTab;
                 const words = extractWordsFromContent(docTab.body?.content || []);
                 
                 tabsResult.push({
                     tabId: tab.tabId, 
-                    title: docTab.title || "Untitled Tab",
+                    title: docTab.title || tab.title || "Untitled Tab",
                     words: words
                 });
-            }
-
-            if (tab.childTabs) {
-                processTabs(tab.childTabs);
             }
         });
     };
