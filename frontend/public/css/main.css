@@ -26,6 +26,29 @@ body {
     padding: 20px;
 }
 
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #9568ff;
+    border-bottom: 2px solid #6f00ff;
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    padding: 0 20px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
 .big-container, .small-button, .small-container {
     display: flex;
     flex-direction: column;

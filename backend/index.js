@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { sign } from 'hono/jwt'
 import { google } from 'googleapis'
+import bcrypt from 'bcryptjs'
 import path from 'path'
 import localWords from './words.json'
 
@@ -112,6 +114,63 @@ app.get("/words", async (c) => {
         if (cachedWords) return c.json([...localWords, ...cachedWords]);
         return c.json(localWords);
     }
+});
+
+
+// Accounts
+app.post('/register', async (c) => {
+  try {
+    const { username, password } = await c.req.json();
+
+    if (!username || !password) {
+      return c.json({ error: "Username and password required" }, 400);
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    await c.env.D1.prepare(
+      "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+    ).bind(username, hashedPassword).run();
+
+    return c.json({ message: "User registered!" }, 201);
+
+  } catch (err) {
+    if (err.message.includes("UNIQUE constraint failed")) {
+      return c.json({ error: "Username already taken" }, 409);
+    }
+    return c.json({ error: "Database error", details: err.message }, 500);
+  }
+});
+
+app.post('/login', async (c) => {
+    const { username, password } = await c.req.json();
+
+    const user = await c.env.D1.prepare(
+    "SELECT * FROM users WHERE username = ?"
+    ).bind(username).first();
+
+    if (!user) {
+        return c.json({ error: "Invalid username or password" }, 401);
+    }
+
+    const isValid = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValid) {
+        return c.json({ error: "Invalid username or password" }, 401);
+    }
+
+    const payload = {
+        username: user.username,
+        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24), // 1 day expiry
+    };
+
+    const token = await sign(payload, c.env.JWT_SECRET);
+
+    return c.json({
+        message: "Login successful!",
+        token: token
+    });
 });
 
 export default app

@@ -10,5 +10,12 @@
         "enabled": true,
         "invocation_logs": true
         }
-    }
+    },
+    "d1_databases": [
+        {
+            "binding": "D1",
+            "database_name": "imposter-game-db",
+            "database_id": "ce6e288e-c8aa-4437-adbd-1b29eb9ab4e6"
+        }
+    ]
 }
