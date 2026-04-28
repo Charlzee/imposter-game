@@ -20,13 +20,7 @@ const docsWords = {
     "words":[]
 }
 
-// Configure Google Auth
-const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ['https://www.googleapis.com/auth/documents.readonly'],
-})
-
-async function getDocsWords(docId) {
+async function getDocsWords(docId, auth) {
     const docs = google.docs({ version: 'v1', auth });
     const res = await docs.documents.get({ 
         documentId: docId, 
@@ -85,7 +79,12 @@ app.get("/words", async (c) => {
         const credentials = JSON.parse(c.env.SERVICE_ACCOUNT);
         const docId = c.env.DOCS_ID;
 
-        const tabsData = await getDocsWords(docId, credentials);
+        const auth = new google.auth.GoogleAuth({
+            credentials,
+            scopes: ['https://www.googleapis.com/auth/documents.readonly'],
+        });
+
+        const tabsData = await getDocsWords(docId, auth);
 
         const formattedTabs = tabsData.map(tab => ({
             "id": `docs_${tab.tabId}`,
