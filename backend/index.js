@@ -8,7 +8,7 @@ import localWords from './words.json'
 
 const credentials = JSON.parse(process.env.SERVICE_ACCOUNT)
 
-const app = new Hono()
+const app = new Hono().basePath("/api")
 app.use("*", cors())
 
 let cachedWords = null;
