@@ -27,27 +27,51 @@ const auth = new google.auth.GoogleAuth({
 })
 
 async function getDocsWords(docId) {
-    const docs = google.docs({ version: 'v1', auth })
-    const res = await docs.documents.get({ documentId: docId, includeTabsContent: true})
+    const docs = google.docs({ version: 'v1', auth });
+    const res = await docs.documents.get({ 
+        documentId: docId, 
+        includeTabsContent: true 
+    });
     
-    let tabs = []
-    
-    console.log(docs.tabs)
+    let tabsResult = [];
 
-    const content = res.data.body.content || []
-    let text = ""
-    
-    content.forEach(value => {
-        if (value.paragraph) {
-            value.paragraph.elements.forEach(el => {
-                if (el.textRun) text += el.textRun.content
-            })
-        }
-    })
+    if (res.data.tabs) { // With Tabs
+        res.data.tabs.forEach(tab => {
+            if (tab.documentTab && tab.documentTab.body) {
+                const words = extractWordsFromContent(tab.documentTab.body.content);
+                tabsResult.push({
+                    tabId: tab.tabId,
+                    title: tab.documentTab.title || "Untitled Tab",
+                    words: words
+                });
+            }
+        });
+    }
+    else if (res.data.body && res.data.body.content) { // No Tabs
+        const words = extractWordsFromContent(res.data.body.content);
+        tabsResult.push({
+            tabId: "main",
+            title: "Main Document",
+            words: words
+        });
+    }
 
-    return text.split('\n')
-        .map(word => word.trim())
-        .filter(word => word.length > 0)
+    function extractWordsFromContent(content) {
+        let text = "";
+        content.forEach(value => {
+            if (value.paragraph) {
+                value.paragraph.elements.forEach(el => {
+                    if (el.textRun) text += el.textRun.content;
+                });
+            }
+        });
+
+        return text.split('\n')
+            .map(word => word.trim())
+            .filter(word => word.length > 0);
+    }
+
+    return tabsResult;
 }
 
 app.get("/words", async (c) => {
