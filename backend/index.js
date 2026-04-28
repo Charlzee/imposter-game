@@ -62,12 +62,15 @@ async function getDocsWords(docId, auth) {
         content.forEach(value => {
             if (value.paragraph) {
                 value.paragraph.elements.forEach(el => {
-                    if (el.textRun) text += el.textRun.content;
+                    if (el.textRun){text += el.textRun.content; console.log(el.textRun.content);}
+
                 });
             }
         });
         return text.split('\n').map(w => w.trim()).filter(w => w.length > 0);
     }
+
+    console.log(tabsResult)
 
     return tabsResult;
 }
