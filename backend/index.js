@@ -159,7 +159,7 @@ app.post('/login', async (c) => {
         exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24), // 1 day expiry
     };
 
-    const token = await sign(payload, c.env.JWT_SECRET);
+    const token = await sign(payload, c.env.JWT_SECRET, "HS256");
 
     return c.json({
         message: "Login successful!",
@@ -170,6 +170,7 @@ app.post('/login', async (c) => {
 app.use('/auth/*', async (c, next) => {
     const jwtMiddleware = jwt({
         secret: c.env.JWT_SECRET,
+        alg: 'HS256'
     })
     return jwtMiddleware(c, next)
 })
