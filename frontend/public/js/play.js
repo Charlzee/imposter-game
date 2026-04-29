@@ -139,7 +139,7 @@ function viewRoles() {
 }
 
 async function addLocalPlaysToStats(plays) {
-    const token = localStorage.getItem('game_token');
+    const token = localStorage.getItem('token');
 
     const response = await fetch("https://imposter-gm.com/api/auth/update-stats", {
         method: "POST",
