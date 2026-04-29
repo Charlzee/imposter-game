@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { sign } from 'hono/jwt'
+import { jwt } from 'hono/jwt'
 import { google } from 'googleapis'
 import bcrypt from 'bcryptjs'
 import path from 'path'
