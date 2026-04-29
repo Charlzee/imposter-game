@@ -196,8 +196,8 @@ app.post('/auth/update-stats', async (c) => {
         let currentData = JSON.parse(user.game_data || '{}');
 
         // Update values
-        currentData.wins = (currentData.wins || 0) + wins;
-        currentData.xp = (currentData.xp || 0) + xp;
+        currentData.local_plays = (currentData.local_plays || 0) + (local_plays || 0);
+        currentData.xp = (currentData.xp || 0) + (xp || 0);
 
         // Save to D1
         await c.env.D1.prepare("UPDATE users SET game_data = ? WHERE username = ?")
@@ -206,6 +206,7 @@ app.post('/auth/update-stats', async (c) => {
 
         return c.json({ success: true, newData: currentData });
     } catch (e) {
+        console.error(e)
         return c.json({ error: "Failed to update stats" }, 500);
     }
 });
