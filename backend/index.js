@@ -31,6 +31,7 @@ async function getDocsWords(docId, auth) {
             const props = tab.tabProperties || {};
             const actualTabId = props.tabId || "unknown-id";
             const actualTitle = props.title || "Untitled Tab";
+>>>>>>> 4f5b87b7e8c46e7c3f294211f14b4e42956d5131
 
             console.log(`Successfully identified -> ID: ${actualTabId}, Title: ${actualTitle}`);
 
