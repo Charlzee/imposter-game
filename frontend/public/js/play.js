@@ -156,7 +156,7 @@ async function addLocalPlaysToStats(plays) {
     console.log("Updated Stats:", result.newData);
 }
 
-async function startGame() {
+async function startGame(updateStats=true) {
     const maxTime = 120;
     let time = maxTime;
 
@@ -186,12 +186,14 @@ async function startGame() {
         }
     }, 1000);
 
-    try {
-        await addLocalPlaysToStats(1);
-        console.log("Game progress synced");
-    } catch (error) {
-        console.warn("Could not sync stats");
-    }
+    if (updateStats){
+        try {
+            await addLocalPlaysToStats(1);
+            console.log("Game progress synced");
+        } catch (error) {
+            console.warn("Could not sync stats");
+        }
+    }  
 }
 
 let currentIndex = 1;
@@ -201,7 +203,7 @@ function init() {
         roleDisplay.remove();
         document.getElementById('ready-button').remove();
         selectedWord = decodeURIComponent(atob(localStorage.getItem('selected_word')));
-        startGame();
+        startGame(false);
         return;
     }
 
