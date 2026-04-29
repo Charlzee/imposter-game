@@ -13,5 +13,6 @@ regButton.onclick(e => {
         headers: {
             "Content-type": "application/json; charset=UTF-8"
         }
-    })
+    }),
+        registerContainer.textContent = regResponse
 })
