@@ -184,7 +184,7 @@ app.post('/auth/update-stats', async (c) => {
     const payload = c.get('jwtPayload');
     const username = payload.username;
 
-    const { wins, xp } = await c.req.json();
+    const { local_plays, xp } = await c.req.json();
 
     try {
         // Fetch data
