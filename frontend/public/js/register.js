@@ -1,1 +1,93 @@
+const registerContainer = document.getElementById("register-info-container")
+const username = document.getElementById("username").textContent
+const password = document.getElementById("password").textContent
+const regButton = document.getElementById("register-button")
 
+regButton.onclick(e => {
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>Imposter Game - English Revision</title>
+    <meta name="title" content="Imposter Game - English Revision" />
+    <meta name="description" content="An interactive English revision platform for students focusing on vocabulary, grammar, and literature exam prep." />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://imposter-gm.com/" />
+    <meta property="og:title" content="Imposter Game - English Revision" />
+    <mexta property="og:description" content="An interactive English revision platform for students focusing on vocabulary, grammar, and literature exam prep." />
+    <meta property="og:image" content="https://imposter-gm.com/images/preview.png" />
+
+    <!-- X (Twitter) -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://imposter-gm.com/" />
+    <meta property="twitter:title" content="Imposter Game - English Revision" />
+    <meta property="twitter:description" content="An interactive English revision platform for students focusing on vocabulary, grammar, and literature exam prep." />
+    <meta property="twitter:image" content="https://imposter-gm.com/images/preview.png" />
+
+    <meta name="keywords" content="English revision, GCSE English, literacy tool, vocabulary game, classroom activity, SPAG, education, learning resources">
+    <meta name="subject" content="Education - English Language">
+    <meta name="robots" content="index, follow">
+
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./css/main.css">
+
+</head>
+<body>
+    <header class="game-header titan-one-regular">
+        <div class="header-content">
+            <h1 class="logo">IMPOSTER GAME</h1>
+            <button class="profile-button">Profile</button>
+        </div>
+    </header>
+
+    <h1 style="font-size: 1px; color: transparent; margin: 0;">Interactive English Grammar & Vocabulary Revision Tool</h1>
+
+    <div class="big-container titan-one-regular" data-label="revision-session">
+        <span style="display:none;">Complete English Grammar Module 1</span>
+    </div>
+
+    
+    <div class="small-grid">
+        <button class="small-button titan-one-regular" data-label="host-study"></button>
+        
+        <button class="small-button titan-one-regular" data-label="join-study" onclick="window.location.href='join.html'"></button>
+    </div>
+
+    <div class="big-container titan-one-regular" data-label="local-session"></div>
+
+    <div class="small-grid">
+        <button class="small-button titan-one-regular" data-label="create-local" onclick="window.location.href='create/local.html'"></button>
+        
+        <button class="small-button titan-one-regular" data-label="create-lan"></button>
+        
+        <button class="small-button titan-one-regular" data-label="join-lan" onclick="window.location.href='join.html'"></button>
+    </div>
+</body>
+<div id="educational-context">
+<footer>
+    <p>&copy; 2026 Imposter Game. All rights reserved.</p>
+    About Imposter-GM: <b>Interactive English Language Revision Tool</b><br>
+    <br>
+    <b>Overview</b><br>
+    Imposter-GM is an <b>interactive pedagogical resource</b> designed to facilitate English Language and Literature revision. By using gamified mechanics, the platform assists students in mastering key curriculum objectives, including vocabulary acquisition, grammatical syntax, and literary analysis.<br>
+    <br>
+    <b>Learning Objectives</b><br>
+    <b>Lexical Development</b>: Enhancing student engagement with complex tier-two and tier-three vocabulary.<br>
+    <b>Grammar Reinforcement</b>: Real-time application of punctuation, spelling, and grammar (SPAG) rules through interactive challenges.<br>
+    <b>Critical Thinking</b>: Encouraging students to apply contextual knowledge of English texts in a fast-paced environment.<br>
+    <br>
+    <b>Classroom Utility</b><br>
+    This tool is intended for use as a formative assessment or a plenary activity to reinforce lesson content. It aligns with standard English National Curriculum (or your local equivalent) standards for secondary education.<br>
+</footer>
+</div>
+</html>
+})
