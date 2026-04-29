@@ -166,4 +166,16 @@ app.post('/login', async (c) => {
     });
 });
 
+app.use('/auth/*', async (c, next) => {
+    const jwtMiddleware = jwt({
+        secret: c.env.JWT_SECRET,
+    })
+    return jwtMiddleware(c, next)
+})
+
+app.get('/auth/me', (c) => {
+    const payload = c.get('jwtPayload')
+    return c.json({ message: "Token is valid!", user: payload.username })
+})
+
 export default app
