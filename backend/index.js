@@ -184,30 +184,45 @@ app.post('/auth/update-stats', async (c) => {
     const payload = c.get('jwtPayload');
     const username = payload.username;
 
-    const { local_plays, xp } = await c.req.json();
+    const body = await c.req.json().catch(() => ({}));
+    const local_plays = body.local_plays || 0;
+    const xp = body.xp || 0;
 
     try {
         // Fetch data
         const user = await c.env.D1.prepare("SELECT game_data FROM users WHERE username = ?")
-        .bind(username)
-        .first();
+            .bind(username)
+            .first();
 
-        // Parse JSON
-        let currentData = JSON.parse(user.game_data || '{}');
+        if (!user) {
+            console.error(`User ${username} not found in DB`);
+            return c.json({ error: "User not found" }, 404);
+        }
+
+        // Parse existing JSON
+        let currentData = {};
+        try {
+            currentData = JSON.parse(user.game_data || '{}');
+        } catch (parseError) {
+            console.error("JSON Parse Error, resetting data:", parseError);
+            currentData = {};
+        }
 
         // Update values
-        currentData.local_plays = (currentData.local_plays || 0) + (local_plays || 0);
-        currentData.xp = (currentData.xp || 0) + (xp || 0);
+        currentData.local_plays = (currentData.local_plays || 0) + local_plays;
+        currentData.xp = (currentData.xp || 0) + xp;
 
         // Save to D1
-        await c.env.D1.prepare("UPDATE users SET game_data = ? WHERE username = ?")
-        .bind(JSON.stringify(currentData), username)
-        .run();
+        const info = await c.env.D1.prepare("UPDATE users SET game_data = ? WHERE username = ?")
+            .bind(JSON.stringify(currentData), username)
+            .run();
+
+        console.log(`Update Result for ${username}:`, info.meta.changes, "rows changed.");
 
         return c.json({ success: true, newData: currentData });
     } catch (e) {
-        console.error(e)
-        return c.json({ error: "Failed to update stats" }, 500);
+        console.error("Internal Server Error:", e.message);
+        return c.json({ error: "Failed to update stats", details: e.message }, 500);
     }
 });
 
