@@ -180,4 +180,34 @@ app.get('/auth/me', (c) => {
     return c.json({ message: "Token is valid!", user: payload.username })
 })
 
+app.post('/auth/update-stats', async (c) => {
+    const payload = c.get('jwtPayload');
+    const username = payload.username;
+
+    const { wins, xp } = await c.req.json();
+
+    try {
+        // Fetch data
+        const user = await c.env.D1.prepare("SELECT game_data FROM users WHERE username = ?")
+        .bind(username)
+        .first();
+
+        // Parse JSON
+        let currentData = JSON.parse(user.game_data || '{}');
+
+        // Update values
+        currentData.wins = (currentData.wins || 0) + wins;
+        currentData.xp = (currentData.xp || 0) + xp;
+
+        // Save to D1
+        await c.env.D1.prepare("UPDATE users SET game_data = ? WHERE username = ?")
+        .bind(JSON.stringify(currentData), username)
+        .run();
+
+        return c.json({ success: true, newData: currentData });
+    } catch (e) {
+        return c.json({ error: "Failed to update stats" }, 500);
+    }
+});
+
 export default app

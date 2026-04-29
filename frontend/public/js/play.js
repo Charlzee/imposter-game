@@ -51,8 +51,8 @@ function displayRole(playerIndex){
 
     roleTitle.textContent = `Player ${playerIndex} role:`;
 
-    const player = JSON.parse(localStorage.getItem('current_players'))[playerIndex - 1].player_name;
-    
+    const player = JSON.parse(localStorage.getItem('current_players') || '[]')[playerIndex - 1]?.player_name || "Unknown Player";
+
     console.log(player);
     console.log(imposter);
 
@@ -138,7 +138,25 @@ function viewRoles() {
     main.appendChild(playerContainer, document.getElementById('view-roles'));
 }
 
-function startGame() {
+async function addLocalPlaysToStats(plays) {
+    const token = localStorage.getItem('game_token');
+
+    const response = await fetch("https://imposter-gm.com/api/auth/update-stats", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            local_plays: plays,
+        })
+    });
+
+    const result = await response.json();
+    console.log("Updated Stats:", result.newData);
+}
+
+async function startGame() {
     const maxTime = 120;
     let time = maxTime;
 
@@ -157,7 +175,7 @@ function startGame() {
 
     const bigText = document.getElementById('big-text')
     bigText.textContent = 'DISCUSS'
-    
+
     const timer = setInterval(() => {
         time--;
         timerDisplay.textContent = `Time Remaining: ${time}s`;
@@ -167,6 +185,13 @@ function startGame() {
             clearInterval(timer);
         }
     }, 1000);
+
+    try {
+        await addLocalPlaysToStats(1);
+        console.log("Game progress synced");
+    } catch (error) {
+        console.warn("Could not sync stats");
+    }
 }
 
 let currentIndex = 1;
