@@ -39,8 +39,6 @@ function decidePlayerList(players){
 
     imposter = JSON.parse(players)[imposterIndex].player_name;
     localStorage.setItem('imposter', imposter);
-
-    console.log(imposter);
 }
 
 function displayRole(playerIndex){
