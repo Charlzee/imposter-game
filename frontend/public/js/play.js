@@ -33,26 +33,32 @@ function createSelectedWord(){
 }
 
 function decidePlayerList(playersJson, imposterAmount) {
-    const players = JSON.parse(playersJson);
+    const players = JSON.parse(playersJson || '[]');
+    const chosenNames = [];
     const chosenIndices = new Set();
 
-    if (imposterAmount > players.length) {
-        imposterAmount = players.length;
-    }
+    const count = Math.min(imposterAmount || 1, players.length - 1);
 
-    while (imposters.length < imposterAmount) {
+    while (chosenNames.length < count) {
         const randomIndex = Math.floor(Math.random() * players.length);
 
         if (!chosenIndices.has(randomIndex)) {
             chosenIndices.add(randomIndex);
-            imposters.push(players[randomIndex].player_name);
+            chosenNames.push(players[randomIndex].player_name);
         }
     }
 
+    imposters = chosenNames; 
     localStorage.setItem('imposters', JSON.stringify(imposters));
+    console.log("Imposters selected:", imposters);
 }
 
+
 function displayRole(playerIndex){
+    if (imposters.length === 0) {
+        imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
+    }
+    
     const roleTitle = document.getElementById('role-title');
     const roleStatus = document.getElementById('role-status');
     const roleTip = document.getElementById('role-tip');
