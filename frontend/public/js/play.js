@@ -216,7 +216,7 @@ function init() {
     }
 
     
-    decidePlayerList(localStorage.getItem('current_players'), localStorage.getItem("inposter_count"));
+    decidePlayerList(localStorage.getItem('current_players'), parseInt(localStorage.getItem("inposter_count")));
     selectedWord = createSelectedWord();
     hideRole(currentIndex);
 }
