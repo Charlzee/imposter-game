@@ -151,10 +151,13 @@ async function startGame() {
         return;
     }
     
-    const imposterCountValue = document.getElementById("imposter-count").value
+    const imposterCountValue = parseInt(document.getElementById("imposter-count").value);
 
-    localStorage.setItem('imposter_count', imposterCountValue)
-    
+    if (imposterCountValue >= players.length) {
+        alert("Too many imposters for the amount of players!");
+        return;
+    }
+
     window.location.href = "../play.html?local=true";
     console.log("Starting game with players:", players);
 }
