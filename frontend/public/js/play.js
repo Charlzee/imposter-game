@@ -215,9 +215,8 @@ function init() {
         return;
     }
 
-    const imposterCountValue = document.getElementById("imposter-count").value
-
-    decidePlayerList(localStorage.getItem('current_players'), imposterCountValue);
+    
+    decidePlayerList(localStorage.getItem('current_players'), localStorage.getItem("inposter_count"));
     selectedWord = createSelectedWord();
     hideRole(currentIndex);
 }
