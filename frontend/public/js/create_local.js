@@ -69,6 +69,7 @@ async function selectTopic(topic_id) {
     if (topic_id.includes("docs")) {
         topic_element.classList.add("docs");
     }
+    topic_element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function renderPlayers() {
