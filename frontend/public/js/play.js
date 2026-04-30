@@ -214,6 +214,7 @@ function init() {
         return;
     }
 
+    console.log(parseInt(localStorage.getItem("imposter_count")))
     
     decidePlayerList(localStorage.getItem('current_players'), parseInt(localStorage.getItem("imposter_count")));
     selectedWord = createSelectedWord();
