@@ -6,12 +6,12 @@
     align-items: center;
     gap: 20px;
     padding: 20px;
-    
+
     border: none;
     background: none;
 }
 
-.topic, .player-tile, .player-add-button {
+.topic, .player-tile, #player-add-button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -21,13 +21,13 @@
     max-width: 500px;
 
     border:none;
-    
+
     cursor: pointer;
-    
+
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     transition: transform 0.1s ease, filter 0.1s ease, outline-color 0.2s ease;
-    
+
     padding: 20px;
     border-radius: 15px;
     outline: 3px solid black;
@@ -59,9 +59,15 @@
     background-image: linear-gradient(180deg, rgb(28, 40, 65) 0%, rgb(85, 75, 141) 100%);
 }
 
-.player-add-button {
+#player-add-button {
     width: 10%;
     height: 100%;
+    text-align: center;
+}
+
+#imposter-count {
+    width: 5%;
+    aspect-ratio: 1;
     text-align: center;
 }
 

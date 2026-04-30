@@ -16,7 +16,7 @@ let selectedWord = null;
 
 let viewingRoles = false;
 
-let imposter = null;
+let imposters = [];
 let imposterIndex = null;
 
 function getLocal(){
@@ -32,13 +32,24 @@ function createSelectedWord(){
     return selectedWord;
 }
 
-function decidePlayerList(players){
-    let maxImpostersReached = false;
+function decidePlayerList(playersJson, imposterAmount) {
+    const players = JSON.parse(playersJson);
+    const chosenIndices = new Set();
 
-    imposterIndex = getRandomInt(JSON.parse(players).length);
+    if (imposterAmount > players.length) {
+        imposterAmount = players.length;
+    }
 
-    imposter = JSON.parse(players)[imposterIndex].player_name;
-    localStorage.setItem('imposter', imposter);
+    while (imposters.length < imposterAmount) {
+        const randomIndex = Math.floor(Math.random() * players.length);
+
+        if (!chosenIndices.has(randomIndex)) {
+            chosenIndices.add(randomIndex);
+            imposters.push(players[randomIndex].player_name);
+        }
+    }
+
+    localStorage.setItem('imposters', JSON.stringify(imposters));
 }
 
 function displayRole(playerIndex){
@@ -52,11 +63,10 @@ function displayRole(playerIndex){
     const player = JSON.parse(localStorage.getItem('current_players') || '[]')[playerIndex - 1]?.player_name || "Unknown Player";
 
     console.log(player);
-    console.log(imposter);
 
     roleStatus.classList.remove('hidden');
 
-    if (player == imposter) {
+    if (imposters.includes(player)) {
         roleStatus.textContent = 'Imposter';
         roleStatus.classList.add('imposter');
         roleTip.textContent = 'Dont get caught!';
@@ -205,7 +215,9 @@ function init() {
         return;
     }
 
-    decidePlayerList(localStorage.getItem('current_players'));
+    const imposterCountValue = document.getElementById("imposter-count").value
+
+    decidePlayerList(localStorage.getItem('current_players'), imposterCountValue);
     selectedWord = createSelectedWord();
     hideRole(currentIndex);
 }
