@@ -149,6 +149,12 @@ async function startGame() {
         alert("Please select a topic before starting the game.");
         return;
     }
+    
+    const imposterCountValue = document.getElementById("imposter-count").value
+
+    
+    localStorage.setItem('imposter_count', imposterCountValue)
+    
     window.location.href = "../play.html?local=true";
     console.log("Starting game with players:", players);
 }
