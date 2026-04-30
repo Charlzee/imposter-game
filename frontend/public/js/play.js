@@ -16,7 +16,7 @@ let selectedWord = null;
 
 let viewingRoles = false;
 
-let imposters = [];
+let globalImposters = [];
 let imposterIndex = null;
 
 function getLocal(){
@@ -34,32 +34,33 @@ function createSelectedWord(){
 
 function decidePlayerList(playersJson, imposterAmount) {
     const players = JSON.parse(playersJson || '[]');
-    
-    imposters = []; 
+
+    if (players.length === 0) return;
+
+    const chosenNames = [];
     const chosenIndices = new Set();
+    let count = parseInt(imposterAmount) || 1;
 
-    if (!imposterAmount || isNaN(imposterAmount)) imposterAmount = 1;
-    if (imposterAmount >= players.length) imposterAmount = players.length - 1;
-
-    console.log(`pick ${imposterAmount} imposters from ${players.length} players`);
-
-    while (imposters.length < imposterAmount) {
+    while (chosenNames.length < count && chosenNames.length < players.length) {
         const randomIndex = Math.floor(Math.random() * players.length);
-
         if (!chosenIndices.has(randomIndex)) {
             chosenIndices.add(randomIndex);
-            imposters.push(players[randomIndex].player_name);
+            chosenNames.push(players[randomIndex].player_name);
         }
     }
 
-    localStorage.setItem('imposters', JSON.stringify(imposters));
+    globalImposters = chosenNames;
+    localStorage.setItem('imposters', JSON.stringify(chosenNames));
+    
+    console.log("IMPOSTERS GENERATED:", localStorage.getItem('imposters'));
 }
 
 
 
+
 function displayRole(playerIndex){
-    if (imposters.length === 0) {
-        imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
+    if (globalImposters.length === 0) {
+        globalImposters = JSON.parse(localStorage.getItem('imposters') || '[]');
     }
     
     const roleTitle = document.getElementById('role-title');
@@ -75,7 +76,7 @@ function displayRole(playerIndex){
 
     roleStatus.classList.remove('hidden');
 
-    if (imposters.includes(player)) {
+    if (globalImposters.includes(player)) {
         roleStatus.textContent = 'Imposter';
         roleStatus.classList.add('imposter');
         roleTip.textContent = 'Dont get caught!';
