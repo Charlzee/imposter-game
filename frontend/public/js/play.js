@@ -34,24 +34,27 @@ function createSelectedWord(){
 
 function decidePlayerList(playersJson, imposterAmount) {
     const players = JSON.parse(playersJson || '[]');
-    const chosenNames = [];
+    
+    imposters = []; 
     const chosenIndices = new Set();
 
-    const count = Math.min(imposterAmount || 1, players.length - 1);
+    if (!imposterAmount || isNaN(imposterAmount)) imposterAmount = 1;
+    if (imposterAmount >= players.length) imposterAmount = players.length - 1;
 
-    while (chosenNames.length < count) {
+    console.log(`pick ${imposterAmount} imposters from ${players.length} players`);
+
+    while (imposters.length < imposterAmount) {
         const randomIndex = Math.floor(Math.random() * players.length);
 
         if (!chosenIndices.has(randomIndex)) {
             chosenIndices.add(randomIndex);
-            chosenNames.push(players[randomIndex].player_name);
+            imposters.push(players[randomIndex].player_name);
         }
     }
 
-    imposters = chosenNames; 
     localStorage.setItem('imposters', JSON.stringify(imposters));
-    console.log("Imposters selected:", imposters);
 }
+
 
 
 function displayRole(playerIndex){
