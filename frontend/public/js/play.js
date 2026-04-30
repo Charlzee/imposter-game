@@ -114,7 +114,7 @@ function viewRoles() {
     const playerContainer = document.createElement('div');
     const players = JSON.parse(localStorage.getItem('current_players'));
     const word = selectedWord;
-    const imposter = localStorage.getItem('imposter');
+    const imposters = JSON.parse(localStorage.getItem('imposters'));
 
     if (viewingRoles === false) {
         viewingRoles = true;
@@ -130,7 +130,7 @@ function viewRoles() {
             playerContainer.id = 'roles-list';
 
             playerElement.classList.add('player-view-role');
-            playerElement.textContent = player.player_name + (player.player_name === imposter ? ' (Imposter)' : ' (Innocent)');
+            playerElement.textContent = player.player_name + (imposters.includes(player.player_name) ? ' (Imposter)' : ' (Innocent)');
             playerContainer.appendChild(playerElement);
         });
     }else{
@@ -141,7 +141,6 @@ function viewRoles() {
         }
     }
 
-    console.log(players, imposter);
 
     main.appendChild(playerContainer, document.getElementById('view-roles'));
 }
@@ -216,7 +215,7 @@ function init() {
     }
 
     
-    decidePlayerList(localStorage.getItem('current_players'), parseInt(localStorage.getItem("inposter_count")));
+    decidePlayerList(localStorage.getItem('current_players'), parseInt(localStorage.getItem("imposter_count")));
     selectedWord = createSelectedWord();
     hideRole(currentIndex);
 }
