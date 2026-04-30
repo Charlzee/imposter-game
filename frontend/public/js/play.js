@@ -128,8 +128,8 @@ function viewRoles() {
         const wordDisplay = document.createElement('div');
         wordDisplay.id = 'word-display';
         wordDisplay.textContent = `Word: ${word}`;
-        main.appendChild(wordDisplay, document.getElementById('view-roles'));
-
+        main.insertBefore(wordDisplay, document.getElementById('view-roles'));
+        
         players.forEach(player => {
             const playerElement = document.createElement('div');
 
