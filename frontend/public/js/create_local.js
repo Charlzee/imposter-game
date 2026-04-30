@@ -152,7 +152,6 @@ async function startGame() {
     
     const imposterCountValue = document.getElementById("imposter-count").value
 
-    
     localStorage.setItem('imposter_count', imposterCountValue)
     
     window.location.href = "../play.html?local=true";
