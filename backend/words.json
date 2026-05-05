@@ -81,5 +81,23 @@
             "Neon",
             "Pastel"
         ]
+    },
+    {
+        "id": "jobs",
+        "display_name": "J*bs",
+        "difficulty_imposter": 4,
+        "words":[
+            "Teacher",
+            "Scientist",
+            "Computer Scientist",
+            "Doctor",
+            "Firefighter",
+            "Chef",
+            "Pilot",
+            "Astronaut",
+            "Artist",
+            "Lawyer",
+            "Surgeon"
+        ]
     }
 ]
