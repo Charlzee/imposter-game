@@ -119,7 +119,7 @@ async function addPlayer() {
     current_players.push({ player_name: player_name });
     localStorage.setItem("current_players", JSON.stringify(current_players));
 
-    input.value = "";
+    input.value = `Player ${current_players.length + 1}`;
     renderPlayers();
 }
 
