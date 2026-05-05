@@ -99,5 +99,25 @@
             "Lawyer",
             "Surgeon"
         ]
+    },
+    {
+        "id": "emotions",
+        "display_name": "Emotions",
+        "difficulty_imposter": 1,
+        "words":[
+            "Love",
+            "Happiness",
+            "Sadness",
+            "Fear",
+            "Anger",
+            "Jealousy",
+            "Disgust",
+            "Embarrassment",
+            "Envy",
+            "Pride",
+            "Boredom",
+            "Loneliness",
+            "Calm"
+        ]
     }
 ]
