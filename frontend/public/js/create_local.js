@@ -105,6 +105,16 @@ function renderPlayers() {
     }
 }
 
+function updateNameValue(name="Player", auto=false){
+    const input = document.getElementById("player-name-input");
+    const current_players = JSON.parse(localStorage.getItem("current_players")) || [];
+    if (auto){
+        input.value = `Player ${current_players.length + 1}`;
+    }else{
+        input.value = name
+    }
+}
+
 async function addPlayer() {
     const input = document.getElementById("player-name-input");
     const player_name = input.value.trim();
@@ -119,7 +129,7 @@ async function addPlayer() {
     current_players.push({ player_name: player_name });
     localStorage.setItem("current_players", JSON.stringify(current_players));
 
-    input.value = `Player ${current_players.length + 1}`;
+    updateNameValue(null, true)
     renderPlayers();
 }
 
@@ -135,8 +145,10 @@ function removePlayer(index) {
 function init() {
     window.addPlayer = addPlayer;
     window.startGame = startGame;
+    window.updateNameValue = updateNameValue;
     fetchTopics();
     localStorage.setItem('game_started', false);
+    updateNameValue(null, true);
 }
 
 async function startGame() {
