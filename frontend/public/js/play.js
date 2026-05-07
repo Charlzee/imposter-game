@@ -41,7 +41,7 @@ function decidePlayerList(playersJson, imposterAmount) {
     const chosenIndices = new Set();
     let count = parseInt(imposterAmount) || 1;
 
-    while (chosenNames.length < count && chosenNames.length < players.length) {
+    while (chosenNames.length < count && chosenIndices.length < players.length) {
         const randomIndex = Math.floor(Math.random() * players.length);
         if (!chosenIndices.has(randomIndex)) {
             chosenIndices.add(randomIndex);
