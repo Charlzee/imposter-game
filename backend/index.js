@@ -108,8 +108,8 @@ app.get("/words", async (c) => {
 
         const globalCategory = {
             "id": "docs_all_global",
-            "display_name": "ALL DOCUMENT WORDS",
-            "difficulty_imposter": '???',
+            "display_name": "ALL DOCS WORDS",
+            "difficulty_imposter": '∞',
             "words": uniqueAllWords
         };
 
