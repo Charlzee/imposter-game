@@ -164,7 +164,7 @@ async function startGame() {
     }
     
     const imposterCountValue = parseInt(document.getElementById("imposter-count").value);
-    localstorage.setItem("imposter_count", imposterCountValue)
+    localStorage.setItem("imposter_count", imposterCountValue)
 
     if (imposterCountValue >= players.length) {
         alert("Too many imposters for the amount of players!");
