@@ -63,12 +63,19 @@
     width: 10%;
     height: 100%;
     text-align: center;
+
+    transition: transform 0.1s ease, filter 0.1s ease;
 }
 
-#imposter-count {
-    width: 5%;
+#imposter-count, #jester-count {
+    width: 4ch;
     aspect-ratio: 1;
     text-align: center;
+}
+
+.count {
+    color: white;
+    text-shadow: 7px 7px 4px rgba(0, 0, 0, 0.5);
 }
 
 .player-tile span {
@@ -130,12 +137,12 @@
     color: lightgray;
 }
 
-.topic:hover, .player-tile:hover, .player-add-button:hover, .start-button:hover {
+.topic:hover, .player-tile:hover, #player-add-button:hover, .start-button:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
 }
 
-.topic:active, .player-tile:active, .player-add-button:active, .start-button:active {
+.topic:active, .player-tile:active, #player-add-button:active, .start-button:active {
     transform: scale(0.95);
     filter: brightness(0.8);
     transition: transform 0.05s;

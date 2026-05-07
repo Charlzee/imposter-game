@@ -149,6 +149,9 @@ function init() {
     fetchTopics();
     localStorage.setItem('game_started', false);
     updateNameValue(null, true);
+
+    document.getElementById("imposter-count").value = localStorage.getItem("imposter_count") || 1
+    document.getElementById("jester-count").value = localStorage.getItem("jester_count") || 0
 }
 
 async function startGame() {
@@ -164,10 +167,12 @@ async function startGame() {
     }
     
     const imposterCountValue = parseInt(document.getElementById("imposter-count").value);
+    const jesterCountValue = parseInt(document.getElementById("jester-count").value);
     localStorage.setItem("imposter_count", imposterCountValue)
+    localStorage.setItem("jester_count", jesterCountValue)
 
-    if (imposterCountValue > players.length) {
-        alert("Too many imposters for the amount of players!");
+    if ((imposterCountValue+jesterCountValue) > players.length) {
+        alert("Too many roles for the amount of players!");
         return;
     }
 

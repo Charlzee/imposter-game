@@ -17,7 +17,7 @@ let selectedWord = null;
 let viewingRoles = false;
 
 let globalImposters = [];
-let globalJester = [];
+let globalJesters = [];
 let imposterIndex = null;
 
 function getLocal(){
@@ -33,10 +33,14 @@ function createSelectedWord(){
     return selectedWord;
 }
 
-function decidePlayerList(playersJson, imposterAmount, jesterAmount = 0) {
+function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
     const players = JSON.parse(playersJson || '[]');
     
     if (players.length === 0) return;
+
+    if (jesterAmount === 0){
+        localStorage.setItem('jesters', JSON.stringify([]));
+    }
     
     const totalRolesRequested = (parseInt(imposterAmount) || 0) + (parseInt(jesterAmount) || 0);
     if (totalRolesRequested > players.length) {
@@ -56,7 +60,7 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount = 0) {
         return index;
     };
 
-    const impCount = parseInt(imposterAmount) || 1;
+    const impCount = parseInt(imposterAmount) || 0;
     for (let i = 0; i < impCount; i++) {
         const idx = getRandomAvailableIndex();
         occupiedIndices.add(idx);
@@ -98,7 +102,7 @@ function displayRole(playerIndex){
 
     console.log(player);
 
-    roleStatus.classList.remove('hidden');
+    roleStatus.classList.remove('hidden', 'imposter', 'innocent', 'jester');
 
     if (globalImposters.includes(player)) {
         roleStatus.textContent = 'Imposter';
@@ -110,10 +114,20 @@ function displayRole(playerIndex){
         roleDisplay.style.backgroundColor = '#FF0000';
         roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 0, 0) 0%, rgb(128, 0, 0) 100%)';
 
-    }else{
+    } else if (globalJesters.includes(player)) {
+        roleStatus.textContent = 'Jester';
+        roleStatus.classList.add('jester');
+        roleTip.textContent = 'Try to get voted out!';
+
+        wordDisplay.textContent = `${selectedWord}`;
+
+        roleDisplay.style.backgroundColor = '#FF00FF';
+        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 0, 255) 0%, rgb(128, 0, 128) 100%)';
+
+    } else {
         roleStatus.textContent = 'Innocent';
         roleStatus.classList.add('innocent');
-        roleTip.textContent = 'Find the imposter!';
+        roleTip.textContent = 'Find the imposter and don\'t vote out Jesters!';
 
         wordDisplay.textContent = `${selectedWord}`;
 
@@ -136,7 +150,7 @@ function hideRole(playerIndex){
     roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 255, 0) 0%, rgb(128, 128, 0) 100%)';
 
     roleStatus.textContent = '???';
-    roleStatus.classList.remove('imposter', 'innocent');
+    roleStatus.classList.remove('imposter', 'innocent', 'jester');
     roleStatus.classList.add('hidden');
 
     roleTip.style.fontSize = '2em';
@@ -148,7 +162,8 @@ function viewRoles() {
     const playerContainer = document.createElement('div');
     const players = JSON.parse(localStorage.getItem('current_players'));
     const word = selectedWord;
-    const imposters = JSON.parse(localStorage.getItem('imposters'));
+    const imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
+    const jesters = JSON.parse(localStorage.getItem('jesters') || '[]');
 
     if (viewingRoles === false) {
         viewingRoles = true;
@@ -164,7 +179,10 @@ function viewRoles() {
             playerContainer.id = 'roles-list';
 
             playerElement.classList.add('player-view-role');
-            playerElement.textContent = player.player_name + (imposters.includes(player.player_name) ? ' (Imposter)' : ' (Innocent)');
+            playerElement.textContent = player.player_name +
+                (imposters.includes(player.player_name) ? ' (Imposter)' :
+                    jesters.includes(player.player_name) ? ' (Jester)' :
+                        ' (Innocent)');
             playerContainer.appendChild(playerElement);
         });
     }else{
@@ -250,7 +268,11 @@ function init() {
 
     console.log(parseInt(localStorage.getItem("imposter_count")))
     
-    decidePlayerList(localStorage.getItem('current_players'), parseInt(localStorage.getItem("imposter_count")));
+    decidePlayerList(
+        localStorage.getItem('current_players'),
+        parseInt(localStorage.getItem('imposter_count')),
+        parseInt(localStorage.getItem('jester_count'))
+    );
     selectedWord = createSelectedWord();
     hideRole(currentIndex);
 }

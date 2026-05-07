@@ -96,6 +96,14 @@
     margin-bottom: 20px;
 }
 
+#role-display h3.jester {
+    font-size: 3rem;
+    text-align: center;
+    color: rgb(255, 0, 200);
+    text-shadow: 7px 7px 4px rgba(128, 0, 128, 0.5);
+    margin-bottom: 20px;
+}
+
 #role-display h3.innocent {
     font-size: 3rem;
     text-align: center;
