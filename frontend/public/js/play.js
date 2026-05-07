@@ -22,13 +22,19 @@ let imposterIndex = null;
 // Debug display
 function showDebug(message) {
     console.log(message);
-    const debugDiv = document.getElementById('debug-output') || document.createElement('div');
-    if (!document.getElementById('debug-output')) {
+    let debugDiv = document.getElementById('debug-output');
+    if (!debugDiv) {
+        debugDiv = document.createElement('div');
         debugDiv.id = 'debug-output';
-        debugDiv.style.cssText = 'position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #0f0; padding: 10px; font-family: monospace; font-size: 12px; max-width: 300px; max-height: 200px; overflow: auto; z-index: 9999; border-radius: 5px;';
-        document.body.appendChild(debugDiv);
+        debugDiv.style.cssText = 'position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); color: #0f0; padding: 15px; font-family: monospace; font-size: 11px; max-width: 350px; max-height: 400px; overflow-y: auto; z-index: 99999; border-radius: 5px; border: 2px solid #0f0;';
+        if (document.body) {
+            document.body.appendChild(debugDiv);
+        }
     }
-    debugDiv.innerHTML += message + '<br>';
+    if (debugDiv) {
+        debugDiv.innerHTML += message + '<br>';
+        debugDiv.scrollTop = debugDiv.scrollHeight;
+    }
 }
 
 function getLocal(){
@@ -47,32 +53,38 @@ function createSelectedWord(){
 function decidePlayerList(playersJson, imposterAmount) {
     const players = JSON.parse(playersJson || '[]');
 
-    if (players.length === 0) return;
+    if (players.length === 0) {
+        showDebug("ERROR: No players!");
+        return;
+    }
 
     const chosenNames = [];
     const chosenIndices = new Set();
     let count = parseInt(imposterAmount) || 1;
 
-    showDebug("imposterAmount = " + imposterAmount);
-    showDebug("count = " + count);
-    showDebug("players.length = " + players.length);
+    showDebug("=== IMPOSTER SELECTION ===");
+    showDebug("imposterAmount: " + imposterAmount);
+    showDebug("count: " + count);
+    showDebug("players.length: " + players.length);
+    showDebug("players: " + JSON.stringify(players));
 
     while (chosenNames.length < count && chosenIndices.size < players.length) {
         const randomIndex = Math.floor(Math.random() * players.length);
         if (!chosenIndices.has(randomIndex)) {
             chosenIndices.add(randomIndex);
             chosenNames.push(players[randomIndex].player_name);
+            showDebug("Selected imposter: " + players[randomIndex].player_name);
         }
     }
 
-    showDebug("chosenNames.length = " + chosenNames.length);
-    showDebug("chosenNames = " + JSON.stringify(chosenNames));
+    showDebug("chosenNames.length: " + chosenNames.length);
+    showDebug("chosenNames: " + JSON.stringify(chosenNames));
 
     globalImposters = chosenNames;
     localStorage.setItem('imposters', JSON.stringify(chosenNames));
     
     console.log("IMPOSTERS GENERATED:", localStorage.getItem('imposters'));
-    showDebug("IMPOSTERS GENERATED: " + localStorage.getItem('imposters'));
+    showDebug("IMPOSTERS STORED: " + localStorage.getItem('imposters'));
 }
 
 
@@ -236,7 +248,10 @@ async function startGame(updateStats=true) {
 let currentIndex = 1;
 
 function init() {
+    showDebug("=== GAME INIT ===");
+    
     if (localStorage.getItem('game_started') === 'true') {
+        showDebug("Game already started, resuming...");
         roleDisplay.remove();
         document.getElementById('ready-button').remove();
         selectedWord = decodeURIComponent(atob(localStorage.getItem('selected_word')));
@@ -244,7 +259,8 @@ function init() {
         return;
     }
 
-    showDebug("imposter_count from localStorage = " + localStorage.getItem("imposter_count"));
+    showDebug("imposter_count from localStorage: " + localStorage.getItem("imposter_count"));
+    showDebug("parseInt result: " + parseInt(localStorage.getItem("imposter_count")));
     console.log(parseInt(localStorage.getItem("imposter_count")))
     
     decidePlayerList(localStorage.getItem('current_players'), parseInt(localStorage.getItem("imposter_count")));
