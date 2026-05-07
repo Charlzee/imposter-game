@@ -255,9 +255,18 @@ async function startGame(updateStats=true) {
     }  
 }
 
+async function lobby() {
+    var strconfirm = confirm("Are you sure you want to go back to lobby?");
+    if (strconfirm == true) {
+        window.location.href = 'create/local.html';
+    }
+}
+
 let currentIndex = 1;
 
 function init() {
+    window.lobby = lobby;
+
     if (localStorage.getItem('game_started') === 'true') {
         roleDisplay.remove();
         document.getElementById('ready-button').remove();

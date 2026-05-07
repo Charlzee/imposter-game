@@ -145,6 +145,7 @@ function removePlayer(index) {
 function init() {
     window.addPlayer = addPlayer;
     window.startGame = startGame;
+    window.openSettings = openSettings;
     window.updateNameValue = updateNameValue;
     fetchTopics();
     localStorage.setItem('game_started', false);
@@ -178,6 +179,10 @@ async function startGame() {
 
     window.location.href = "../play.html?local=true";
     console.log("Starting game with players:", players);
+}
+
+async function openSettings() {
+    console.log("open")
 }
 
 init();
