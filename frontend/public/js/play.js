@@ -41,6 +41,10 @@ function decidePlayerList(playersJson, imposterAmount) {
     const chosenIndices = new Set();
     let count = parseInt(imposterAmount) || 1;
 
+    console.log("DEBUG: imposterAmount =", imposterAmount);
+    console.log("DEBUG: count =", count);
+    console.log("DEBUG: players.length =", players.length);
+
     while (chosenNames.length < count && chosenIndices.size < players.length) {
         const randomIndex = Math.floor(Math.random() * players.length);
         if (!chosenIndices.has(randomIndex)) {
@@ -48,6 +52,9 @@ function decidePlayerList(playersJson, imposterAmount) {
             chosenNames.push(players[randomIndex].player_name);
         }
     }
+
+    console.log("DEBUG: chosenNames.length =", chosenNames.length);
+    console.log("DEBUG: chosenNames =", chosenNames);
 
     globalImposters = chosenNames;
     localStorage.setItem('imposters', JSON.stringify(chosenNames));
@@ -224,6 +231,7 @@ function init() {
         return;
     }
 
+    console.log("DEBUG: imposter_count from localStorage =", localStorage.getItem("imposter_count"));
     console.log(parseInt(localStorage.getItem("imposter_count")))
     
     decidePlayerList(localStorage.getItem('current_players'), parseInt(localStorage.getItem("imposter_count")));
