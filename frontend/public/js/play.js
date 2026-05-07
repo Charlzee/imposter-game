@@ -17,6 +17,7 @@ let selectedWord = null;
 let viewingRoles = false;
 
 let globalImposters = [];
+let globalJester = [];
 let imposterIndex = null;
 
 function getLocal(){
@@ -32,27 +33,47 @@ function createSelectedWord(){
     return selectedWord;
 }
 
-function decidePlayerList(playersJson, imposterAmount) {
+function decidePlayerList(playersJson, imposterAmount, jesterAmount = 0) {
     const players = JSON.parse(playersJson || '[]');
-
+    
     if (players.length === 0) return;
-
-    const chosenNames = [];
-    const chosenIndices = new Set();
-    let count = parseInt(imposterAmount) || 1;
-
-    while (chosenNames.length < count && chosenIndices.size < players.length) {
-        const randomIndex = Math.floor(Math.random() * players.length);
-        if (!chosenIndices.has(randomIndex)) {
-            chosenIndices.add(randomIndex);
-            chosenNames.push(players[randomIndex].player_name);
-        }
+    
+    const totalRolesRequested = (parseInt(imposterAmount) || 0) + (parseInt(jesterAmount) || 0);
+    if (totalRolesRequested > players.length) {
+        console.error("Not enough players for the roles!");
+        return;
     }
 
-    globalImposters = chosenNames;
-    localStorage.setItem('imposters', JSON.stringify(chosenNames));
-    
-    console.log("IMPOSTERS GENERATED:", localStorage.getItem('imposters'));
+    const chosenNamesImposter = [];
+    const chosenNamesJester = [];
+    const occupiedIndices = new Set();
+
+    const getRandomAvailableIndex = () => {
+        let index;
+        do {
+            index = Math.floor(Math.random() * players.length);
+        } while (occupiedIndices.has(index));
+        return index;
+    };
+
+    const impCount = parseInt(imposterAmount) || 1;
+    for (let i = 0; i < impCount; i++) {
+        const idx = getRandomAvailableIndex();
+        occupiedIndices.add(idx);
+        chosenNamesImposter.push(players[idx].player_name);
+    }
+
+    const jestCount = parseInt(jesterAmount) || 0;
+    for (let i = 0; i < jestCount; i++) {
+        const idx = getRandomAvailableIndex();
+        occupiedIndices.add(idx);
+        chosenNamesJester.push(players[idx].player_name);
+    }
+
+    globalImposters = chosenNamesImposter;
+    globalJesters = chosenNamesJester;
+    localStorage.setItem('imposters', JSON.stringify(chosenNamesImposter));
+    localStorage.setItem('jesters', JSON.stringify(chosenNamesJester));
 }
 
 
@@ -62,7 +83,10 @@ function displayRole(playerIndex){
     if (globalImposters.length === 0) {
         globalImposters = JSON.parse(localStorage.getItem('imposters') || '[]');
     }
-    
+    if (globalJesters.length === 0) {
+        globalJesters = JSON.parse(localStorage.getItem('jesters') || '[]');
+    }
+
     const roleTitle = document.getElementById('role-title');
     const roleStatus = document.getElementById('role-status');
     const roleTip = document.getElementById('role-tip');
