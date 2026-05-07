@@ -102,10 +102,23 @@ app.get("/words", async (c) => {
             "words": tab.words
         }));
 
-        cachedWords = formattedTabs;
+        const allWordsList = tabsData.flatMap(tab => tab.words);
+        
+        const uniqueAllWords = [...new Set(allWordsList)];
+
+        const globalCategory = {
+            "id": "docs_all_global",
+            "display_name": "ALL DOCUMENT WORDS",
+            "difficulty_imposter": '???',
+            "words": uniqueAllWords
+        };
+
+        const finalDocsData = [globalCategory, ...formattedTabs];
+
+        cachedWords = finalDocsData;
         lastFetchTime = now;
 
-        return c.json([...localWords, ...formattedTabs]);
+        return c.json([...localWords, ...finalDocsData]);
     } catch (err) {
         console.error("Fetch Error:", err.message);
         if (cachedWords) return c.json([...localWords, ...cachedWords]);
