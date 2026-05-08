@@ -18,7 +18,7 @@ let viewingRoles = false;
 
 let globalImposters = [];
 let globalJesters = [];
-let globalAmnesia = [];
+let globalAmnesias = [];
 let imposterIndex = null;
 
 function getLocal(){
@@ -82,15 +82,16 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
     const amnesiaChance = 5
     for (let i = 0; i < players.length; i++) {
         if (Math.floor(Math.random() * (100 / amnesiaChance)) === 1) {
-            let temp = document.createElement('div')
-            temp.textContent = "U FORGOR"
+            chosenNamesAmnesia.push(players[i].player_name);
         }
     }
 
     globalImposters = chosenNamesImposter;
     globalJesters = chosenNamesJester;
+    globalAmnesias = chosenNamesAmnesia;
     localStorage.setItem('imposters', JSON.stringify(chosenNamesImposter));
     localStorage.setItem('jesters', JSON.stringify(chosenNamesJester));
+    localStorage.setItem('amnesias', JSON.stringify(chosenNamesAmnesia));
 }
 
 
@@ -102,6 +103,9 @@ function displayRole(playerIndex){
     }
     if (globalJesters.length === 0) {
         globalJesters = JSON.parse(localStorage.getItem('jesters') || '[]');
+    }
+    if (globalAmnesias.length === 0) {
+        globalAmnesias = JSON.parse(localStorage.getItem('amnesias') || '[]');
     }
 
     const roleTitle = document.getElementById('role-title');
@@ -115,9 +119,18 @@ function displayRole(playerIndex){
 
     console.log(player);
 
-    roleStatus.classList.remove('hidden', 'imposter', 'innocent', 'jester');
+    roleStatus.classList.remove('hidden', 'imposter', 'innocent', 'jester', 'amnesia');
 
-    if (globalImposters.includes(player)) {
+    if (globalAmnesias.includes(player)) {
+        roleStatus.textContent = 'You forgot your role :C'
+        roleStatus.classList.add('amnesia')
+        roleTip.textContent = 'Try to remember (guess) your role!'
+
+        wordDisplay.textContent = '';
+
+        roleDisplay.style.backgroundColor = '#27B4F5';
+        
+    } else if (globalImposters.includes(player)) {
         roleStatus.textContent = 'Imposter';
         roleStatus.classList.add('imposter');
         roleTip.textContent = 'Dont get caught!';
@@ -136,7 +149,7 @@ function displayRole(playerIndex){
 
         roleDisplay.style.backgroundColor = '#FF00FF';
         roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 0, 255) 0%, rgb(128, 0, 128) 100%)';
-
+    
     } else {
         roleStatus.textContent = 'Innocent';
         roleStatus.classList.add('innocent');
