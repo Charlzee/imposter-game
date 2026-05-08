@@ -79,7 +79,7 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
         chosenNamesJester.push(players[idx].player_name);
     }
 
-    const amnesiaChance = 50
+    const amnesiaChance = 5
     for (let i = 0; i < players.length; i++) {
         if (Math.floor(Math.random() * (100 / amnesiaChance)) === 1) {
             chosenNamesAmnesia.push(players[i].player_name);
