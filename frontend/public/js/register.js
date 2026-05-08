@@ -5,6 +5,9 @@ regButton.onclick = async (e) => {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
+    regButton.disabled = true;
+    regButton.textContent = "Registering...";
+
     try {
         const response = await fetch("https://imposter-gm.com/api/register", {
             method: "POST",
@@ -25,5 +28,9 @@ regButton.onclick = async (e) => {
         }
     } catch (err) {
         registerContainer.textContent = "Connection failed!";
+        registerContainer.style.color = "red";
+    } finally {
+        regButton.disabled = false;
+        regButton.textContent = "Register";
     }
 };

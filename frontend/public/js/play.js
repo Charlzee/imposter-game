@@ -1,17 +1,25 @@
 import { getURLParameter, getRandomInt } from '../js/global.js';
 
-const response = await fetch("https://imposter-gm.com/api/words");
-const data = await response.json();
+let data;
+let selectedTopic;
+let words;
 
-console.log("Fetched topics:", data);
+async function fetchData() {
+    const response = await fetch("https://imposter-gm.com/api/words");
+    data = await response.json();
+    console.log("Fetched topics:", data);
+
+    const selectedTopicId = localStorage.getItem('selected_topic');
+    selectedTopic = data.find(topic => topic.id === selectedTopicId);
+    if (!selectedTopic) {
+        console.error("Selected topic not found, using fallback");
+        selectedTopic = data[0]; // fallback to first topic
+    }
+    words = selectedTopic.words;
+}
 
 const main = document.getElementById('main')
 const roleDisplay = document.getElementById('role-display');
-
-const selectedTopicId = localStorage.getItem('selected_topic');
-const selectedTopic = data.find(topic => topic.id === selectedTopicId);
-
-const words = selectedTopic.words;
 let selectedWord = null;
 
 let viewingRoles = false;
@@ -37,8 +45,8 @@ function createSelectedWord(){
 function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
     const players = JSON.parse(playersJson || '[]');
 
-    //TODO: Add amnesiac (cant see role) and fugative (choose role) and executioner (Vote out specific person)
-    
+    //TODO: Add fugative (choose role) and executioner (Vote out specific person)
+
     if (players.length === 0) return;
 
     if (jesterAmount === 0){
@@ -98,19 +106,11 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
     localStorage.setItem('amnesias', JSON.stringify(chosenNamesAmnesia));
 }
 
-
-
-
 function displayRole(playerIndex){
-    if (globalImposters.length === 0) {
-        globalImposters = JSON.parse(localStorage.getItem('imposters') || '[]');
-    }
-    if (globalJesters.length === 0) {
-        globalJesters = JSON.parse(localStorage.getItem('jesters') || '[]');
-    }
-    if (globalAmnesias.length === 0) {
-        globalAmnesias = JSON.parse(localStorage.getItem('amnesias') || '[]');
-    }
+    const players = JSON.parse(localStorage.getItem('current_players') || '[]');
+    const imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
+    const jesters = JSON.parse(localStorage.getItem('jesters') || '[]');
+    const amnesias = JSON.parse(localStorage.getItem('amnesias') || '[]');
 
     const roleTitle = document.getElementById('role-title');
     const roleStatus = document.getElementById('role-status');
@@ -119,13 +119,11 @@ function displayRole(playerIndex){
 
     roleTitle.textContent = `Player ${playerIndex} role:`;
 
-    const player = JSON.parse(localStorage.getItem('current_players') || '[]')[playerIndex - 1]?.player_name || "Unknown Player";
-
-    console.log(player);
+    const player = players[playerIndex - 1]?.player_name || "Unknown Player";
 
     roleStatus.classList.remove('hidden', 'imposter', 'innocent', 'jester', 'amnesia');
 
-    if (globalAmnesias.includes(player)) {
+    if (amnesias.includes(player)) {
         roleStatus.textContent = 'Amnesia'
         roleStatus.classList.add('amnesia')
         roleTip.textContent = 'You forgot your role :c. Try to remember (guess) your role!'
@@ -135,7 +133,7 @@ function displayRole(playerIndex){
         roleDisplay.style.backgroundColor = '#27B4F5';
         roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(39, 180, 245) 0%, rgb(20, 90, 123) 100%)'
         
-    } else if (globalImposters.includes(player)) {
+    } else if (imposters.includes(player)) {
         roleStatus.textContent = 'Imposter';
         roleStatus.classList.add('imposter');
         roleTip.textContent = 'Dont get caught!';
@@ -145,7 +143,7 @@ function displayRole(playerIndex){
         roleDisplay.style.backgroundColor = '#FF0000';
         roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 0, 0) 0%, rgb(128, 0, 0) 100%)';
 
-    } else if (globalJesters.includes(player)) {
+    } else if (jesters.includes(player)) {
         roleStatus.textContent = 'Jester';
         roleStatus.classList.add('jester');
         roleTip.textContent = 'Try to get voted out!';
@@ -190,7 +188,6 @@ function hideRole(playerIndex){
 }
 
 function viewRoles() {
-    const playerContainer = document.createElement('div');
     const players = JSON.parse(localStorage.getItem('current_players'));
     const word = selectedWord;
     const imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
@@ -198,6 +195,9 @@ function viewRoles() {
 
     if (viewingRoles === false) {
         viewingRoles = true;
+
+        const playerContainer = document.createElement('div');
+        playerContainer.id = 'roles-list';
 
         const wordDisplay = document.createElement('div');
         wordDisplay.id = 'word-display';
@@ -207,8 +207,6 @@ function viewRoles() {
         players.forEach(player => {
             const playerElement = document.createElement('div');
 
-            playerContainer.id = 'roles-list';
-
             playerElement.classList.add('player-view-role');
             playerElement.textContent = player.player_name +
                 (imposters.includes(player.player_name) ? ' (Imposter)' :
@@ -217,6 +215,8 @@ function viewRoles() {
                 (JSON.parse(localStorage.getItem('amnesias') || '[]').includes(player.player_name) ? ' [AMNESIA]' : '');
             playerContainer.appendChild(playerElement);
         });
+
+        main.appendChild(playerContainer);
     }else{
         if (document.getElementById('roles-list')) {
             viewingRoles = false;
@@ -224,9 +224,6 @@ function viewRoles() {
             document.getElementById('word-display').remove();
         }
     }
-
-
-    main.appendChild(playerContainer, document.getElementById('view-roles'));
 }
 
 async function addLocalPlaysToStats(plays) {
@@ -296,7 +293,9 @@ async function lobby() {
 
 let currentIndex = 1;
 
-function init() {
+async function init() {
+    await fetchData();
+
     window.lobby = lobby;
 
     if (localStorage.getItem('game_started') === 'true') {
@@ -337,4 +336,6 @@ document.getElementById('ready-button').addEventListener('click', () => {
 
 
 
-init();
+(async () => {
+    await init();
+})();

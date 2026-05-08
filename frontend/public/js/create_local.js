@@ -1,5 +1,18 @@
 const topic_container = document.getElementById("topic-container");
 
+let cachedPlayers = null;
+
+function getPlayers() {
+    if (cachedPlayers === null) {
+        cachedPlayers = JSON.parse(localStorage.getItem("current_players")) || [];
+    }
+    return cachedPlayers;
+}
+
+function invalidatePlayersCache() {
+    cachedPlayers = null;
+}
+
 async function fetchTopics() {
     try {
         const response = await fetch("https://imposter-gm.com/api/words");
@@ -73,11 +86,10 @@ async function selectTopic(topic_id) {
 }
 
 function renderPlayers() {
-    console.log("Rendering players...");
     const player_container = document.getElementById("player-container");
     player_container.innerHTML = "";
 
-    const current_players = JSON.parse(localStorage.getItem("current_players")) || [];
+    const current_players = getPlayers();
 
     current_players.forEach((player, index) => {
         const player_element = document.createElement("div");
@@ -107,7 +119,7 @@ function renderPlayers() {
 
 function updateNameValue(name="Player", auto=false){
     const input = document.getElementById("player-name-input");
-    const current_players = JSON.parse(localStorage.getItem("current_players")) || [];
+    const current_players = getPlayers();
     if (auto){
         input.value = `Player ${current_players.length + 1}`;
     }else{
@@ -119,7 +131,7 @@ async function addPlayer() {
     const input = document.getElementById("player-name-input");
     const player_name = input.value.trim();
 
-    let current_players = JSON.parse(localStorage.getItem("current_players")) || [];
+    let current_players = getPlayers();
 
     if (player_name === "" || (current_players.some(p => p.player_name.toLowerCase() === player_name.toLowerCase()))) {
         alert("Please enter a valid name.");
@@ -129,16 +141,18 @@ async function addPlayer() {
     current_players.push({ player_name: player_name });
     localStorage.setItem("current_players", JSON.stringify(current_players));
 
+    invalidatePlayersCache();
     updateNameValue(null, true)
     renderPlayers();
 }
 
 function removePlayer(index) {
-    let current_players = JSON.parse(localStorage.getItem("current_players")) || [];
+    let current_players = getPlayers();
 
     current_players.splice(index, 1);
 
     localStorage.setItem("current_players", JSON.stringify(current_players));
+    invalidatePlayersCache();
     renderPlayers();
 }
 
@@ -154,9 +168,9 @@ function init() {
     document.getElementById("imposter-count").value = localStorage.getItem("imposter_count") || 1
     document.getElementById("jester-count").value = localStorage.getItem("jester_count") || 0
 }
-
+getPlayers()
 async function startGame() {
-    const players = JSON.parse(localStorage.getItem("current_players")) || [];
+    const players = getPlayers();
 
     if (players.length < 1) {
         alert("Not enough players to start the game.");
