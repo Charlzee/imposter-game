@@ -79,13 +79,15 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
         chosenNamesJester.push(players[idx].player_name);
     }
 
-    const amnesiaChance = 5; // 5% chance for the whole lobby
-    const roll = Math.floor(Math.random() * 100) + 1;
+    const gameHasAmnesia = Math.random() < 0.20; 
     
-    if (roll <= amnesiaChance) {
-        const luckyIndex = Math.floor(Math.random() * players.length);
-        chosenNamesAmnesia.push(players[luckyIndex].player_name);
-        console.log("Amnesia triggered for: " + players[luckyIndex].player_name);
+    if (gameHasAmnesia) {
+        const randomIndex = Math.floor(Math.random() * players.length);
+        const victimName = players[randomIndex].player_name;
+    
+        chosenNamesAmnesia.push(victimName);
+        
+        console.log(`Event Triggered: ${victimName} has Amnesia.`);
     }
 
     globalImposters = chosenNamesImposter;
