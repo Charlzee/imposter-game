@@ -167,6 +167,7 @@ function init() {
 
     document.getElementById("imposter-count").value = localStorage.getItem("imposter_count") || 1
     document.getElementById("jester-count").value = localStorage.getItem("jester_count") || 0
+    document.getElementById("executioner-count").value = localStorage.getItem("executioner_count") || 0
 }
 getPlayers()
 async function startGame() {
@@ -183,10 +184,12 @@ async function startGame() {
     
     const imposterCountValue = parseInt(document.getElementById("imposter-count").value);
     const jesterCountValue = parseInt(document.getElementById("jester-count").value);
+    const executionerCountValue = parseInt(document.getElementById("executioner-count").value);
     localStorage.setItem("imposter_count", imposterCountValue)
     localStorage.setItem("jester_count", jesterCountValue)
+    localStorage.setItem("executioner_count", executionerCountValue)
 
-    if ((imposterCountValue+jesterCountValue) > players.length) {
+    if ((imposterCountValue+jesterCountValue+executionerCountValue) > players.length) {
         alert("Too many roles for the amount of players!");
         return;
     }

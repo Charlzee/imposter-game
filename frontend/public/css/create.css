@@ -71,7 +71,7 @@
     text-align: center;
 }
 
-#imposter-count, #jester-count {
+#imposter-count, #jester-count, #executioner-count {
     width: 4ch;
     aspect-ratio: 1;
     text-align: center;

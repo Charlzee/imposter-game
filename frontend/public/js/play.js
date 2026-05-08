@@ -27,6 +27,7 @@ let viewingRoles = false;
 let globalImposters = [];
 let globalJesters = [];
 let globalAmnesias = [];
+let globalExecutioners = [];
 let imposterIndex = null;
 
 function getLocal(){
@@ -42,7 +43,7 @@ function createSelectedWord(){
     return selectedWord;
 }
 
-function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
+function decidePlayerList(playersJson, imposterAmount=0, jesterAmount=0, executionerAmount=0) {
     const players = JSON.parse(playersJson || '[]');
 
     //TODO: Add fugative (choose role) and executioner (Vote out specific person)
@@ -62,6 +63,8 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
     const chosenNamesImposter = [];
     const chosenNamesJester = [];
     const chosenNamesAmnesia = [];
+    const chosenNamesExecutioner = [];
+
     const occupiedIndices = new Set();
 
     const getRandomAvailableIndex = () => {
@@ -87,23 +90,35 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
         chosenNamesJester.push(players[idx].player_name);
     }
 
+    const exeCount = parseInt(executionerAmount) || 0;
+    const executionerTargets = {};
+    for (let i = 0; i < exeCount; i++) {
+        const idx = getRandomAvailableIndex();
+        occupiedIndices.add(idx);
+        const executionerName = players[idx].player_name;
+        chosenNamesExecutioner.push(executionerName);
+        
+        const targetIdx = Math.floor(Math.random() * players.length);
+        executionerTargets[executionerName] = players[targetIdx].player_name;
+    }
+
     const gameHasAmnesia = Math.random() < 0.05; 
-    
     if (gameHasAmnesia) {
         const randomIndex = Math.floor(Math.random() * players.length);
         const victimName = players[randomIndex].player_name;
     
         chosenNamesAmnesia.push(victimName);
-        
-        console.log(`Event Triggered: ${victimName} has Amnesia.`);
     }
 
     globalImposters = chosenNamesImposter;
     globalJesters = chosenNamesJester;
     globalAmnesias = chosenNamesAmnesia;
+    globalExecutioners = chosenNamesExecutioner;
     localStorage.setItem('imposters', JSON.stringify(chosenNamesImposter));
     localStorage.setItem('jesters', JSON.stringify(chosenNamesJester));
     localStorage.setItem('amnesias', JSON.stringify(chosenNamesAmnesia));
+    localStorage.setItem('executioners', JSON.stringify(chosenNamesExecutioner));
+    localStorage.setItem('executionerTargets', JSON.stringify(executionerTargets));
 }
 
 function displayRole(playerIndex){
@@ -111,6 +126,7 @@ function displayRole(playerIndex){
     const imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
     const jesters = JSON.parse(localStorage.getItem('jesters') || '[]');
     const amnesias = JSON.parse(localStorage.getItem('amnesias') || '[]');
+    const executioners = JSON.parse(localStorage.getItem('executioners') || '[]')
 
     const roleTitle = document.getElementById('role-title');
     const roleStatus = document.getElementById('role-status');
@@ -121,7 +137,7 @@ function displayRole(playerIndex){
 
     const player = players[playerIndex - 1]?.player_name || "Unknown Player";
 
-    roleStatus.classList.remove('hidden', 'imposter', 'innocent', 'jester', 'amnesia');
+    roleStatus.classList.remove('hidden', 'imposter', 'innocent', 'jester', 'amnesia', 'executioner');
 
     if (amnesias.includes(player)) {
         roleStatus.textContent = 'Amnesia'
@@ -153,10 +169,23 @@ function displayRole(playerIndex){
         roleDisplay.style.backgroundColor = '#FF00FF';
         roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 0, 255) 0%, rgb(128, 0, 128) 100%)';
     
+    } else if (executioners.includes(player)) {
+        roleStatus.textContent = 'Executioner';
+        roleStatus.classList.add('executioner');
+        roleTip.textContent = 'Try to vote out your target!';
+
+        const executionerTargets = JSON.parse(localStorage.getItem('executionerTargets') || '{}');
+        const target = executionerTargets[player] || 'Unknown';
+
+        wordDisplay.textContent = `${selectedWord}\n\nYOUR TARGET: ${target}`;
+
+        roleDisplay.style.backgroundColor = '#ffa600';
+        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 189, 67) 0%, rgb(128, 83, 0) 100%)';
+
     } else {
         roleStatus.textContent = 'Innocent';
         roleStatus.classList.add('innocent');
-        roleTip.textContent = 'Find the imposter and don\'t vote out Jesters!';
+        roleTip.textContent = 'Find the imposter!';
 
         wordDisplay.textContent = `${selectedWord}`;
 
@@ -164,6 +193,7 @@ function displayRole(playerIndex){
         roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(0, 255, 0) 0%, rgb(0, 128, 0) 100%)';
     }
 }
+
 
 function hideRole(playerIndex){
     const roleTitle = document.getElementById('role-title');
@@ -192,6 +222,9 @@ function viewRoles() {
     const word = selectedWord;
     const imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
     const jesters = JSON.parse(localStorage.getItem('jesters') || '[]');
+    const executioners = JSON.parse(localStorage.getItem('executioners') || '[]');
+    const executionerTargets = JSON.parse(localStorage.getItem('executionerTargets') || '{}');
+    const amnesias = JSON.parse(localStorage.getItem('amnesias') || '[]');
 
     if (viewingRoles === false) {
         viewingRoles = true;
@@ -208,11 +241,14 @@ function viewRoles() {
             const playerElement = document.createElement('div');
 
             playerElement.classList.add('player-view-role');
+            const isExecutioner = executioners.includes(player.player_name);
+            const executionerInfo = isExecutioner ? ` [TARGET: ${executionerTargets[player.player_name] || 'Unknown'}]` : '';
+            
             playerElement.textContent = player.player_name +
                 (imposters.includes(player.player_name) ? ' (Imposter)' :
                     jesters.includes(player.player_name) ? ' (Jester)' :
-                        ' (Innocent)') +
-                (JSON.parse(localStorage.getItem('amnesias') || '[]').includes(player.player_name) ? ' [AMNESIA]' : '');
+                    isExecutioner ? ` (Executioner)${executionerInfo}` :
+                        ' (Innocent)') + (amnesias.includes(player.player_name) ? ' [AMNESIA]' : '');
             playerContainer.appendChild(playerElement);
         });
 
@@ -311,7 +347,8 @@ async function init() {
     decidePlayerList(
         localStorage.getItem('current_players'),
         parseInt(localStorage.getItem('imposter_count')),
-        parseInt(localStorage.getItem('jester_count'))
+        parseInt(localStorage.getItem('jester_count')),
+        parseInt(localStorage.getItem('executioner_count'))
     );
     selectedWord = createSelectedWord();
     hideRole(currentIndex);

@@ -121,6 +121,14 @@
     margin-bottom: 20px;
 }
 
+#role-display h3.executioner {
+    font-size: 3rem;
+    text-align: center;
+    color: orange;
+    text-shadow: 7px 7px 4px rgba(255, 150, 12, 0.5);
+    margin-bottom: 20px;
+}
+
 #role-display h3.hidden {
     font-size: 3rem;
     text-align: center;
@@ -152,6 +160,7 @@
 #word {
     font-size: 2rem;
     text-align: center;
+    white-space: pre-line;
     color: white;
     text-shadow: 5px 5px 3px rgba(0, 0, 0, 0.5);
     margin-bottom: 20px;
