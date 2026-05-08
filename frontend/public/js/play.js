@@ -129,6 +129,7 @@ function displayRole(playerIndex){
         wordDisplay.textContent = '';
 
         roleDisplay.style.backgroundColor = '#27B4F5';
+        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(39, 180, 245) 0%, rgb(20, 90, 123) 100%)'
         
     } else if (globalImposters.includes(player)) {
         roleStatus.textContent = 'Imposter';
@@ -208,7 +209,8 @@ function viewRoles() {
             playerElement.textContent = player.player_name +
                 (imposters.includes(player.player_name) ? ' (Imposter)' :
                     jesters.includes(player.player_name) ? ' (Jester)' :
-                        ' (Innocent)');
+                        ' (Innocent)') +
+                (JSON.parse(localStorage.getItem('amnesias') || '[]').includes(player.player_name) ? ' [AMNESIA]' : '');
             playerContainer.appendChild(playerElement);
         });
     }else{
