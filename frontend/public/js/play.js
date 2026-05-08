@@ -18,6 +18,7 @@ let viewingRoles = false;
 
 let globalImposters = [];
 let globalJesters = [];
+let globalAmnesia = [];
 let imposterIndex = null;
 
 function getLocal(){
@@ -35,6 +36,8 @@ function createSelectedWord(){
 
 function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
     const players = JSON.parse(playersJson || '[]');
+
+    //TODO: Add amnesiac (cant see role) and fugative (choose role) and executioner (Vote out specific person)
     
     if (players.length === 0) return;
 
@@ -50,6 +53,7 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
 
     const chosenNamesImposter = [];
     const chosenNamesJester = [];
+    const chosenNamesAmnesia = [];
     const occupiedIndices = new Set();
 
     const getRandomAvailableIndex = () => {
@@ -59,6 +63,7 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
         } while (occupiedIndices.has(index));
         return index;
     };
+
 
     const impCount = parseInt(imposterAmount) || 0;
     for (let i = 0; i < impCount; i++) {
@@ -72,6 +77,14 @@ function decidePlayerList(playersJson, imposterAmount, jesterAmount=0) {
         const idx = getRandomAvailableIndex();
         occupiedIndices.add(idx);
         chosenNamesJester.push(players[idx].player_name);
+    }
+
+    const amnesiaChance = 5
+    for (let i = 0; i < players.length; i++) {
+        if (Math.floor((Math.random() * (100/amnesiaChance)) === amnesiaChance){
+            let temp = document.createElement('div')
+            temp.textContent = "U FORGOR"
+        }
     }
 
     globalImposters = chosenNamesImposter;
