@@ -92,22 +92,33 @@ function decidePlayerList(playersJson, imposterAmount=0, jesterAmount=0, executi
 
     const exeCount = parseInt(executionerAmount) || 0;
     const executionerTargets = {};
+    const getRandomTargetIndex = (excludeIndex) => {
+        if (players.length <= 1) return null;
+        let targetIndex;
+        do {
+            targetIndex = Math.floor(Math.random() * players.length);
+        } while (targetIndex === excludeIndex);
+        return targetIndex;
+    };
+
     for (let i = 0; i < exeCount; i++) {
         const idx = getRandomAvailableIndex();
         occupiedIndices.add(idx);
         const executionerName = players[idx].player_name;
         chosenNamesExecutioner.push(executionerName);
         
-        const targetIdx = Math.floor(Math.random() * players.length);
-        executionerTargets[executionerName] = players[targetIdx].player_name;
+        const targetIdx = getRandomTargetIndex(idx);
+        executionerTargets[executionerName] = targetIdx === null ? 'Unknown' : players[targetIdx].player_name;
     }
 
-    const gameHasAmnesia = Math.random() < 0.05; 
-    if (gameHasAmnesia) {
-        const randomIndex = Math.floor(Math.random() * players.length);
-        const victimName = players[randomIndex].player_name;
-    
-        chosenNamesAmnesia.push(victimName);
+    if (localStorage.getItem("random_events_enabled") === "true"){
+        const gameHasAmnesia = Math.random() < 0.05;
+        if (gameHasAmnesia) {
+            const randomIndex = Math.floor(Math.random() * players.length);
+            const victimName = players[randomIndex].player_name;
+
+            chosenNamesAmnesia.push(victimName);
+        }
     }
 
     globalImposters = chosenNamesImposter;
@@ -179,8 +190,8 @@ function displayRole(playerIndex){
 
         wordDisplay.textContent = `${selectedWord}\n\nYOUR TARGET: ${target}`;
 
-        roleDisplay.style.backgroundColor = '#ffa600';
-        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 189, 67) 0%, rgb(128, 83, 0) 100%)';
+        roleDisplay.style.backgroundColor = '#555555';
+        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(85, 85, 85) 0%, rgb(42, 42, 42) 100%)';
 
     } else {
         roleStatus.textContent = 'Innocent';
@@ -241,13 +252,12 @@ function viewRoles() {
             const playerElement = document.createElement('div');
 
             playerElement.classList.add('player-view-role');
-            const isExecutioner = executioners.includes(player.player_name);
-            const executionerInfo = isExecutioner ? ` [TARGET: ${executionerTargets[player.player_name] || 'Unknown'}]` : '';
-            
+            const executionerInfo = `[TARGET: ${executionerTargets[player.player_name] || 'Unknown'}]`;
+
             playerElement.textContent = player.player_name +
                 (imposters.includes(player.player_name) ? ' (Imposter)' :
                     jesters.includes(player.player_name) ? ' (Jester)' :
-                    isExecutioner ? ` (Executioner)${executionerInfo}` :
+                    executioners.includes(player.player_name) ? ` (Executioner) ${executionerInfo}` :
                         ' (Innocent)') + (amnesias.includes(player.player_name) ? ' [AMNESIA]' : '');
             playerContainer.appendChild(playerElement);
         });

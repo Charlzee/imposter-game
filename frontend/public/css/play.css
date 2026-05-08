@@ -68,6 +68,10 @@
     background-color: rgb(128, 0, 128);
 }
 
+#roles-list {
+    text-align: center;
+}
+
 .main-screen h1 {
     font-size: 3.5rem;
     text-align: center;
@@ -124,8 +128,8 @@
 #role-display h3.executioner {
     font-size: 3rem;
     text-align: center;
-    color: orange;
-    text-shadow: 7px 7px 4px rgba(255, 150, 12, 0.5);
+    color: lightgrey;
+    text-shadow: 7px 7px 4px rgba(255, 255, 255, 0.5);
     margin-bottom: 20px;
 }
 

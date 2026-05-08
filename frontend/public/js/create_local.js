@@ -156,20 +156,8 @@ function removePlayer(index) {
     renderPlayers();
 }
 
-function init() {
-    window.addPlayer = addPlayer;
-    window.startGame = startGame;
-    window.openSettings = openSettings;
-    window.updateNameValue = updateNameValue;
-    fetchTopics();
-    localStorage.setItem('game_started', false);
-    updateNameValue(null, true);
-
-    document.getElementById("imposter-count").value = localStorage.getItem("imposter_count") || 1
-    document.getElementById("jester-count").value = localStorage.getItem("jester_count") || 0
-    document.getElementById("executioner-count").value = localStorage.getItem("executioner_count") || 0
-}
 getPlayers()
+
 async function startGame() {
     const players = getPlayers();
 
@@ -181,13 +169,15 @@ async function startGame() {
         alert("Please select a topic before starting the game.");
         return;
     }
-    
+
     const imposterCountValue = parseInt(document.getElementById("imposter-count").value);
     const jesterCountValue = parseInt(document.getElementById("jester-count").value);
     const executionerCountValue = parseInt(document.getElementById("executioner-count").value);
+    const randomEventsEnabled = document.getElementById("random-events-enabled").checked;
     localStorage.setItem("imposter_count", imposterCountValue)
     localStorage.setItem("jester_count", jesterCountValue)
     localStorage.setItem("executioner_count", executionerCountValue)
+    localStorage.setItem("random_events_enabled", randomEventsEnabled)
 
     if ((imposterCountValue+jesterCountValue+executionerCountValue) > players.length) {
         alert("Too many roles for the amount of players!");
@@ -198,9 +188,45 @@ async function startGame() {
     console.log("Starting game with players:", players);
 }
 
-async function openSettings() {
-    console.log("open")
+
+// ===== Settings ====
+window.openSettings = function() {
+    const overlay = document.getElementById('settings-overlay');
+    if (overlay) overlay.classList.add('active');
+};
+
+window.closeSettings = function() {
+    const overlay = document.getElementById('settings-overlay');
+    if (overlay) overlay.classList.remove('active');
+};
+
+// ==== init ====
+function init() {
+    window.addPlayer = addPlayer;
+    window.startGame = startGame;
+    window.updateNameValue = updateNameValue;
+    
+    const overlay = document.getElementById('settings-overlay');
+    const closeBtn = document.getElementById('close-settings-btn');
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', window.closeSettings);
+    }
+
+    fetchTopics();
+    localStorage.setItem('game_started', false);
+    updateNameValue(null, true);
+
+    document.getElementById("imposter-count").value = localStorage.getItem("imposter_count") || 1;
+    document.getElementById("jester-count").value = localStorage.getItem("jester_count") || 0;
+    document.getElementById("executioner-count").value = localStorage.getItem("executioner_count") || 0;
+    
+    const savedRandomEvents = localStorage.getItem("random_events_enabled");
+    document.getElementById("random-events-enabled").checked = savedRandomEvents !== null ? savedRandomEvents === "true" : true;
 }
 
-init();
-
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+} else {
+    init();
+}
