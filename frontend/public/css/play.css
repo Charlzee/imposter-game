@@ -22,6 +22,10 @@
     background-attachment: scroll;
 }
 
+#role-tip {
+    white-space: pre-line;
+}
+
 #role-display {
     width: 70%;
     max-width: 500px;

@@ -112,7 +112,7 @@ function decidePlayerList(playersJson, imposterAmount=0, jesterAmount=0, executi
     }
 
     if (localStorage.getItem("random_events_enabled") === "true"){
-        const gameHasAmnesia = Math.random() < 0.05;
+        const gameHasAmnesia = Math.random() < 0.99;
         if (gameHasAmnesia) {
             const randomIndex = Math.floor(Math.random() * players.length);
             const victimName = players[randomIndex].player_name;
@@ -153,7 +153,7 @@ function displayRole(playerIndex){
     if (amnesias.includes(player)) {
         roleStatus.textContent = 'Amnesia'
         roleStatus.classList.add('amnesia')
-        roleTip.textContent = 'You forgot your role :c. Try to remember (guess) your role!'
+        roleTip.textContent = 'You forgot your role :c\nTry to remember (guess) your role!'
 
         wordDisplay.textContent = '';
 
