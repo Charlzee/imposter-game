@@ -1,2 +1,3 @@
 # imposter-game
-PLAY ON: https://imposter-gm.com/
+
+PLAY ON: <https://imposter-gm.com/>
