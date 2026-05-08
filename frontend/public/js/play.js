@@ -122,9 +122,9 @@ function displayRole(playerIndex){
     roleStatus.classList.remove('hidden', 'imposter', 'innocent', 'jester', 'amnesia');
 
     if (globalAmnesias.includes(player)) {
-        roleStatus.textContent = 'You forgot your role :C'
+        roleStatus.textContent = 'Amnesia'
         roleStatus.classList.add('amnesia')
-        roleTip.textContent = 'Try to remember (guess) your role!'
+        roleTip.textContent = 'You forgot your role :c. Try to remember (guess) your role!'
 
         wordDisplay.textContent = '';
 
