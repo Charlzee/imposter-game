@@ -12,8 +12,6 @@ let localWords = words1
 
 //let localWords = [...words1, ...words2]
 
-const credentials = JSON.parse(process.env.SERVICE_ACCOUNT)
-
 const app = new Hono().basePath("/api")
 app.use("*", cors())
 
@@ -221,6 +219,9 @@ app.post('/auth/update-stats', async (c) => {
         let currentData = {};
         try {
             currentData = JSON.parse(user.game_data || '{}');
+            if (Array.isArray(currentData)) {
+                currentData = {}; // Convert legacy array default to object
+            }
         } catch (parseError) {
             console.error("JSON Parse Error, resetting data:", parseError);
             currentData = {};

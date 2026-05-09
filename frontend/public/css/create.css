@@ -68,14 +68,36 @@
     font-size: clamp(12px, 0.75vw, 24px);
 }
 
-#imposter-count, #jester-count, #executioner-count, #random-events-enabled {
+.amount-input, .percent-input, #random-events-enabled {
     width: 60px; 
     height: 60px;
-    
-    font-size: 2rem;
+    font-size: 2.5svh;
+
     border-radius: 15px;
     text-align: center;
     box-sizing: border-box;
+}
+
+.percent-input {
+    width: 90px
+}
+
+#role-settings-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.role-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
 }
 
 .count {

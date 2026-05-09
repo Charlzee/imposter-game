@@ -1,296 +1,333 @@
-import { getURLParameter, getRandomInt } from '../js/global.js';
+import { getURLParameter, getRandomInt, toTitleCase } from '../js/global.js';
 
-let data;
-let selectedTopic;
-let words;
+// === CONFIG ===
+const ROLE_DATA = {
+    amnesias: { 
+        label: 'Amnesia', class: 'amnesia', 
+        tip: 'You forgot your role :c\nTry to remember (guess) your role!', 
+        grad: 'radial-gradient(circle, rgb(39, 180, 245) 0%, rgb(20, 90, 123) 100%)',
+        showWord: false 
+    },
+    imposters: { 
+        label: 'Imposter', class: 'imposter', 
+        tip: 'Dont get caught!', 
+        grad: 'radial-gradient(circle, rgb(255, 0, 0) 0%, rgb(128, 0, 0) 100%)',
+        showWord: false 
+    },
+    jesters: { 
+        label: 'Jester', class: 'jester', 
+        tip: 'Try to get voted out!', 
+        grad: 'radial-gradient(circle, rgb(255, 0, 255) 0%, rgb(128, 0, 128) 100%)',
+        showWord: true 
+    },
+    executioners: { 
+        label: 'Executioner', class: 'executioner', 
+        tip: 'Try to vote out your target!', 
+        grad: 'radial-gradient(circle, rgb(85, 85, 85) 0%, rgb(42, 42, 42) 100%)',
+        showWord: true 
+    },
+    fugitives: { 
+        label: 'Fugitive', class: 'fugitive', 
+        tip: 'CHOOSE YOUR ROLE.', 
+        grad: 'radial-gradient(circle, rgb(255, 165, 0) 0%, rgb(128, 83, 0) 100%)',
+        showWord: false 
+    }
+};
+
+const INNOCENT_CONFIG = {
+    label: 'Innocent', class: 'innocent', 
+    tip: 'Find the imposter!', 
+    grad: 'radial-gradient(circle, rgb(0, 255, 0) 0%, rgb(0, 128, 0) 100%)',
+    showWord: true
+};
+
+// ==== GLOBAL STATE ====
+let data, selectedTopic, words, selectedWord = null;
+let currentIndex = 1;
+let viewingRoles = false;
+let gameTimer = null;
+const main = document.getElementById('main');
+const roleDisplay = document.getElementById('role-display');
+
+// ==== HELPERS ====
+const getStorageJson = (key, fallback = []) => JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
 
 async function fetchData() {
-    const response = await fetch("https://imposter-gm.com/api/words");
-    data = await response.json();
-    console.log("Fetched topics:", data);
-
-    const selectedTopicId = localStorage.getItem('selected_topic');
-    selectedTopic = data.find(topic => topic.id === selectedTopicId);
-    if (!selectedTopic) {
-        console.error("Selected topic not found, using fallback");
-        selectedTopic = data[0]; // fallback to first topic
+    try {
+        const response = await fetch("https://imposter-gm.com/api/words");
+        data = await response.json();
+        const selectedTopicId = localStorage.getItem('selected_topic');
+        selectedTopic = data.find(t => t.id === selectedTopicId) || data[0];
+        words = selectedTopic.words;
+    } catch (error) {
+        console.error("Failed to fetch topics:", error);
     }
-    words = selectedTopic.words;
 }
 
-const main = document.getElementById('main')
-const roleDisplay = document.getElementById('role-display');
-let selectedWord = null;
-
-let viewingRoles = false;
-
-let globalImposters = [];
-let globalJesters = [];
-let globalAmnesias = [];
-let globalExecutioners = [];
-let imposterIndex = null;
-
-function getLocal(){
-    const isLocal = getURLParameter('local') === 'true' ? true : false;
-
-    console.log(isLocal)
-    return isLocal
+function createSelectedWord() {
+    const word = words[getRandomInt(words.length)];
+    localStorage.setItem('selected_word', btoa(encodeURIComponent(word)));
+    return word;
 }
 
-function createSelectedWord(){
-    const selectedWord = words[getRandomInt(words.length)];
-    localStorage.setItem('selected_word', btoa(encodeURIComponent(selectedWord)));
-    return selectedWord;
-}
-
-function decidePlayerList(playersJson, imposterAmount=0, jesterAmount=0, executionerAmount=0) {
+// ==== GAME LOGIC ====
+function decidePlayerList(playersJson, roleCounts = {}) {
     const players = JSON.parse(playersJson || '[]');
+    if (!players.length) return;
 
-    //TODO: Add fugative (choose role) and executioner (Vote out specific person)
-
-    if (players.length === 0) return;
-
-    if (jesterAmount === 0){
-        localStorage.setItem('jesters', JSON.stringify([]));
-    }
-    
-    const totalRolesRequested = (parseInt(imposterAmount) || 0) + (parseInt(jesterAmount) || 0);
-    if (totalRolesRequested > players.length) {
-        console.error("Not enough players for the roles!");
-        return;
-    }
-
-    const chosenNamesImposter = [];
-    const chosenNamesJester = [];
-    const chosenNamesAmnesia = [];
-    const chosenNamesExecutioner = [];
-
+    const roleIds = ['imposter', 'jester', 'executioner', 'fugitive'];
+    const chosenRoles = {};
     const occupiedIndices = new Set();
 
-    const getRandomAvailableIndex = () => {
-        let index;
-        do {
-            index = Math.floor(Math.random() * players.length);
-        } while (occupiedIndices.has(index));
-        return index;
-    };
+    roleIds.forEach(id => {
+        const key = `${id}s`; 
+        chosenRoles[id] = [];
 
+        const count = parseInt(roleCounts[id]) || 0;
+        const rawPercent = localStorage.getItem(`${id}_percent`) || "100%";
+        const spawnChance = parseInt(rawPercent.replace('%', '')) / 100;
 
-    const impCount = parseInt(imposterAmount) || 0;
-    for (let i = 0; i < impCount; i++) {
-        const idx = getRandomAvailableIndex();
-        occupiedIndices.add(idx);
-        chosenNamesImposter.push(players[idx].player_name);
-    }
+        for (let i = 0; i < count; i++) {
+            if (occupiedIndices.size >= players.length) break;
 
-    const jestCount = parseInt(jesterAmount) || 0;
-    for (let i = 0; i < jestCount; i++) {
-        const idx = getRandomAvailableIndex();
-        occupiedIndices.add(idx);
-        chosenNamesJester.push(players[idx].player_name);
-    }
-
-    const exeCount = parseInt(executionerAmount) || 0;
-    const executionerTargets = {};
-    const getRandomTargetIndex = (excludeIndex) => {
-        if (players.length <= 1) return null;
-        let targetIndex;
-        do {
-            targetIndex = Math.floor(Math.random() * players.length);
-        } while (targetIndex === excludeIndex);
-        return targetIndex;
-    };
-
-    for (let i = 0; i < exeCount; i++) {
-        const idx = getRandomAvailableIndex();
-        occupiedIndices.add(idx);
-        const executionerName = players[idx].player_name;
-        chosenNamesExecutioner.push(executionerName);
-        
-        const targetIdx = getRandomTargetIndex(idx);
-        executionerTargets[executionerName] = targetIdx === null ? 'Unknown' : players[targetIdx].player_name;
-    }
-
-    if (localStorage.getItem("random_events_enabled") === "true"){
-        const gameHasAmnesia = Math.random() < 0.99;
-        if (gameHasAmnesia) {
-            const randomIndex = Math.floor(Math.random() * players.length);
-            const victimName = players[randomIndex].player_name;
-
-            chosenNamesAmnesia.push(victimName);
+            if (Math.random() < spawnChance) {
+                let idx;
+                do { 
+                    idx = Math.floor(Math.random() * players.length); 
+                } while (occupiedIndices.has(idx));
+                
+                occupiedIndices.add(idx);
+                chosenRoles[id].push(players[idx].player_name);
+            }
         }
-    }
+        localStorage.setItem(key, JSON.stringify(chosenRoles[id]));
+    });
 
-    globalImposters = chosenNamesImposter;
-    globalJesters = chosenNamesJester;
-    globalAmnesias = chosenNamesAmnesia;
-    globalExecutioners = chosenNamesExecutioner;
-    localStorage.setItem('imposters', JSON.stringify(chosenNamesImposter));
-    localStorage.setItem('jesters', JSON.stringify(chosenNamesJester));
-    localStorage.setItem('amnesias', JSON.stringify(chosenNamesAmnesia));
-    localStorage.setItem('executioners', JSON.stringify(chosenNamesExecutioner));
-    localStorage.setItem('executionerTargets', JSON.stringify(executionerTargets));
+    // Amnesia (static 5% per person)
+    const amnesiaList = [];
+    if (localStorage.getItem("random_events_enabled") === "true") {
+        players.forEach(player => {
+            if (Math.random() < 0.05) {
+                if (!amnesiaList.includes(player.player_name) && !JSON.parse(localStorage.getItem('fugitives')).includes(player.player_name)) {
+                    amnesiaList.push(player.player_name);
+                }
+            }
+        });
+    }
+    localStorage.setItem('amnesias', JSON.stringify(amnesiaList));
+
+    // Executioner Targets
+    const targets = {};
+    chosenRoles.executioner.forEach(name => {
+        const myIdx = players.findIndex(p => p.player_name === name);
+        let targetIdx;
+        do { 
+            targetIdx = Math.floor(Math.random() * players.length); 
+        } while (targetIdx === myIdx && players.length > 1);
+        targets[name] = players[targetIdx].player_name;
+    });
+    localStorage.setItem('executionerTargets', JSON.stringify(targets));
+    localStorage.setItem("unselected_fugitives", JSON.stringify(chosenRoles.fugitive));
 }
 
-function displayRole(playerIndex){
-    const players = JSON.parse(localStorage.getItem('current_players') || '[]');
-    const imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
-    const jesters = JSON.parse(localStorage.getItem('jesters') || '[]');
-    const amnesias = JSON.parse(localStorage.getItem('amnesias') || '[]');
-    const executioners = JSON.parse(localStorage.getItem('executioners') || '[]')
-
-    const roleTitle = document.getElementById('role-title');
-    const roleStatus = document.getElementById('role-status');
-    const roleTip = document.getElementById('role-tip');
-    const wordDisplay = document.getElementById('word');
-
-    roleTitle.textContent = `Player ${playerIndex} role:`;
-
-    const player = players[playerIndex - 1]?.player_name || "Unknown Player";
-
-    roleStatus.classList.remove('hidden', 'imposter', 'innocent', 'jester', 'amnesia', 'executioner');
-
-    if (amnesias.includes(player)) {
-        roleStatus.textContent = 'Amnesia'
-        roleStatus.classList.add('amnesia')
-        roleTip.textContent = 'You forgot your role :c\nTry to remember (guess) your role!'
-
-        wordDisplay.textContent = '';
-
-        roleDisplay.style.backgroundColor = '#27B4F5';
-        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(39, 180, 245) 0%, rgb(20, 90, 123) 100%)'
-        
-    } else if (imposters.includes(player)) {
-        roleStatus.textContent = 'Imposter';
-        roleStatus.classList.add('imposter');
-        roleTip.textContent = 'Dont get caught!';
-
-        wordDisplay.textContent = '';
-
-        roleDisplay.style.backgroundColor = '#FF0000';
-        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 0, 0) 0%, rgb(128, 0, 0) 100%)';
-
-    } else if (jesters.includes(player)) {
-        roleStatus.textContent = 'Jester';
-        roleStatus.classList.add('jester');
-        roleTip.textContent = 'Try to get voted out!';
-
-        wordDisplay.textContent = `${selectedWord}`;
-
-        roleDisplay.style.backgroundColor = '#FF00FF';
-        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 0, 255) 0%, rgb(128, 0, 128) 100%)';
+function displayRole(playerIndex) {
+    const players = getStorageJson('current_players');
+    const playerName = players[playerIndex - 1]?.player_name || "Unknown";
     
-    } else if (executioners.includes(player)) {
-        roleStatus.textContent = 'Executioner';
-        roleStatus.classList.add('executioner');
-        roleTip.textContent = 'Try to vote out your target!';
-
-        const executionerTargets = JSON.parse(localStorage.getItem('executionerTargets') || '{}');
-        const target = executionerTargets[player] || 'Unknown';
-
-        wordDisplay.textContent = `${selectedWord}\n\nYOUR TARGET: ${target}`;
-
-        roleDisplay.style.backgroundColor = '#555555';
-        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(85, 85, 85) 0%, rgb(42, 42, 42) 100%)';
-
-    } else {
-        roleStatus.textContent = 'Innocent';
-        roleStatus.classList.add('innocent');
-        roleTip.textContent = 'Find the imposter!';
-
-        wordDisplay.textContent = `${selectedWord}`;
-
-        roleDisplay.style.backgroundColor = '#00FF00';
-        roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(0, 255, 0) 0%, rgb(0, 128, 0) 100%)';
-    }
-}
-
-
-function hideRole(playerIndex){
     const roleTitle = document.getElementById('role-title');
     const roleStatus = document.getElementById('role-status');
     const roleTip = document.getElementById('role-tip');
     const wordDisplay = document.getElementById('word');
 
-    sessionStorage.setItem('current_player_is_ready', false);
+    // Clean up old classes
+    const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), 'innocent', 'hidden'];
 
-    roleTip.textContent = 'Turn the device away from the other players.';
+    // Get role
+    const baseRoleKeys = ['imposters', 'jesters', 'executioners', 'fugitives'];
+    const baseRoleKey = baseRoleKeys.find(key => getStorageJson(key).includes(playerName));
+    const isAmnesia = getStorageJson('amnesias').includes(playerName);
+    
+    const activeRoleKey = isAmnesia ? 'amnesias' : baseRoleKey;
+    const config = ROLE_DATA[activeRoleKey] || INNOCENT_CONFIG;
 
-    roleDisplay.style.backgroundColor = '#00FF00';
-    roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 255, 0) 0%, rgb(128, 128, 0) 100%)';
+    function updateUi(configUi, forcedRole = null) {
+        roleStatus.classList.remove(...allRoleClasses);
 
-    roleStatus.textContent = '???';
-    roleStatus.classList.remove('imposter', 'innocent', 'jester');
+        roleTitle.textContent = `Player ${playerIndex} role:`;
+        roleStatus.textContent = configUi.label;
+        roleStatus.classList.add(configUi.class);
+        roleTip.textContent = configUi.tip;
+        roleDisplay.style.backgroundImage = configUi.grad;
+
+        if (document.getElementById("fugitive-role-selection")){
+            document.getElementById("fugitive-role-selection").remove();
+        }
+
+        const isExecutioner = (activeRoleKey === 'executioners') || 
+                            (forcedRole === 'executioner') || 
+                            (getStorageJson('executioners').includes(playerName));
+
+        let content = configUi.showWord ? selectedWord : '';
+        
+        if (isExecutioner) {
+            const targets = getStorageJson('executionerTargets', {});
+            content += `\n\nYOUR TARGET: ${targets[playerName] || 'Unknown'}`;
+        }
+        
+        wordDisplay.textContent = content;
+    }
+
+    updateUi(config)
+
+    // Fugitive select role
+    if (activeRoleKey === 'fugitives') {
+        const exclude = ["fugitive", "hidden", "amnesia"];
+
+        const selectionContainer = document.createElement('div');
+        selectionContainer.id = 'fugitive-role-selection';
+        selectionContainer.classList.add('fugitive-role-selection');
+
+        function addRole(role) {
+            const roleBtn = document.createElement('button');
+            roleBtn.classList.add('titan-one-regular');
+            roleBtn.textContent = toTitleCase(role);
+
+            roleBtn.onclick = () => {
+                const configSet = ROLE_DATA[`${role}s`] || INNOCENT_CONFIG;
+
+                const roleKey = `${role}s`;
+                const existingRoleList = getStorageJson(roleKey);
+                if (!existingRoleList.includes(playerName)) {
+                    existingRoleList.push(playerName);
+                    localStorage.setItem(roleKey, JSON.stringify(existingRoleList));
+                }
+
+                if (role === 'executioner') {
+                    const players = getStorageJson('current_players');
+                    const targets = getStorageJson('executionerTargets', {});
+
+                    if (!targets[playerName]) {
+                        const myIdx = players.findIndex(p => p.player_name === playerName);
+                        let targetIdx;
+                        do { 
+                            targetIdx = Math.floor(Math.random() * players.length); 
+                        } while (targetIdx === myIdx && players.length > 1);
+                        
+                        targets[playerName] = players[targetIdx].player_name;
+                        localStorage.setItem('executionerTargets', JSON.stringify(targets));
+                    }
+                }
+
+                const currentUnselected = getStorageJson("unselected_fugitives");
+                const filteredUnselected = currentUnselected.filter(p => p !== playerName);
+                localStorage.setItem("unselected_fugitives", JSON.stringify(filteredUnselected));
+
+                updateUi(configSet, role); 
+            }
+
+            selectionContainer.appendChild(roleBtn);
+        }
+
+        allRoleClasses
+            .filter(role => !exclude.includes(role))
+            .forEach(role => addRole(role));
+
+        roleDisplay.insertBefore(selectionContainer, document.getElementById("role-tip"));
+    }
+}
+
+function hideRole(playerIndex) {
+    sessionStorage.setItem('current_player_is_ready', 'false');
+    const roleStatus = document.getElementById('role-status');
+    const wordDisplay = document.getElementById('word');
+    
+    const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), 'innocent'];
+    roleStatus.classList.remove(...allRoleClasses);
     roleStatus.classList.add('hidden');
-
-    roleTip.style.fontSize = '2em';
-    roleTitle.textContent = `Player ${playerIndex} role:`;
-    wordDisplay.textContent = 'Click \'Next\' to reveal!';
+    roleStatus.textContent = '???';
+    document.getElementById('role-tip').textContent = 'Turn the device away from other players.';
+    document.getElementById('role-tip').style.fontSize = '2em';
+    document.getElementById('role-title').textContent = `Player ${playerIndex} role:`;
+    wordDisplay.textContent = "Click 'Next' to reveal!";
+    
+    roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 255, 0) 0%, rgb(128, 128, 0) 100%)';
 }
 
 function viewRoles() {
-    const players = JSON.parse(localStorage.getItem('current_players'));
-    const word = selectedWord;
-    const imposters = JSON.parse(localStorage.getItem('imposters') || '[]');
-    const jesters = JSON.parse(localStorage.getItem('jesters') || '[]');
-    const executioners = JSON.parse(localStorage.getItem('executioners') || '[]');
-    const executionerTargets = JSON.parse(localStorage.getItem('executionerTargets') || '{}');
-    const amnesias = JSON.parse(localStorage.getItem('amnesias') || '[]');
-
-    if (viewingRoles === false) {
-        viewingRoles = true;
-
-        const playerContainer = document.createElement('div');
-        playerContainer.id = 'roles-list';
-
-        const wordDisplay = document.createElement('div');
-        wordDisplay.id = 'word-display';
-        wordDisplay.textContent = `Word: ${word}`;
-        main.insertBefore(wordDisplay, document.getElementById('view-roles'));
-        
-        players.forEach(player => {
-            const playerElement = document.createElement('div');
-
-            playerElement.classList.add('player-view-role');
-            const executionerInfo = `[TARGET: ${executionerTargets[player.player_name] || 'Unknown'}]`;
-
-            playerElement.textContent = player.player_name +
-                (imposters.includes(player.player_name) ? ' (Imposter)' :
-                    jesters.includes(player.player_name) ? ' (Jester)' :
-                    executioners.includes(player.player_name) ? ` (Executioner) ${executionerInfo}` :
-                        ' (Innocent)') + (amnesias.includes(player.player_name) ? ' [AMNESIA]' : '');
-            playerContainer.appendChild(playerElement);
-        });
-
-        main.appendChild(playerContainer);
-    }else{
-        if (document.getElementById('roles-list')) {
-            viewingRoles = false;
-            document.getElementById('roles-list').remove();
-            document.getElementById('word-display').remove();
-        }
+    if (viewingRoles) {
+        document.getElementById('roles-list')?.remove();
+        document.getElementById('word-display')?.remove();
+        viewingRoles = false;
+        return;
     }
+
+    viewingRoles = true;
+    const players = getStorageJson('current_players');
+    const targets = getStorageJson('executionerTargets', {});
+
+    const listContainer = document.createElement('div');
+    listContainer.id = 'roles-list';
+
+    const wordInfo = document.createElement('div');
+    wordInfo.id = 'word-display';
+    wordInfo.textContent = `Word: ${selectedWord}`;
+    main.insertBefore(wordInfo, document.getElementById('view-roles'));
+
+    players.forEach(p => {
+        const el = document.createElement('div');
+        el.classList.add('player-view-role');
+
+        const name = p.player_name;
+        const powerRoleKeys = ['imposters', 'jesters', 'executioners'];
+        const transformedRoleKey = powerRoleKeys.find(key => getStorageJson(key).includes(name));
+        
+        const isOriginalFugitive = getStorageJson('fugitives').includes(name);
+        const hasSelectedFugitiveRole = isOriginalFugitive && !getStorageJson('unselected_fugitives').includes(name);
+        const isAmnesia = getStorageJson('amnesias').includes(name);
+
+        let roleName = 'Innocent';
+        
+        if (transformedRoleKey) {
+            roleName = ROLE_DATA[transformedRoleKey].label;
+        } else if (isOriginalFugitive && !hasSelectedFugitiveRole) {
+            roleName = 'Fugitive';
+        } 
+
+        let roleExtra = '';
+        
+        if (isOriginalFugitive) {
+            roleExtra += ' [FUGITIVE]';
+        }
+
+        if (getStorageJson('executioners').includes(name)) {
+            const targets = getStorageJson('executionerTargets', {});
+            roleExtra += ` [TARGET: ${targets[name] || 'Unknown'}]`;
+        }
+
+        if (isAmnesia) {
+            roleExtra += ' [AMNESIA]';
+        }
+
+        el.textContent = `${name} (${roleName})${roleExtra}`;
+        listContainer.appendChild(el);
+    });
+
+    main.appendChild(listContainer);
 }
 
 async function addLocalPlaysToStats(plays) {
     const token = localStorage.getItem('token');
-
-    const response = await fetch("https://imposter-gm.com/api/auth/update-stats", {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            local_plays: plays,
-        })
-    });
-
-    const result = await response.json();
-    console.log("Updated Stats:", result.newData);
+    if (!token) return;
+    try {
+        await fetch("https://imposter-gm.com/api/auth/update-stats", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ local_plays: plays })
+        });
+    } catch (e) { console.warn("Stats sync failed."); }
 }
 
-async function startGame(updateStats=true) {
+async function startGame(updateStats = true) {
     const maxTime = 120;
     let time = maxTime;
 
@@ -300,48 +337,36 @@ async function startGame(updateStats=true) {
     timerDisplay.style.fontSize = '1.5rem';
     main.insertBefore(timerDisplay, document.getElementById('back-button'));
 
-    const viewRolesBtn = document.createElement('button')
-    viewRolesBtn.id = 'view-roles'
-    viewRolesBtn.classList.add('titan-one-regular')
-    viewRolesBtn.textContent = "View Roles"
-    viewRolesBtn.addEventListener('click', viewRoles)
+    const viewRolesBtn = document.createElement('button');
+    viewRolesBtn.id = 'view-roles';
+    viewRolesBtn.className = 'titan-one-regular';
+    viewRolesBtn.textContent = "View Roles";
+    viewRolesBtn.onclick = viewRoles;
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
 
-    const bigText = document.getElementById('big-text')
-    bigText.textContent = 'DISCUSS'
+    document.getElementById('big-text').textContent = 'DISCUSS';
 
-    const timer = setInterval(() => {
+    gameTimer = setInterval(() => {
         time--;
         timerDisplay.textContent = `Time Remaining: ${time}s`;
-        console.log(`Time remaining: ${time}s`);
         if (time <= 0) {
-            timerDisplay.textContent = 'Time\'s up!';
-            clearInterval(timer);
+            timerDisplay.textContent = "Time's up!";
+            clearInterval(gameTimer);
         }
     }, 1000);
 
-    if (updateStats){
-        try {
-            await addLocalPlaysToStats(1);
-            console.log("Game progress synced");
-        } catch (error) {
-            console.warn("Could not sync stats");
-        }
-    }  
+    if (updateStats) addLocalPlaysToStats(1);
 }
 
-async function lobby() {
-    var strconfirm = confirm("Are you sure you want to go back to lobby?");
-    if (strconfirm == true) {
+function lobby() {
+    if (confirm("Are you sure you want to go back to lobby?")) {
+        if (gameTimer) clearInterval(gameTimer);
         window.location.href = 'create/local.html';
     }
 }
 
-let currentIndex = 1;
-
 async function init() {
     await fetchData();
-
     window.lobby = lobby;
 
     if (localStorage.getItem('game_started') === 'true') {
@@ -352,36 +377,42 @@ async function init() {
         return;
     }
 
-    console.log(parseInt(localStorage.getItem("imposter_count")))
+    decidePlayerList(localStorage.getItem('current_players'), {
+        imposter: localStorage.getItem('imposter_count'),
+        jester: localStorage.getItem('jester_count'),
+        executioner: localStorage.getItem('executioner_count'),
+        fugitive: localStorage.getItem('fugitive_count')
+    });
     
-    decidePlayerList(
-        localStorage.getItem('current_players'),
-        parseInt(localStorage.getItem('imposter_count')),
-        parseInt(localStorage.getItem('jester_count')),
-        parseInt(localStorage.getItem('executioner_count'))
-    );
     selectedWord = createSelectedWord();
     hideRole(currentIndex);
 }
 
 document.getElementById('ready-button').addEventListener('click', () => {
-    if (sessionStorage.getItem('current_player_is_ready') === 'false'){
-        sessionStorage.setItem('current_player_is_ready', true);
-        displayRole(currentIndex);
+    const players = getStorageJson('current_players');
+    const fugitives = getStorageJson('unselected_fugitives');
+
+    if (players[currentIndex - 1] && fugitives.includes(players[currentIndex - 1].player_name) && !document.getElementById('role-status').classList.contains('hidden')) {
         return;
     }
-    if(currentIndex < JSON.parse(localStorage.getItem('current_players')).length){
-        currentIndex++;
-        hideRole(currentIndex);
-    }else{
-        localStorage.setItem('game_started', true);
-        roleDisplay.remove();
-        document.getElementById('ready-button').remove();
-        startGame();
+
+    const isReady = sessionStorage.getItem('current_player_is_ready') === 'true';
+    if (!isReady) {
+        sessionStorage.setItem('current_player_is_ready', 'true');
+        displayRole(currentIndex);
+    } else {
+        const totalPlayers = getStorageJson('current_players').length;
+        if (currentIndex < totalPlayers) {
+            currentIndex++;
+            hideRole(currentIndex);
+        } else {
+            localStorage.setItem('game_started', 'true');
+            roleDisplay.remove();
+            document.getElementById('ready-button').remove();
+            startGame();
+        }
     }
 });
-
-
 
 (async () => {
     await init();

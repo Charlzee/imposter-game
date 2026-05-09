@@ -1,10 +1,16 @@
-const topic_container = document.getElementById("topic-container");
-
 let cachedPlayers = null;
+let topic_container;
+let player_container;
+let player_name_input;
 
+// ==== Player Management ====
 function getPlayers() {
     if (cachedPlayers === null) {
-        cachedPlayers = JSON.parse(localStorage.getItem("current_players")) || [];
+        try {
+            cachedPlayers = JSON.parse(localStorage.getItem("current_players")) || [];
+        } catch (e) {
+            cachedPlayers = [];
+        }
     }
     return cachedPlayers;
 }
@@ -13,45 +19,36 @@ function invalidatePlayersCache() {
     cachedPlayers = null;
 }
 
+// ==== Topic Logic ====
 async function fetchTopics() {
     try {
         const response = await fetch("https://imposter-gm.com/api/words");
         const topics = await response.json();
 
-        console.log("Fetched topics:", topics);
-
         if (Array.isArray(topics)) {
             topic_container.innerHTML = "";
+            const fragment = document.createDocumentFragment();
+            
             for (const topic of topics) {
                 const topic_element = document.createElement("div");
-                topic_element.classList.add("topic");
-                topic_element.setAttribute("id", topic.id);
-                topic_element.addEventListener("click", () => selectTopic(topic.id));
+                topic_element.className = "topic";
+                topic_element.id = topic.id;
+                topic_element.onclick = () => selectTopic(topic.id);
 
-                const topic_title = document.createElement("h2");
-                topic_title.textContent = topic.display_name; 
-
-                const stats_container = document.createElement("div");
-                stats_container.classList.add("topic-stats");
-
-                const difficulty = document.createElement("span");
-                difficulty.textContent = `Difficulty: ${topic.difficulty_imposter}`;
-                difficulty.style.fontSize = "0.8rem";
-
-                const word_count = document.createElement("span");
-                word_count.textContent = `Word Count: ${topic.words.length}`;
-                word_count.style.fontSize = "0.8rem";
-
-                topic_element.appendChild(topic_title);
-                topic_element.appendChild(stats_container);
-                stats_container.appendChild(difficulty);
-                stats_container.appendChild(word_count);
-                topic_container.appendChild(topic_element);
+                topic_element.innerHTML = `
+                    <h2>${topic.display_name}</h2>
+                    <div class="topic-stats">
+                        <span style="font-size: 0.8rem">Difficulty: ${topic.difficulty_imposter}</span>
+                        <span style="font-size: 0.8rem">Word Count: ${topic.words.length}</span>
+                    </div>
+                `;
 
                 if (topic.id.includes("docs")) {
                     topic_element.style.backgroundImage = "linear-gradient(180deg, rgb(255, 0, 212) 0%, rgb(167, 91, 255) 100%)";
                 }
+                fragment.appendChild(topic_element);
             }
+            topic_container.appendChild(fragment);
         }
     } catch (error) {
         console.error("Failed to fetch topics:", error);
@@ -71,158 +68,171 @@ async function selectTopic(topic_id) {
     const previousId = localStorage.getItem("selected_topic");
     if (previousId) {
         const prev_element = document.getElementById(previousId);
-        if (prev_element) {
-            prev_element.classList.remove("is-selected", "docs");
-        }
+        if (prev_element) prev_element.classList.remove("is-selected", "docs");
     }
 
     localStorage.setItem("selected_topic", topic_id);
-
     topic_element.classList.add("is-selected");
-    if (topic_id.includes("docs")) {
-        topic_element.classList.add("docs");
-    }
+    if (topic_id.includes("docs")) topic_element.classList.add("docs");
+    
     topic_element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+// ==== Player Management ====
 function renderPlayers() {
-    const player_container = document.getElementById("player-container");
     player_container.innerHTML = "";
+    const players = getPlayers();
 
-    const current_players = getPlayers();
-
-    current_players.forEach((player, index) => {
-        const player_element = document.createElement("div");
-        player_element.classList.add("player-tile");
-
-        const player_name_element = document.createElement("span");
-        player_name_element.textContent = player.player_name;
-
-        const player_number_element = document.createElement("span");
-        player_number_element.classList.add("player-number");
-        player_number_element.textContent = `Player ${index + 1}`; 
-
-        player_element.addEventListener("click", () => removePlayer(index));
-
-        player_element.appendChild(player_name_element);
-        player_element.appendChild(player_number_element);
-        player_container.appendChild(player_element);
-    });
-
-    if (current_players.length === 0) {
-        const empty_msg = document.createElement("span");
-        empty_msg.textContent = "No players added yet.";
-        empty_msg.style.cssText = "color: #ccc; font-size: 0.8rem; grid-column: 1/-1; text-align: center;";
-        player_container.appendChild(empty_msg);
-    }
-}
-
-function updateNameValue(name="Player", auto=false){
-    const input = document.getElementById("player-name-input");
-    const current_players = getPlayers();
-    if (auto){
-        input.value = `Player ${current_players.length + 1}`;
-    }else{
-        input.value = name
-    }
-}
-
-async function addPlayer() {
-    const input = document.getElementById("player-name-input");
-    const player_name = input.value.trim();
-
-    let current_players = getPlayers();
-
-    if (player_name === "" || (current_players.some(p => p.player_name.toLowerCase() === player_name.toLowerCase()))) {
-        alert("Please enter a valid name.");
+    if (players.length === 0) {
+        player_container.innerHTML = `<span style="color: #ccc; font-size: 0.8rem; grid-column: 1/-1; text-align: center;">No players added yet.</span>`;
         return;
     }
 
-    current_players.push({ player_name: player_name });
-    localStorage.setItem("current_players", JSON.stringify(current_players));
+    const fragment = document.createDocumentFragment();
+    players.forEach((player, index) => {
+        const tile = document.createElement("div");
+        tile.className = "player-tile";
+        tile.onclick = () => removePlayer(index);
+        tile.innerHTML = `
+            <span>${player.player_name}</span>
+            <span class="player-number">Player ${index + 1}</span>
+        `;
+        fragment.appendChild(tile);
+    });
+    player_container.appendChild(fragment);
+}
 
+function updateNameValue(name = "Player", auto = false) {
+    const players = getPlayers();
+    player_name_input.value = auto ? `Player ${players.length + 1}` : name;
+}
+
+async function addPlayer() {
+    const name = player_name_input.value.trim();
+    let players = getPlayers();
+
+    if (!name || players.some(p => p.player_name.toLowerCase() === name.toLowerCase())) {
+        alert("Please enter a unique name.");
+        return;
+    }
+
+    players.push({ player_name: name });
+    localStorage.setItem("current_players", JSON.stringify(players));
     invalidatePlayersCache();
-    updateNameValue(null, true)
+    updateNameValue(null, true);
     renderPlayers();
 }
 
 function removePlayer(index) {
-    let current_players = getPlayers();
-
-    current_players.splice(index, 1);
-
-    localStorage.setItem("current_players", JSON.stringify(current_players));
+    let players = getPlayers();
+    players.splice(index, 1);
+    localStorage.setItem("current_players", JSON.stringify(players));
     invalidatePlayersCache();
     renderPlayers();
 }
 
-getPlayers()
-
+// ==== Settings ====
 async function startGame() {
     const players = getPlayers();
+    if (players.length < 1) return alert("Not enough players!");
+    if (!localStorage.getItem("selected_topic")) return alert("Select a topic!");
 
-    if (players.length < 1) {
-        alert("Not enough players to start the game.");
-        return;
-    }
-    if (!localStorage.getItem("selected_topic")) {
-        alert("Please select a topic before starting the game.");
-        return;
-    }
+    // Grab all role counts
+    const roles = ['imposter', 'jester', 'executioner', 'fugitive'];
+    let totalRoles = 0;
 
-    const imposterCountValue = parseInt(document.getElementById("imposter-count").value);
-    const jesterCountValue = parseInt(document.getElementById("jester-count").value);
-    const executionerCountValue = parseInt(document.getElementById("executioner-count").value);
-    const randomEventsEnabled = document.getElementById("random-events-enabled").checked;
-    localStorage.setItem("imposter_count", imposterCountValue)
-    localStorage.setItem("jester_count", jesterCountValue)
-    localStorage.setItem("executioner_count", executionerCountValue)
-    localStorage.setItem("random_events_enabled", randomEventsEnabled)
+    roles.forEach(role => {
+        const val = parseInt(document.getElementById(`${role}-count`).value) || 0;
+        const percent_val = document.getElementById(`${role}-percent`).value
+        localStorage.setItem(`${role}_count`, val);
+        localStorage.setItem(`${role}_percent`, percent_val);
 
-    if ((imposterCountValue+jesterCountValue+executionerCountValue) > players.length) {
-        alert("Too many roles for the amount of players!");
-        return;
-    }
+        localStorage.setItem(`${role}s`, JSON.stringify([]));
+        localStorage.setItem(`innocents`, JSON.stringify([]));
+        localStorage.setItem(`unselected_fugitives`, JSON.stringify([]));
+
+
+        totalRoles += val;
+    });
+
+    localStorage.setItem("random_events_enabled", document.getElementById("random-events-enabled").checked);
+
+    if (totalRoles > players.length) return alert("Too many roles for player count!");
 
     window.location.href = "../play.html?local=true";
-    console.log("Starting game with players:", players);
 }
 
+window.openSettings = () => document.getElementById('settings-overlay')?.classList.add('active');
+window.closeSettings = () => document.getElementById('settings-overlay')?.classList.remove('active');
 
-// ===== Settings ====
-window.openSettings = function() {
-    const overlay = document.getElementById('settings-overlay');
-    if (overlay) overlay.classList.add('active');
-};
-
-window.closeSettings = function() {
-    const overlay = document.getElementById('settings-overlay');
-    if (overlay) overlay.classList.remove('active');
-};
-
-// ==== init ====
+// ==== Init ====
 function init() {
+    topic_container = document.getElementById("topic-container");
+    player_container = document.getElementById("player-container");
+    player_name_input = document.getElementById("player-name-input");
+    cachedPlayers = null;
+
+    // Role Settings UI
+    const roles = [
+        { id: 'imposter', label: 'IMPOSTER', default: 1 },
+        { id: 'jester', label: 'JESTER', default: 0 },
+        { id: 'executioner', label: 'EXECUTIONER', default: 0 },
+        { id: 'fugitive', label: 'FUGITIVE', default: 0 }
+    ];
+
+    const settingsGroup = document.getElementById('role-settings-container');
+    if (settingsGroup) {
+        settingsGroup.innerHTML = roles.map(role => `
+            <div class="role-row">
+                <p class="titan-one-regular count">${role.label} AMOUNT</p>
+                <input class="titan-one-regular amount-input setting-input" id="${role.id}-count" type="text" inputmode="numeric">
+                <input class="titan-one-regular percent-input setting-input" id="${role.id}-percent" type="text" inputmode="numeric" value="100%">
+            </div>
+        `).join('');
+
+        roles.forEach(role => {
+            const input = document.getElementById(`${role.id}-count`);
+            const percent_input = document.getElementById(`${role.id}-percent`);
+            if (input) {
+                const saved = localStorage.getItem(`${role.id}_count`);
+                const percent_saved = localStorage.getItem(`${role.id}_percent`);
+                input.value = (saved !== null) ? saved : role.default;
+                percent_input.value = (percent_saved !== null) ? percent_saved : "100%";
+            }
+        });
+    }
+
+    // Handle Percent Inputs
+    document.querySelectorAll('.percent-input').forEach(input => {
+        input.onfocus = (e) => e.target.value = e.target.value.replace('%', '');
+        
+        input.oninput = (e) => {
+            let val = e.target.value.replace(/[^0-9]/g, '');
+            if (parseInt(val) > 100) val = '100';
+            e.target.value = val;
+        };
+
+        input.onblur = (e) => {
+            let val = e.target.value.trim();
+            e.target.value = (val === "" || isNaN(val) ? "0" : val) + "%";
+        };
+    });
+
+    // Global Setup
     window.addPlayer = addPlayer;
     window.startGame = startGame;
     window.updateNameValue = updateNameValue;
-    
-    const overlay = document.getElementById('settings-overlay');
-    const closeBtn = document.getElementById('close-settings-btn');
-
-    if (closeBtn) {
-        closeBtn.addEventListener('click', window.closeSettings);
-    }
+    document.getElementById('close-settings-btn')?.addEventListener('click', window.closeSettings);
 
     fetchTopics();
-    localStorage.setItem('game_started', false);
+    localStorage.setItem('game_started', 'false');
     updateNameValue(null, true);
 
-    document.getElementById("imposter-count").value = localStorage.getItem("imposter_count") || 1;
-    document.getElementById("jester-count").value = localStorage.getItem("jester_count") || 0;
-    document.getElementById("executioner-count").value = localStorage.getItem("executioner_count") || 0;
-    
-    const savedRandomEvents = localStorage.getItem("random_events_enabled");
-    document.getElementById("random-events-enabled").checked = savedRandomEvents !== null ? savedRandomEvents === "true" : true;
+    const randomEventsEl = document.getElementById("random-events-enabled");
+    if (randomEventsEl) {
+        const saved = localStorage.getItem("random_events_enabled");
+        randomEventsEl.checked = saved !== null ? saved === "true" : true;
+    }
 }
 
 if (document.readyState === "loading") {
