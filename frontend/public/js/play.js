@@ -133,6 +133,19 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         targets[name] = players[targetIdx].player_name;
     });
     localStorage.setItem('executionerTargets', JSON.stringify(targets));
+
+    // Guardian Angel Targets
+    const gaTargets = {};
+    chosenRoles.guardian_angel.forEach(name => {
+        const myIdx = players.findIndex(p => p.player_name === name);
+        let targetIdx;
+        do { 
+            targetIdx = Math.floor(Math.random() * players.length); 
+        } while (targetIdx === myIdx && players.length > 1);
+        gaTargets[name] = players[targetIdx].player_name;
+    });
+    localStorage.setItem('guardian_angelTargets', JSON.stringify(gaTargets));
+    
     localStorage.setItem("unselected_fugitives", JSON.stringify(chosenRoles.fugitive));
 }
 
@@ -173,11 +186,15 @@ function displayRole(playerIndex) {
                             (forcedRole === 'executioner') || 
                             (getStorageJson('executioners').includes(playerName));
 
+        const gaTargets = getStorageJson('guardian_angelTargets', {});
+        const exTargets = getStorageJson('executionerTargets', {});
+        
         let content = configUi.showWord ? selectedWord : '';
         
-        if (isExecutioner) {
-            const targets = getStorageJson('executionerTargets', {});
-            content += `\n\nYOUR TARGET: ${targets[playerName] || 'Unknown'}`;
+        // Display target
+        const myTarget = exTargets[playerName] || gaTargets[playerName];
+        if (myTarget) {
+            content += `\n\nYOUR TARGET: ${myTarget}`;
         }
         
         wordDisplay.textContent = content;
