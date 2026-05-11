@@ -32,7 +32,7 @@ const ROLE_DATA = {
         grad: 'radial-gradient(circle, rgb(255, 165, 0) 0%, rgb(128, 83, 0) 100%)',
         showWord: false 
     },
-    guardian_angel: { 
+    guardian_angels: { 
         label: 'Guardian Angel', class: 'guardian_angel', 
         tip: 'Try to protect your target!', 
         grad: 'radial-gradient(circle, rgb(199, 255, 249) 0%, rgb(100, 128, 125) 100%)',
