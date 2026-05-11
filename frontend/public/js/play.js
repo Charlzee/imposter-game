@@ -11,7 +11,7 @@ const ROLE_DATA = {
     mimes: { 
         label: 'Mime', class: 'mime', 
         tip: 'You can only act out actions on your turn!', 
-        grad: 'radial-gradient(circle, rgb(255, 255, 255) 0%, rgb(0, 0, 0) 100%)',
+        grad: 'radial-gradient(circle, rgb(0, 0, 0) 0%, rgb(255, 255, 255) 100%)',
         showWord: true 
     },
     imposters: { 
