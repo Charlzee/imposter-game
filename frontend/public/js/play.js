@@ -126,7 +126,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
                     amnesiaList.push(name);
                 }
             }
-            if (Math.random() < 0.9) { // Set high for testing
+            if (Math.random() < 0.05) {
                 if (!mimeList.includes(name)) {
                     mimeList.push(name);
                 }
