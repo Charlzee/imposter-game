@@ -157,7 +157,7 @@ async function startGame() {
 
     localStorage.setItem("random_events_enabled", document.getElementById("random-events-enabled").checked);
 
-    if (totalRoles > players.length) return alert("Too many roles for player count!");
+    //if (totalRoles > players.length) return alert("Too many roles for player count!");
 
     window.location.href = "../play.html?local=true";
 }
