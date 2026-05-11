@@ -138,7 +138,7 @@ async function startGame() {
     if (!localStorage.getItem("selected_topic")) return alert("Select a topic!");
 
     // Grab all role counts
-    const roles = ['imposter', 'jester', 'executioner', 'fugitive'];
+    const roles = ['imposter', 'jester', 'executioner', 'fugitive', 'guardian_angel'];
     let totalRoles = 0;
 
     roles.forEach(role => {
@@ -177,7 +177,8 @@ function init() {
         { id: 'imposter', label: 'IMPOSTER', default: 1 },
         { id: 'jester', label: 'JESTER', default: 0 },
         { id: 'executioner', label: 'EXECUTIONER', default: 0 },
-        { id: 'fugitive', label: 'FUGITIVE', default: 0 }
+        { id: 'fugitive', label: 'FUGITIVE', default: 0 },
+        { id: 'guardian_angel', label: 'GUARDIAN ANGEL', default: 0 }
     ];
 
     const settingsGroup = document.getElementById('role-settings-container');
