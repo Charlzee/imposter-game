@@ -157,6 +157,16 @@
     margin-bottom: 20px;
 }
 
+#role-display h3.guardian_angel {
+    font-size: 3rem;
+    text-align: center;
+    color: rgb(199, 255, 249); 
+    text-shadow:
+        7px 7px 4px rgba(100, 128, 125, 0.5),
+        6px 6px 10px rgba(0, 0, 0, 0.6);
+    margin-bottom: 20px;
+}
+
 .fugitive-role-selection {
     display: flex;
     flex-wrap: wrap;
