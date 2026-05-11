@@ -162,7 +162,7 @@ function displayRole(playerIndex) {
     const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), 'innocent', 'hidden'];
 
     // Get role
-    const baseRoleKeys = ['imposters', 'jesters', 'executioners', 'fugitives', 'guardian_angel'];
+    const baseRoleKeys = ['imposters', 'jesters', 'executioners', 'fugitives', 'guardian_angels'];
     const baseRoleKey = baseRoleKeys.find(key => getStorageJson(key).includes(playerName));
     const isAmnesia = getStorageJson('amnesias').includes(playerName);
     
