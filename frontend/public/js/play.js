@@ -130,7 +130,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
                 }
             }
             // Mime logic
-            if (Math.random() < 0.05) {
+            if (Math.random() < 0.9) {
                 if (!mimeList.includes(name)) {
                     mimeList.push(name);
                 }
