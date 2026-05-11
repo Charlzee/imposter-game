@@ -86,7 +86,8 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     const occupiedIndices = new Set();
 
     roleIds.forEach(id => {
-        const key = `${id}s`; 
+        // Standardize key to plural for storage
+        const key = (id === 'guardian_angel') ? 'guardian_angels' : `${id}s`; 
         chosenRoles[id] = [];
 
         const count = parseInt(roleCounts[id]) || 0;
@@ -114,7 +115,8 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     if (localStorage.getItem("random_events_enabled") === "true") {
         players.forEach(player => {
             if (Math.random() < 0.05) {
-                if (!amnesiaList.includes(player.player_name) && !JSON.parse(localStorage.getItem('fugitives')).includes(player.player_name)) {
+                const fugitives = getStorageJson('fugitives');
+                if (!amnesiaList.includes(player.player_name) && !fugitives.includes(player.player_name)) {
                     amnesiaList.push(player.player_name);
                 }
             }
@@ -158,10 +160,8 @@ function displayRole(playerIndex) {
     const roleTip = document.getElementById('role-tip');
     const wordDisplay = document.getElementById('word');
 
-    // Clean up old classes
     const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), 'innocent', 'hidden'];
 
-    // Get role
     const baseRoleKeys = ['imposters', 'jesters', 'executioners', 'fugitives', 'guardian_angels'];
     const baseRoleKey = baseRoleKeys.find(key => getStorageJson(key).includes(playerName));
     const isAmnesia = getStorageJson('amnesias').includes(playerName);
@@ -182,16 +182,12 @@ function displayRole(playerIndex) {
             document.getElementById("fugitive-role-selection").remove();
         }
 
-        const isExecutioner = (activeRoleKey === 'executioners') || 
-                            (forcedRole === 'executioner') || 
-                            (getStorageJson('executioners').includes(playerName));
-
         const gaTargets = getStorageJson('guardian_angelTargets', {});
         const exTargets = getStorageJson('executionerTargets', {});
         
         let content = configUi.showWord ? selectedWord : '';
         
-        // Display target
+        // Target detection logic
         const myTarget = exTargets[playerName] || gaTargets[playerName];
         if (myTarget) {
             content += `\n\nYOUR TARGET: ${myTarget}`;
@@ -200,12 +196,11 @@ function displayRole(playerIndex) {
         wordDisplay.textContent = content;
     }
 
-    updateUi(config)
+    updateUi(config);
 
-    // Fugitive select role
+    // Fugitive select role logic
     if (activeRoleKey === 'fugitives') {
         const exclude = ["fugitive", "hidden", "amnesia"];
-
         const selectionContainer = document.createElement('div');
         selectionContainer.id = 'fugitive-role-selection';
         selectionContainer.classList.add('fugitive-role-selection');
@@ -216,9 +211,9 @@ function displayRole(playerIndex) {
             roleBtn.textContent = toTitleCase(role);
 
             roleBtn.onclick = () => {
-                const configSet = ROLE_DATA[`${role}s`] || INNOCENT_CONFIG;
+                const roleKey = (role === 'guardian_angel') ? 'guardian_angels' : `${role}s`;
+                const configSet = ROLE_DATA[roleKey] || INNOCENT_CONFIG;
 
-                const roleKey = `${role}s`;
                 const existingRoleList = getStorageJson(roleKey);
                 if (!existingRoleList.includes(playerName)) {
                     existingRoleList.push(playerName);
@@ -226,22 +221,19 @@ function displayRole(playerIndex) {
                 }
 
                 if (role === 'executioner' || role === 'guardian_angel') {
-                    const players = getStorageJson('current_players');
-                    const targets = getStorageJson('executionerTargets', {});
+                    const targetKey = (role === 'executioner') ? 'executionerTargets' : 'guardian_angelTargets';
+                    const targets = getStorageJson(targetKey, {});
 
                     if (!targets[playerName]) {
-                        const myIdx = players.findIndex(p => p.player_name === playerName);
+                        const allPlayers = getStorageJson('current_players');
+                        const myIdx = allPlayers.findIndex(p => p.player_name === playerName);
                         let targetIdx;
                         do { 
-                            targetIdx = Math.floor(Math.random() * players.length); 
-                        } while (targetIdx === myIdx && players.length > 1);
+                            targetIdx = Math.floor(Math.random() * allPlayers.length); 
+                        } while (targetIdx === myIdx && allPlayers.length > 1);
                         
-                        targets[playerName] = players[targetIdx].player_name;
-                        if (role === 'executioner'){
-                            localStorage.setItem('executionerTargets', JSON.stringify(targets));
-                        } else if (role === 'guardian_angel'){
-                            localStorage.setItem('guardian_angelTargets', JSON.stringify(targets));
-                        }
+                        targets[playerName] = allPlayers[targetIdx].player_name;
+                        localStorage.setItem(targetKey, JSON.stringify(targets));
                     }
                 }
 
@@ -251,13 +243,16 @@ function displayRole(playerIndex) {
 
                 updateUi(configSet, role); 
             }
-
             selectionContainer.appendChild(roleBtn);
         }
 
         allRoleClasses
-            .filter(role => !exclude.includes(role))
-            .forEach(role => addRole(role));
+            .filter(roleClass => !exclude.includes(roleClass))
+            .forEach(roleClass => {
+                // Map CSS class back to internal role ID for the logic
+                const roleId = roleClass.replace('_', ' '); 
+                addRole(roleClass);
+            });
 
         roleDisplay.insertBefore(selectionContainer, document.getElementById("role-tip"));
     }
@@ -272,8 +267,11 @@ function hideRole(playerIndex) {
     roleStatus.classList.remove(...allRoleClasses);
     roleStatus.classList.add('hidden');
     roleStatus.textContent = '???';
-    document.getElementById('role-tip').textContent = 'Turn the device away from other players.';
-    document.getElementById('role-tip').style.fontSize = '2em';
+    
+    const tipEl = document.getElementById('role-tip');
+    tipEl.textContent = 'Turn the device away from other players.';
+    tipEl.style.fontSize = '2em';
+    
     document.getElementById('role-title').textContent = `Player ${playerIndex} role:`;
     wordDisplay.textContent = "Click 'Next' to reveal!";
     
@@ -290,8 +288,6 @@ function viewRoles() {
 
     viewingRoles = true;
     const players = getStorageJson('current_players');
-    const targets = getStorageJson('executionerTargets', {});
-
     const listContainer = document.createElement('div');
     listContainer.id = 'roles-list';
 
@@ -305,7 +301,7 @@ function viewRoles() {
         el.classList.add('player-view-role');
 
         const name = p.player_name;
-        const powerRoleKeys = ['imposters', 'jesters', 'executioners', 'guardian_angel'];
+        const powerRoleKeys = ['imposters', 'jesters', 'executioners', 'guardian_angels'];
         const transformedRoleKey = powerRoleKeys.find(key => getStorageJson(key).includes(name));
         
         const isOriginalFugitive = getStorageJson('fugitives').includes(name);
@@ -313,7 +309,6 @@ function viewRoles() {
         const isAmnesia = getStorageJson('amnesias').includes(name);
 
         let roleName = 'Innocent';
-        
         if (transformedRoleKey) {
             roleName = ROLE_DATA[transformedRoleKey].label;
         } else if (isOriginalFugitive && !hasSelectedFugitiveRole) {
@@ -321,22 +316,17 @@ function viewRoles() {
         } 
 
         let roleExtra = '';
+        if (isOriginalFugitive) roleExtra += ' [FUGITIVE]';
         
-        if (isOriginalFugitive) {
-            roleExtra += ' [FUGITIVE]';
-        }
-
         if (getStorageJson('executioners').includes(name)) {
             const targets = getStorageJson('executionerTargets', {});
             roleExtra += ` [TARGET: ${targets[name] || 'Unknown'}]`;
-        } else if (getStorageJson('guardian_angel').includes(name)) {
+        } else if (getStorageJson('guardian_angels').includes(name)) {
             const targets = getStorageJson('guardian_angelTargets', {});
             roleExtra += ` [TARGET: ${targets[name] || 'Unknown'}]`;
         }
 
-        if (isAmnesia) {
-            roleExtra += ' [AMNESIA]';
-        }
+        if (isAmnesia) roleExtra += ' [AMNESIA]';
 
         el.textContent = `${name} (${roleName})${roleExtra}`;
         listContainer.appendChild(el);
@@ -423,7 +413,9 @@ document.getElementById('ready-button').addEventListener('click', () => {
     const players = getStorageJson('current_players');
     const fugitives = getStorageJson('unselected_fugitives');
 
+    // Prevent if a fugitive hasnt picked a role yet
     if (players[currentIndex - 1] && fugitives.includes(players[currentIndex - 1].player_name) && !document.getElementById('role-status').classList.contains('hidden')) {
+        alert("Please select a role first!");
         return;
     }
 
@@ -432,7 +424,7 @@ document.getElementById('ready-button').addEventListener('click', () => {
         sessionStorage.setItem('current_player_is_ready', 'true');
         displayRole(currentIndex);
     } else {
-        const totalPlayers = getStorageJson('current_players').length;
+        const totalPlayers = players.length;
         if (currentIndex < totalPlayers) {
             currentIndex++;
             hideRole(currentIndex);
