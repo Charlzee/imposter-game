@@ -199,7 +199,7 @@ function displayRole(playerIndex) {
             const roleColorMatch = configUi.grad.match(/rgb\(.*?\)/);
             const roleColor = roleColorMatch ? roleColorMatch[0] : 'rgb(0, 255, 0)';
             roleDisplay.style.backgroundImage = `linear-gradient(to right, rgb(0, 0, 0) 0%, ${roleColor} 100%)`;
-            roleTip.textContent = `${configUi.tip}\n\nMODIFIER: ${ROLE_DATA.mimes.tip}`;
+            roleTip.textContent = `${configUi.tip}\n\n${ROLE_DATA.mimes.tip}`;
         } else {
             roleDisplay.style.backgroundImage = configUi.grad;
             roleTip.textContent = configUi.tip;
