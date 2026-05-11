@@ -35,7 +35,7 @@ const ROLE_DATA = {
     guardian_angel: { 
         label: 'Guardian Angel', class: 'guardian_angel', 
         tip: 'Try to protect your target!', 
-        grad: 'radial-gradient(circle, rgb(85, 85, 85) 0%, rgb(42, 42, 42) 100%)',
+        grad: 'radial-gradient(circle, rgb(199, 255, 249) 0%, rgb(100, 128, 125) 100%)',
         showWord: true 
     }
 };
@@ -81,7 +81,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     const players = JSON.parse(playersJson || '[]');
     if (!players.length) return;
 
-    const roleIds = ['imposter', 'jester', 'executioner', 'fugitive'];
+    const roleIds = ['imposter', 'jester', 'executioner', 'fugitive', 'guardian_angel'];
     const chosenRoles = {};
     const occupiedIndices = new Set();
 
@@ -149,7 +149,7 @@ function displayRole(playerIndex) {
     const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), 'innocent', 'hidden'];
 
     // Get role
-    const baseRoleKeys = ['imposters', 'jesters', 'executioners', 'fugitives'];
+    const baseRoleKeys = ['imposters', 'jesters', 'executioners', 'fugitives', 'guardian_angel'];
     const baseRoleKey = baseRoleKeys.find(key => getStorageJson(key).includes(playerName));
     const isAmnesia = getStorageJson('amnesias').includes(playerName);
     
@@ -208,7 +208,7 @@ function displayRole(playerIndex) {
                     localStorage.setItem(roleKey, JSON.stringify(existingRoleList));
                 }
 
-                if (role === 'executioner') {
+                if (role === 'executioner' || role === 'guardian_angel') {
                     const players = getStorageJson('current_players');
                     const targets = getStorageJson('executionerTargets', {});
 
@@ -220,7 +220,11 @@ function displayRole(playerIndex) {
                         } while (targetIdx === myIdx && players.length > 1);
                         
                         targets[playerName] = players[targetIdx].player_name;
-                        localStorage.setItem('executionerTargets', JSON.stringify(targets));
+                        if (role === 'executioner'){
+                            localStorage.setItem('executionerTargets', JSON.stringify(targets));
+                        } else if (role === 'guardian_angel'){
+                            localStorage.setItem('guardian_angelTargets', JSON.stringify(targets));
+                        }
                     }
                 }
 
@@ -284,7 +288,7 @@ function viewRoles() {
         el.classList.add('player-view-role');
 
         const name = p.player_name;
-        const powerRoleKeys = ['imposters', 'jesters', 'executioners'];
+        const powerRoleKeys = ['imposters', 'jesters', 'executioners', 'guardian_angel'];
         const transformedRoleKey = powerRoleKeys.find(key => getStorageJson(key).includes(name));
         
         const isOriginalFugitive = getStorageJson('fugitives').includes(name);
@@ -307,6 +311,9 @@ function viewRoles() {
 
         if (getStorageJson('executioners').includes(name)) {
             const targets = getStorageJson('executionerTargets', {});
+            roleExtra += ` [TARGET: ${targets[name] || 'Unknown'}]`;
+        } else if (getStorageJson('guardian_angel').includes(name)) {
+            const targets = getStorageJson('guardian_angelTargets', {});
             roleExtra += ` [TARGET: ${targets[name] || 'Unknown'}]`;
         }
 
@@ -387,7 +394,8 @@ async function init() {
         imposter: localStorage.getItem('imposter_count'),
         jester: localStorage.getItem('jester_count'),
         executioner: localStorage.getItem('executioner_count'),
-        fugitive: localStorage.getItem('fugitive_count')
+        fugitive: localStorage.getItem('fugitive_count'),
+        guardian_angel: localStorage.getItem('guardian_angel_count')
     });
     
     selectedWord = createSelectedWord();
