@@ -114,23 +114,19 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         localStorage.setItem(key, JSON.stringify(chosenRoles[id]));
     });
 
-    // Random Events: Amnesia (5%)
     const amnesiaList = [];
-    // Random Events: Mimes (5%)
     const mimeList = [];
 
     if (localStorage.getItem("random_events_enabled") === "true") {
         players.forEach(player => {
             const name = player.player_name;
-            // Amnesia logic
             if (Math.random() < 0.05) {
                 const fugitives = getStorageJson('fugitives');
                 if (!amnesiaList.includes(name) && !fugitives.includes(name)) {
                     amnesiaList.push(name);
                 }
             }
-            // Mime logic
-            if (Math.random() < 0.9) {
+            if (Math.random() < 0.9) { // Set high for testing
                 if (!mimeList.includes(name)) {
                     mimeList.push(name);
                 }
@@ -140,7 +136,6 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     localStorage.setItem('amnesias', JSON.stringify(amnesiaList));
     localStorage.setItem('mimes', JSON.stringify(mimeList));
 
-    // Targets
     const assignTargets = (roleArray, storageKey) => {
         const targets = {};
         roleArray.forEach(name => {
@@ -182,7 +177,6 @@ function displayRole(playerIndex) {
     function updateUi(configUi, forcedRole = null) {
         roleStatus.classList.remove(...allRoleClasses);
 
-        // Label Logic
         roleTitle.textContent = `Player ${playerIndex} role:`;
         if (isMime && configUi.label !== 'Mime' && configUi.label !== 'Amnesia') {
             roleStatus.textContent = `${configUi.label} - Mime`;
@@ -193,9 +187,7 @@ function displayRole(playerIndex) {
         roleStatus.classList.add(configUi.class);
         if (isMime) roleStatus.classList.add('mime');
 
-        // Background Logic
         if (isMime && configUi.label !== 'Mime' && configUi.label !== 'Amnesia') {
-            // Extracts the first RGB color from the radial gradient string
             const roleColorMatch = configUi.grad.match(/rgb\(.*?\)/);
             const roleColor = roleColorMatch ? roleColorMatch[0] : 'rgb(0, 255, 0)';
             roleDisplay.style.backgroundImage = `linear-gradient(to right, rgb(255, 255, 255) 0%, ${roleColor} 100%)`;
@@ -207,7 +199,6 @@ function displayRole(playerIndex) {
 
         if (document.getElementById("fugitive-role-selection")) document.getElementById("fugitive-role-selection").remove();
 
-        // Word & Target Logic
         const gaTargets = getStorageJson('guardian_angelTargets', {});
         const exTargets = getStorageJson('executionerTargets', {});
         let content = (configUi.showWord || isMime) ? selectedWord : '';
@@ -220,53 +211,57 @@ function displayRole(playerIndex) {
 
     updateUi(config);
 
-    // Fugitive Selection logic
     if (activeRoleKey === 'fugitives') {
         const exclude = ["fugitive", "hidden", "amnesia", "mime"];
         const selectionContainer = document.createElement('div');
         selectionContainer.id = 'fugitive-role-selection';
         selectionContainer.classList.add('fugitive-role-selection');
 
-        const addRoleBtn = (roleId) => {
+        const addRoleBtn = (roleId, customConfig = null) => {
             const roleBtn = document.createElement('button');
             roleBtn.className = 'titan-one-regular';
             roleBtn.textContent = toTitleCase(roleId.replace('_', ' '));
 
             roleBtn.onclick = () => {
-                const roleKey = (roleId === 'guardian_angel') ? 'guardian_angels' : `${roleId}s`;
-                const configSet = ROLE_DATA[roleKey] || INNOCENT_CONFIG;
+                if (roleId !== 'innocent') {
+                    const roleKey = (roleId === 'guardian_angel') ? 'guardian_angels' : `${roleId}s`;
+                    const existingList = getStorageJson(roleKey);
+                    if (!existingList.includes(playerName)) {
+                        existingList.push(playerName);
+                        localStorage.setItem(roleKey, JSON.stringify(existingList));
+                    }
 
-                const existingList = getStorageJson(roleKey);
-                if (!existingList.includes(playerName)) {
-                    existingList.push(playerName);
-                    localStorage.setItem(roleKey, JSON.stringify(existingList));
-                }
-
-                if (roleId === 'executioner' || roleId === 'guardian_angel') {
-                    const targetKey = (roleId === 'executioner') ? 'executionerTargets' : 'guardian_angelTargets';
-                    const targets = getStorageJson(targetKey, {});
-                    if (!targets[playerName]) {
-                        const allP = getStorageJson('current_players');
-                        const myIdx = allP.findIndex(p => p.player_name === playerName);
-                        let tIdx;
-                        do { tIdx = Math.floor(Math.random() * allP.length); } while (tIdx === myIdx && allP.length > 1);
-                        targets[playerName] = allP[tIdx].player_name;
-                        localStorage.setItem(targetKey, JSON.stringify(targets));
+                    if (roleId === 'executioner' || roleId === 'guardian_angel') {
+                        const targetKey = (roleId === 'executioner') ? 'executionerTargets' : 'guardian_angelTargets';
+                        const targets = getStorageJson(targetKey, {});
+                        if (!targets[playerName]) {
+                            const allP = getStorageJson('current_players');
+                            const myIdx = allP.findIndex(p => p.player_name === playerName);
+                            let tIdx;
+                            do { tIdx = Math.floor(Math.random() * allP.length); } while (tIdx === myIdx && allP.length > 1);
+                            targets[playerName] = allP[tIdx].player_name;
+                            localStorage.setItem(targetKey, JSON.stringify(targets));
+                        }
                     }
                 }
 
                 const currentUnselected = getStorageJson("unselected_fugitives").filter(p => p !== playerName);
                 localStorage.setItem("unselected_fugitives", JSON.stringify(currentUnselected));
-                updateUi(configSet, roleId); 
+                
+                // Determine which config to pass back to UI
+                const finalConfig = customConfig || ROLE_DATA[`${roleId}s`] || ROLE_DATA[roleId];
+                updateUi(finalConfig, roleId); 
             };
             selectionContainer.appendChild(roleBtn);
         };
 
-        // Filter the ROLE_DATA keys to show eligible buttons
+        // FIXED: Explicitly add Innocent as a choice for the Fugitive
+        addRoleBtn('innocent', INNOCENT_CONFIG);
+
         Object.keys(ROLE_DATA)
             .map(k => ROLE_DATA[k].class)
             .filter(c => !exclude.includes(c))
-            .forEach(addRoleBtn);
+            .forEach(roleClass => addRoleBtn(roleClass));
 
         roleDisplay.insertBefore(selectionContainer, document.getElementById("role-tip"));
     }
@@ -276,7 +271,6 @@ function hideRole(playerIndex) {
     sessionStorage.setItem('current_player_is_ready', 'false');
     const roleStatus = document.getElementById('role-status');
     const wordDisplay = document.getElementById('word');
-    
     roleStatus.className = 'hidden';
     roleStatus.textContent = '???';
     document.getElementById('role-tip').textContent = 'Turn the device away from other players.';
@@ -307,10 +301,8 @@ function viewRoles() {
         const el = document.createElement('div');
         el.className = 'player-view-role';
         const name = p.player_name;
-        
         const powerRoleKeys = ['imposters', 'jesters', 'executioners', 'guardian_angels'];
         const foundKey = powerRoleKeys.find(key => getStorageJson(key).includes(name));
-        
         const isFugitive = getStorageJson('fugitives').includes(name);
         const isUnselected = getStorageJson('unselected_fugitives').includes(name);
         const isAmnesia = getStorageJson('amnesias').includes(name);
