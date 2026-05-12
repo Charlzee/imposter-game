@@ -44,8 +44,8 @@
     outline: 3px solid black;
 
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: left;
+    justify-content: left
 }
 
 #back-button, #view-roles{
