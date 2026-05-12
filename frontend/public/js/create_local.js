@@ -138,7 +138,7 @@ async function startGame() {
     if (!localStorage.getItem("selected_topic")) return alert("Select a topic!");
 
     // Grab all role counts
-    const roles = ['imposter', 'jester', 'executioner', 'fugitive', 'guardian_angel'];
+    const roles = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel'];
     let totalRoles = 0;
 
     roles.forEach(role => {
@@ -149,7 +149,7 @@ async function startGame() {
 
         localStorage.setItem(`${role}s`, JSON.stringify([]));
         localStorage.setItem(`innocents`, JSON.stringify([]));
-        localStorage.setItem(`unselected_fugitives`, JSON.stringify([]));
+        localStorage.setItem(`unselected_shapeshifters`, JSON.stringify([]));
 
 
         totalRoles += val;
@@ -176,8 +176,8 @@ function init() {
     const roles = [
         { id: 'imposter', label: 'IMPOSTER', default: 1 },
         { id: 'jester', label: 'JESTER', default: 0 },
-        { id: 'executioner', label: 'EXECUTIONER', default: 0 },
-        { id: 'fugitive', label: 'FUGITIVE', default: 0 },
+        { id: 'hitman', label: 'HITMAN', default: 0 },
+        { id: 'shapeshifter', label: 'SHAPESHIFTER', default: 0 },
         { id: 'guardian_angel', label: 'GUARDIAN ANGEL', default: 0 }
     ];
 

@@ -32,8 +32,8 @@ const ROLE_DATA = {
         grad: 'radial-gradient(circle, rgb(255, 82, 125) 0%, rgb(128, 41, 63) 100%)',
         showWord: true 
     },
-    fugitives: { 
-        label: 'Fugitive', class: 'fugitive', 
+    shapeshifters: { 
+        label: 'Shapeshifter', class: 'shapeshifter', 
         tip: 'CHOOSE YOUR ROLE.', 
         grad: 'radial-gradient(circle, rgb(255, 165, 0) 0%, rgb(128, 83, 0) 100%)',
         showWord: false 
@@ -87,7 +87,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     const players = JSON.parse(playersJson || '[]');
     if (!players.length) return;
 
-    const roleIds = ['imposter', 'jester', 'hitman', 'fugitive', 'guardian_angel'];
+    const roleIds = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel'];
     const chosenRoles = {};
     const occupiedIndices = new Set();
 
@@ -121,8 +121,8 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         players.forEach(player => {
             const name = player.player_name;
             if (Math.random() < 0.05) {
-                const fugitives = getStorageJson('fugitives');
-                if (!amnesiaList.includes(name) && !fugitives.includes(name)) {
+                const shapeshifters = getStorageJson('shapeshifters');
+                if (!amnesiaList.includes(name) && !shapeshifters.includes(name)) {
                     amnesiaList.push(name);
                 }
             }
@@ -152,7 +152,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     assignTargets(chosenRoles.hitman, 'hitmanTargets');
     assignTargets(chosenRoles.guardian_angel, 'guardian_angelTargets');
     
-    localStorage.setItem("unselected_fugitives", JSON.stringify(chosenRoles.fugitive));
+    localStorage.setItem("unselected_shapeshifters", JSON.stringify(chosenRoles.shapeshifter));
 }
 
 function displayRole(playerIndex) {
@@ -166,7 +166,7 @@ function displayRole(playerIndex) {
 
     const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), 'innocent', 'hidden'];
 
-    const baseRoleKeys = ['imposters', 'jesters', 'hitmans', 'fugitives', 'guardian_angels'];
+    const baseRoleKeys = ['imposters', 'jesters', 'hitmans', 'shapeshifters', 'guardian_angels'];
     const baseRoleKey = baseRoleKeys.find(key => getStorageJson(key).includes(playerName));
     const isAmnesia = getStorageJson('amnesias').includes(playerName);
     const isMime = getStorageJson('mimes').includes(playerName);
@@ -197,7 +197,7 @@ function displayRole(playerIndex) {
             roleTip.textContent = configUi.tip;
         }
 
-        if (document.getElementById("fugitive-role-selection")) document.getElementById("fugitive-role-selection").remove();
+        if (document.getElementById("shapeshifter-role-selection")) document.getElementById("shapeshifter-role-selection").remove();
 
         const gaTargets = getStorageJson('guardian_angelTargets', {});
         const exTargets = getStorageJson('hitmanTargets', {});
@@ -211,11 +211,11 @@ function displayRole(playerIndex) {
 
     updateUi(config);
 
-    if (activeRoleKey === 'fugitives') {
-        const exclude = ["fugitive", "hidden", "amnesia", "mime"];
+    if (activeRoleKey === 'shapeshifters') {
+        const exclude = ["shapeshifter", "hidden", "amnesia", "mime"];
         const selectionContainer = document.createElement('div');
-        selectionContainer.id = 'fugitive-role-selection';
-        selectionContainer.classList.add('fugitive-role-selection');
+        selectionContainer.id = 'shapeshifter-role-selection';
+        selectionContainer.classList.add('shapeshifter-role-selection');
 
         const addRoleBtn = (roleId, customConfig = null) => {
             const roleBtn = document.createElement('button');
@@ -245,8 +245,8 @@ function displayRole(playerIndex) {
                     }
                 }
 
-                const currentUnselected = getStorageJson("unselected_fugitives").filter(p => p !== playerName);
-                localStorage.setItem("unselected_fugitives", JSON.stringify(currentUnselected));
+                const currentUnselected = getStorageJson("unselected_shapeshifters").filter(p => p !== playerName);
+                localStorage.setItem("unselected_shapeshifters", JSON.stringify(currentUnselected));
                 
                 // Determine which config to pass back to UI
                 const finalConfig = customConfig || ROLE_DATA[`${roleId}s`] || ROLE_DATA[roleId];
@@ -255,7 +255,7 @@ function displayRole(playerIndex) {
             selectionContainer.appendChild(roleBtn);
         };
 
-        // Explicitly add Innocent as a choice for the Fugitive
+        // Explicitly add Innocent as a choice for the shapeshifter
         addRoleBtn('innocent', INNOCENT_CONFIG);
 
         Object.keys(ROLE_DATA)
@@ -303,16 +303,16 @@ function viewRoles() {
         const name = p.player_name;
         const powerRoleKeys = ['imposters', 'jesters', 'hitmans', 'guardian_angels'];
         const foundKey = powerRoleKeys.find(key => getStorageJson(key).includes(name));
-        const isFugitive = getStorageJson('fugitives').includes(name);
-        const isUnselected = getStorageJson('unselected_fugitives').includes(name);
+        const isshapeshifter = getStorageJson('shapeshifters').includes(name);
+        const isUnselected = getStorageJson('unselected_shapeshifters').includes(name);
         const isAmnesia = getStorageJson('amnesias').includes(name);
         const isMime = getStorageJson('mimes').includes(name);
 
         let roleName = foundKey ? ROLE_DATA[foundKey].label : 'Innocent';
-        if (isFugitive && isUnselected) roleName = 'Fugitive';
+        if (isshapeshifter && isUnselected) roleName = 'shapeshifter';
 
         let roleExtra = '';
-        if (isFugitive) roleExtra += ' [FUGITIVE]';
+        if (isshapeshifter) roleExtra += ' [shapeshifter]';
         if (isAmnesia) roleExtra += ' [AMNESIA]';
         if (isMime) roleExtra += ' [MIME]';
         
@@ -386,7 +386,7 @@ async function init() {
         imposter: localStorage.getItem('imposter_count'),
         jester: localStorage.getItem('jester_count'),
         hitman: localStorage.getItem('hitman_count'),
-        fugitive: localStorage.getItem('fugitive_count'),
+        shapeshifter: localStorage.getItem('shapeshifter_count'),
         guardian_angel: localStorage.getItem('guardian_angel_count')
     });
     
@@ -397,9 +397,9 @@ async function init() {
 document.getElementById('ready-button').addEventListener('click', () => {
     const players = getStorageJson('current_players');
     const name = players[currentIndex - 1]?.player_name;
-    const isUnselectedFugitive = getStorageJson('unselected_fugitives').includes(name);
+    const isUnselectedshapeshifter = getStorageJson('unselected_shapeshifters').includes(name);
 
-    if (isUnselectedFugitive && !document.getElementById('role-status').classList.contains('hidden')) {
+    if (isUnselectedshapeshifter && !document.getElementById('role-status').classList.contains('hidden')) {
         alert("Please select a role first!");
         return;
     }
