@@ -29,7 +29,7 @@ const ROLE_DATA = {
     hitmans: { 
         label: 'Hitman', class: 'hitman', 
         tip: 'Try to vote out your target!', 
-        grad: 'radial-gradient(circle, rgb(255, 82, 125) 0%, rgb(128, 41, 63) 100%)',
+        grad: 'radial-gradient(circle, rgb(84, 84, 255) 0%, rgb(42, 42, 128) 100%)',
         showWord: true 
     },
     shapeshifters: { 
