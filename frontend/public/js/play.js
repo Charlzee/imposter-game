@@ -309,10 +309,10 @@ function viewRoles() {
         const isMime = getStorageJson('mimes').includes(name);
 
         let roleName = foundKey ? ROLE_DATA[foundKey].label : 'Innocent';
-        if (isshapeshifter && isUnselected) roleName = 'shapeshifter';
+        if (isshapeshifter && isUnselected) roleName = 'Shapeshifter';
 
         let roleExtra = '';
-        if (isshapeshifter) roleExtra += ' [shapeshifter]';
+        if (isshapeshifter) roleExtra += ' (Shapeshifter)';
         if (isAmnesia) roleExtra += ' [AMNESIA]';
         if (isMime) roleExtra += ' [MIME]';
         
