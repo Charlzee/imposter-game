@@ -140,9 +140,9 @@
 #role-display h3.hitman {
     font-size: 3rem;
     text-align: center;
-    color: blue;
+    color: lightblue;
     text-shadow: 
-        7px 7px 4px rgba(62, 62, 148, 0.5),
+        7px 7px 4px rgba(62, 62, 200, 0.5),
         6px 6px 10px rgba(0, 0, 0, 0.6);
     margin-bottom: 20px;
 }
