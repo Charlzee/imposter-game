@@ -201,7 +201,7 @@ function displayRole(playerIndex) {
 
         const gaTargets = getStorageJson('guardian_angelTargets', {});
         const exTargets = getStorageJson('hitmanTargets', {});
-        let content = (configUi.showWord || isMime) ? selectedWord : '';
+        let content = configUi.showWord ? selectedWord : '';
         
         const myTarget = exTargets[playerName] || gaTargets[playerName];
         if (myTarget) content += `\n\nYOUR TARGET: ${myTarget}`;
