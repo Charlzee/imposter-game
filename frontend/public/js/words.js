@@ -69,7 +69,7 @@ async function getDocsWords(docId, auth) {
     return tabsResult;
 }
 
-async function getWords() {
+async function getWords(c) {
     const now = Date.now();
 
     if (cachedWords && (now - lastFetchTime < CACHE_TTL)) {
