@@ -1,5 +1,4 @@
 import { google } from 'googleapis'
-import bcrypt from 'bcryptjs'
 import path from 'path'
 import words1 from './words.json'
 import words2 from './english_language.json'
@@ -117,4 +116,4 @@ async function getWords() {
         if (cachedWords) return c.json([...localWords, ...cachedWords]);
         return c.json(localWords);
     }
-});
+};
