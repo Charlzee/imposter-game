@@ -24,7 +24,7 @@ function invalidatePlayersCache() {
 // ==== Topic Logic ====
 async function fetchTopics() {
     try {
-        const topics = getWords()
+        const topics = await getWords()
 
         if (Array.isArray(topics)) {
             topic_container.innerHTML = "";
