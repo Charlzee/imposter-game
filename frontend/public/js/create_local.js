@@ -1,3 +1,5 @@
+import getWords from words
+
 let cachedPlayers = null;
 let topic_container;
 let player_container;
@@ -22,8 +24,7 @@ function invalidatePlayersCache() {
 // ==== Topic Logic ====
 async function fetchTopics() {
     try {
-        const response = await fetch("https://imposter-gm.com/api/words");
-        const topics = await response.json();
+        const topics = getWords()
 
         if (Array.isArray(topics)) {
             topic_container.innerHTML = "";
