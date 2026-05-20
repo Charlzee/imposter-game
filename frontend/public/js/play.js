@@ -44,6 +44,18 @@ const ROLE_DATA = {
         tip: 'Try to protect your target!', 
         grad: 'radial-gradient(circle, rgb(199, 255, 249) 0%, rgb(100, 128, 125) 100%)',
         showWord: true 
+    },
+    alphas: {
+        label: 'Alpha', class: 'alpha', 
+        tip: 'If you get even 1 vote, you lose!', 
+        grad: 'radial-gradient(circle, rgb(200, 200, 200) 0%, rgb(100, 100, 100) 100%)',
+        showWord: true 
+    },
+    inspectors: {
+        label: 'Inspector Goole', class: 'inspector', 
+        tip: 'Use your clue and aura farm', 
+        grad: 'radial-gradient(circle, rgb(235, 183, 42) 0%, rgb(118, 92, 21) 100%)',
+        showWord: true 
     }
 };
 
@@ -72,7 +84,7 @@ async function fetchData() {
         selectedTopic = data.find(t => t.id === selectedTopicId) || data[0];
         words = selectedTopic.words;
     } catch (error) {
-        console.error("Failed to load topics:", error);
+        console.error("Failed to fetch topics:", error);
     }
 }
 
@@ -87,7 +99,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     const players = JSON.parse(playersJson || '[]');
     if (!players.length) return;
 
-    const roleIds = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel'];
+    const roleIds = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector'];
     const chosenRoles = {};
     const occupiedIndices = new Set();
 
@@ -166,7 +178,7 @@ function displayRole(playerIndex) {
 
     const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), 'innocent', 'hidden'];
 
-    const baseRoleKeys = ['imposters', 'jesters', 'hitmans', 'shapeshifters', 'guardian_angels'];
+    const baseRoleKeys = ['imposters', 'jesters', 'hitmans', 'shapeshifters', 'guardian_angels', 'alphas', 'inspectors'];
     const baseRoleKey = baseRoleKeys.find(key => getStorageJson(key).includes(playerName));
     const isAmnesia = getStorageJson('amnesias').includes(playerName);
     const isMime = getStorageJson('mimes').includes(playerName);
@@ -264,7 +276,11 @@ function displayRole(playerIndex) {
             .forEach(roleClass => addRoleBtn(roleClass));
 
         roleDisplay.insertBefore(selectionContainer, document.getElementById("role-tip"));
-    }
+    } else if (activeRoleKey === 'inspectors'){
+        const wordDisplay = document.getElementById('word');
+        const playerToShow = ""
+        wordDisplay.textContent = wordDisplay.textContent + "\n\nONE NON-IMPOSTER:\n[ I haven't programmed this yet :( ]"
+    };
 }
 
 function hideRole(playerIndex) {
@@ -301,7 +317,7 @@ function viewRoles() {
         const el = document.createElement('div');
         el.className = 'player-view-role';
         const name = p.player_name;
-        const powerRoleKeys = ['imposters', 'jesters', 'hitmans', 'guardian_angels'];
+        const powerRoleKeys = ['imposters', 'jesters', 'hitmans', 'guardian_angels', 'alphas', 'inspectors'];
         const foundKey = powerRoleKeys.find(key => getStorageJson(key).includes(name));
         const isshapeshifter = getStorageJson('shapeshifters').includes(name);
         const isUnselected = getStorageJson('unselected_shapeshifters').includes(name);
@@ -387,7 +403,9 @@ async function init() {
         jester: localStorage.getItem('jester_count'),
         hitman: localStorage.getItem('hitman_count'),
         shapeshifter: localStorage.getItem('shapeshifter_count'),
-        guardian_angel: localStorage.getItem('guardian_angel_count')
+        guardian_angel: localStorage.getItem('guardian_angel_count'),
+        alpha: localStorage.getItem('alpha_count'),
+        inspector: localStorage.getItem('inspector_count')
     });
     
     selectedWord = createSelectedWord();

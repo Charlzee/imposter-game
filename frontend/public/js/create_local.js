@@ -25,7 +25,6 @@ function invalidatePlayersCache() {
 async function fetchTopics() {
     try {
         const topics = await getWords();
-
         if (Array.isArray(topics)) {
             topic_container.innerHTML = "";
             const fragment = document.createDocumentFragment();
@@ -139,7 +138,7 @@ async function startGame() {
     if (!localStorage.getItem("selected_topic")) return alert("Select a topic!");
 
     // Grab all role counts
-    const roles = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel'];
+    const roles = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector'];
     let totalRoles = 0;
 
     roles.forEach(role => {
@@ -179,7 +178,9 @@ function init() {
         { id: 'jester', label: 'JESTER', default: 0 },
         { id: 'hitman', label: 'HITMAN', default: 0 },
         { id: 'shapeshifter', label: 'SHAPESHIFTER', default: 0 },
-        { id: 'guardian_angel', label: 'GUARDIAN ANGEL', default: 0 }
+        { id: 'guardian_angel', label: 'GUARDIAN ANGEL', default: 0 },
+        { id: 'alpha', label: 'ALPHA', default: 0 },
+        { id: 'inspector', label: 'INSPECTOR', default: 0 }
     ];
 
     const settingsGroup = document.getElementById('role-settings-container');

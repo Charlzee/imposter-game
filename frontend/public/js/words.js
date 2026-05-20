@@ -1,11 +1,11 @@
-import words1 from './words.json' with { type: 'json' };
-import words2 from './english_language.json' with { type: 'json' }
+import words1 from './words_local.json' with { type: 'json' };
+import words2 from './english_language.json' with { type: 'json' };
 
 let localWords = [...words1, ...words2];
 
 async function fetchBackendWords() {
     try {
-        const response = await fetch('/api/words');
+        const response = await fetch('https://imposter-gm.com/api/words');
         if (!response.ok) {
             throw new Error(`Backend returned status ${response.status}`);
         }

@@ -167,6 +167,25 @@
     margin-bottom: 20px;
 }
 
+#role-display h3.alpha {
+    font-size: 3rem;
+    text-align: center;
+    color: rgb(140, 140, 140); 
+    text-shadow:
+        7px 7px 4px rgba(128, 128, 128, 0.5),
+        6px 6px 10px rgba(0, 0, 0, 0.6);
+    margin-bottom: 20px;
+}
+
+#role-display h3.inspector {
+    font-size: 3rem;
+    text-align: center;
+    color: goldenrod;
+    text-shadow:
+        7px 7px 4px rgba(163, 117, 0, 0.5),
+        6px 6px 10px rgba(0, 0, 0, 0.6);
+    margin-bottom: 20px;
+}
 
 .shapeshifter-role-selection {
     display: flex;
