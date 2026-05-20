@@ -1,3 +1,4 @@
+import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase } from '../js/global.js';
 
 // === CONFIG ===
@@ -66,13 +67,12 @@ const getStorageJson = (key, fallback = []) => JSON.parse(localStorage.getItem(k
 
 async function fetchData() {
     try {
-        const response = await fetch("https://imposter-gm.com/api/words");
-        data = await response.json();
+        const data = await getWords();
         const selectedTopicId = localStorage.getItem('selected_topic');
         selectedTopic = data.find(t => t.id === selectedTopicId) || data[0];
         words = selectedTopic.words;
     } catch (error) {
-        console.error("Failed to fetch topics:", error);
+        console.error("Failed to load topics:", error);
     }
 }
 

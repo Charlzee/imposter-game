@@ -121,7 +121,6 @@ app.get("/words", async (c) => {
         return c.json([...localWords, ...finalDocsData]);
     } catch (err) {
         console.error("Fetch Error:", err.message);
-        if (cachedWords) return c.json([...localWords, ...cachedWords]);
         return c.json(localWords);
     }
 });

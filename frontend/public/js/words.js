@@ -1,7 +1,6 @@
-import words1 from './words.json' assert { type: 'json' };
-import words2 from './english_language.json' assert { type: 'json' };
+import words1 from './words.json' with { type: 'json' };
 
-let localWords = [...words1, ...words2];
+let localWords = [...words1];
 let cachedDocs = null;
 let lastFetchTime = 0;
 const CACHE_TTL = 30 * 1000; // 30 seconds
@@ -15,8 +14,6 @@ async function getDocsWords() {
     }
 
     try {
-        // Get service account credentials from environment or config
-        // You'll need to store these securely - consider using a config file in frontend/public/
         const response = await fetch('/config/google-config.json');
         if (!response.ok) {
             console.log("No Google Docs config found, skipping Google Docs fetch");
@@ -141,9 +138,32 @@ function extractWordsFromContent(content) {
     return text.split('\n').map(w => w.trim()).filter(w => w.length > 0);
 }
 
+async function fetchBackendWords() {
+    try {
+        const response = await fetch('/api/words');
+        if (!response.ok) {
+            throw new Error(`Backend returned status ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+            throw new Error('Backend returned invalid word list');
+        }
+
+        return data;
+    } catch (error) {
+        console.warn('Backend words fetch failed:', error);
+        return null;
+    }
+}
+
 async function getWords() {
-    const docsWords = await getDocsWords();
-    return [...localWords, ...docsWords];
+    const backendWords = await fetchBackendWords();
+    if (backendWords) {
+        return backendWords;
+    }
+
+    return localWords;
 }
 
 export default getWords;
