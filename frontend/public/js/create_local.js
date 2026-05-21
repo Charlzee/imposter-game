@@ -24,15 +24,41 @@ function invalidatePlayersCache() {
 // ==== Topic Logic ====
 async function fetchTopics() {
     try {
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('topics took too long to load')), 5000)
-        );
-        
-        const topics = await Promise.race([getWords(), timeoutPromise]);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        let topics = null; 
+        window.lastFetchTimedOut = false;
+
+        try {
+            topics = await getWords(controller.signal);
+            clearTimeout(timeoutId);
+            console.log("Topics processed:", topics);
+        } catch (error) {
+            clearTimeout(timeoutId); 
+            console.error("Critical error inside word loader wrapper:", error);
+            topic_container.innerHTML = "<span>Error initializing topics.</span>";
+            return;
+        }
+
         if (Array.isArray(topics)) {
             topic_container.innerHTML = "";
+
+            if (window.lastFetchTimedOut) {
+                console.warn("Request timed out");
+                const banner = document.createElement("div");
+                banner.className = "error-msg";
+                banner.innerHTML = `
+                    <span>Connection Timed Out</span>
+                    <span style="text-decoration: underline; text-underline-offset: 3px;">Using Local Words Instead</span>
+                `;
+                localStorage.setItem("isOffline", true)
+                document.getElementById("error-box").appendChild(banner)
+            }else{
+                localStorage.setItem("isOffline", false)
+            }
+
             const fragment = document.createDocumentFragment();
-            
             for (const topic of topics) {
                 const topic_element = document.createElement("div");
                 topic_element.className = "topic";
@@ -55,8 +81,8 @@ async function fetchTopics() {
             topic_container.appendChild(fragment);
         }
     } catch (error) {
-        console.error("Failed to fetch topics:", error);
-        topic_container.innerHTML = "<span>Error loading topics.</span>";
+        console.error("Failed to render topics component:", error);
+        topic_container.innerHTML = "<span>Error displaying topics.</span>";
     }
 
     const savedTopic = localStorage.getItem("selected_topic");
@@ -171,6 +197,7 @@ window.closeSettings = () => document.getElementById('settings-overlay')?.classL
 
 // ==== Init ====
 function init() {
+    localStorage.setItem("isOffline", false)
     topic_container = document.getElementById("topic-container");
     player_container = document.getElementById("player-container");
     player_name_input = document.getElementById("player-name-input");

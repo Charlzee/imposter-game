@@ -239,6 +239,27 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+.error-msg {
+    background-color: white;
+    color: white;
+    outline: 3px solid black;
+    padding: 20px;
+    border-radius: 8px;
+
+    width: 80%;
+    max-width: 80%; 
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 15px;
+    
+    background-image: linear-gradient(0deg, rgb(65, 0, 0) 0%, rgb(141, 35, 35) 100%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
 #settings-overlay.active {
     display: flex;
 }
