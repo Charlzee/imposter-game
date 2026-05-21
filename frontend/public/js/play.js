@@ -347,7 +347,12 @@ function displayRole(playerIndex) {
     
     const config = ROLE_DATA[baseRoleKey] || INNOCENT_CONFIG;
 
-    let activeUiConfig = config
+    let activeUiConfig = config;
+
+    function getRandomLetter() {
+        const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        return characters.charAt(Math.floor(Math.random() * characters.length));
+    }
 
     function updateUi(configUi, forcedRoleClass = null) {
         roleStatus.classList.remove(...allRoleClasses);
@@ -437,7 +442,13 @@ function displayRole(playerIndex) {
             modTitle.style.textShadow = `3px 3px 2px rgba(0,0,0,0.5), 0 0 8px ${modConfig.textColor}`;
 
             const modTip = document.createElement('p');
-            modTip.textContent = modConfig.tip;
+            
+            // if modifier is monkey, append the letter
+            if (modKey === 'monkey') {
+                modTip.textContent = `${modConfig.tip}[${getRandomLetter()}]`;
+            } else {
+                modTip.textContent = modConfig.tip;
+            }
 
             const activeSubColor = modConfig.subTextColor || '#fff';
             modTip.style.color = activeSubColor;
@@ -480,19 +491,7 @@ function displayRole(playerIndex) {
         return "No matching players found";
     }
 
-    function getRandomLetter() {
-        const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        return characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-
-    if (baseRoleKey === 'monkey') {
-        const letter = getRandomLetter();
-        activeUiConfig = { 
-            ...config, 
-            tip: `${ROLE_DATA.monkey.tip}[${letter}]` 
-        };
-    }
-
+    // Run standard initial setup UI
     updateUi(activeUiConfig);
 
     if (baseRoleKey === 'shapeshifters') {
@@ -532,10 +531,7 @@ function displayRole(playerIndex) {
                 localStorage.setItem("unselected_shapeshifters", JSON.stringify(currentUnselected));
 
                 let finalConfig = customConfig || ROLE_DATA[roleConfigKey];
-                if (roleConfigKey === 'monkey') {
-                    const letter = getRandomLetter();
-                    finalConfig = { ...finalConfig, tip: `${ROLE_DATA.monkey.tip}[${letter}]` };
-                }
+                
                 
                 updateUi(finalConfig, roleClass); 
 
