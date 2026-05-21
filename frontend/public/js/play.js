@@ -76,6 +76,17 @@ const ROLE_MODIFIERS = {
         overrideWordVisibility: false,
         chance: 0.035
     },
+    scholar: {
+        label: 'Scholar', class: 'scholar', 
+        tip: 'You get to see the word and theme! (useless unless you are imposter)', 
+        grad: 'radial-gradient(circle, rgb(93, 63, 211) 0%, rgb(21, 10, 60) 100%)',
+        textColor: 'rgb(187, 153, 255)',
+        subTextColor: 'rgb(220, 200, 255)',
+        showWord: true,
+        showTheme: true,
+        overrideWordVisibility: true,
+        chance: 0.025
+    }
 };
 
 const ROLE_DATA = {
@@ -144,6 +155,14 @@ const ROLE_DATA = {
         grad: 'radial-gradient(circle, rgb(77, 43, 33) 0%, rgb(59, 19, 7) 100%)',
         textColor: 'rgb(53, 35, 16)',
         showWord: true
+    },
+    annoying: {
+        label: 'Annoying', class: 'annoying',
+        tip: 'You need to repeat everything your target says right after they do!',
+        grad: 'radial-gradient(circle, rgb(223, 255, 0) 0%, rgb(152, 175, 0) 100%)',
+        textColor: 'rgb(235, 255, 104)',
+        showWord: true,
+        hasTarget: true
     }
 };
 
@@ -190,6 +209,11 @@ async function fetchData() {
         if (Array.isArray(data) && data.length > 0) {
             selectedTopic = data.find(t => t.id === selectedTopicId) || data[0];
             words = selectedTopic.words;
+            
+            if (selectedTopic) {
+                const themeName = selectedTopic.name || toTitleCase(selectedTopic.id.replace('_', ' '));
+                localStorage.setItem('selected_theme', themeName);
+            }
         } else {
             words = fallbackTopic.words;
         }
@@ -325,15 +349,28 @@ function displayRole(playerIndex) {
         document.querySelectorAll('.modifier-container').forEach(el => el.remove());
 
         roleTitle.textContent = `Player ${playerIndex} role:`;
-        roleStatus.textContent = configUi.label;
-        roleStatus.classList.add(configUi.class);
+        
+        // === AMNESIA CONFIG OVERRIDES ===
+        const hasAmnesia = activeModifiers.includes('amnesias');
+        if (hasAmnesia) {
+            roleStatus.textContent = "%?$?£$";
+            roleStatus.classList.add('amnesia');
 
-        const activeColor = configUi.textColor || 'white';
-        roleStatus.style.color = activeColor;
-        roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${activeColor}`;
+            const darkAmnesiaColor = 'rgb(30, 110, 150)'; 
+            roleStatus.style.color = darkAmnesiaColor;
+            roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${darkAmnesiaColor}`;
+            roleDisplay.style.backgroundImage = ROLE_MODIFIERS.amnesias.grad;
+            roleTip.textContent = ROLE_MODIFIERS.amnesias.tip;
+        } else {
+            roleStatus.textContent = configUi.label;
+            roleStatus.classList.add(configUi.class);
 
-        roleDisplay.style.backgroundImage = configUi.grad;
-        roleTip.textContent = configUi.tip;
+            const activeColor = configUi.textColor || 'white';
+            roleStatus.style.color = activeColor;
+            roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${activeColor}`;
+            roleDisplay.style.backgroundImage = configUi.grad;
+            roleTip.textContent = configUi.tip;
+        }
 
         if (document.getElementById("shapeshifter-role-selection")) document.getElementById("shapeshifter-role-selection").remove();
 
@@ -345,6 +382,23 @@ function displayRole(playerIndex) {
         });
 
         let content = displayTheWord ? selectedWord : '';
+
+        // === THEME VISIBILITY ===
+        let displayTheTheme = configUi.showTheme || config.showTheme;
+        activeModifiers.forEach(modKey => {
+            if (ROLE_MODIFIERS[modKey].showTheme) {
+                displayTheTheme = true;
+            }
+        });
+
+        if (displayTheTheme) {
+            const currentTheme = (localStorage.getItem('selected_theme') || "Unknown Theme").replace("_", " ");
+            if (content) {
+                content += `\nTHEME: ${currentTheme}`;
+            } else {
+                content = `THEME: ${currentTheme}`;
+            }
+        }
 
         Object.keys(ROLE_DATA).forEach(key => {
             if (ROLE_DATA[key].hasTarget) {
