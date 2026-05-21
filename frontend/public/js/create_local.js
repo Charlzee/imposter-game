@@ -33,7 +33,7 @@ async function fetchTopics() {
         try {
             topics = await getWords(controller.signal);
             clearTimeout(timeoutId);
-            console.log("Topics processed:", topics);
+            //console.log("Topics processed:", topics);
         } catch (error) {
             clearTimeout(timeoutId); 
             console.error("Critical error inside word loader wrapper:", error);
@@ -52,10 +52,7 @@ async function fetchTopics() {
                     <span>Connection Timed Out</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px;">Using Local Words Instead</span>
                 `;
-                localStorage.setItem("isOffline", true)
                 document.getElementById("error-box").appendChild(banner)
-            }else{
-                localStorage.setItem("isOffline", false)
             }
 
             const fragment = document.createDocumentFragment();
@@ -197,7 +194,6 @@ window.closeSettings = () => document.getElementById('settings-overlay')?.classL
 
 // ==== Init ====
 function init() {
-    localStorage.setItem("isOffline", false)
     topic_container = document.getElementById("topic-container");
     player_container = document.getElementById("player-container");
     player_name_input = document.getElementById("player-name-input");

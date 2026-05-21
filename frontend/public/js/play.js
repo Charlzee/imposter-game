@@ -78,13 +78,34 @@ const roleDisplay = document.getElementById('role-display');
 const getStorageJson = (key, fallback = []) => JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
 
 async function fetchData() {
+    const fallbackTopic = { id: "local_default", words: ["Error Loading Words"] };
+
     try {
-        const data = await getWords();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        let data = null;
+        try {
+            data = await getWords(controller.signal);
+            clearTimeout(timeoutId);
+        } catch (error) {
+            clearTimeout(timeoutId);
+            console.warn("Backend word sync failed or timed out. Swapping to local word bank.");
+            data = await getWords();
+        }
+
         const selectedTopicId = localStorage.getItem('selected_topic');
-        selectedTopic = data.find(t => t.id === selectedTopicId) || data[0];
-        words = selectedTopic.words;
+        
+        if (Array.isArray(data) && data.length > 0) {
+            selectedTopic = data.find(t => t.id === selectedTopicId) || data[0];
+            words = selectedTopic.words;
+        } else {
+            words = fallbackTopic.words;
+        }
+
     } catch (error) {
-        console.error("Failed to fetch topics:", error);
+        console.error("Critical failure during topic parsing initialization:", error);
+        words = fallbackTopic.words;
     }
 }
 
