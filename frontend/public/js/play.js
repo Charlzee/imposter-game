@@ -1,6 +1,9 @@
 import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase } from '../js/global.js';
 
+// === DEBUG ===
+const FORCE_ALL_MODIFIERS = true;
+
 // === CONFIG ===
 const ROLE_MODIFIERS = {
     amnesias: { 
@@ -8,6 +11,7 @@ const ROLE_MODIFIERS = {
         tip: 'You forgot your role :c\nTry to remember (guess) your role!', 
         grad: 'radial-gradient(circle, rgb(39, 180, 245) 0%, rgb(20, 90, 123) 100%)',
         textColor: 'rgb(147, 218, 250)',
+        subTextColor: 'rgb(190, 235, 255)',
         showWord: false,
         overrideWordVisibility: true,
         chance: 0.05
@@ -17,19 +21,41 @@ const ROLE_MODIFIERS = {
         tip: 'You can only act out actions on your turn!', 
         grad: 'radial-gradient(circle, rgb(0, 0, 0) 0%, rgb(255, 255, 255) 100%)',
         textColor: 'rgb(255, 255, 255)',
+        subTextColor: 'rgb(230, 230, 230)',
         showWord: true,
         overrideWordVisibility: false,
         chance: 0.05
     },
     dumb: {
         label: 'Dumb', class: 'dumb', 
-        tip: 'You can\'t defend yourself if you get accused.', 
+        tip: 'You can\'t defend yourself if you get accused!', 
         grad: 'radial-gradient(circle, rgb(78, 168, 9) 0%, rgb(36, 84, 0) 100%)',
         textColor: 'rgb(78, 168, 9)',
+        subTextColor: 'rgb(134, 230, 60)',
         showWord: true,
         overrideWordVisibility: false,
         chance: 0.05
-    }
+    },
+    teacher: {
+        label: 'English Teacher', class: 'teacher', 
+        tip: 'You must criticize people\'s wording when they say their role!', 
+        grad: 'radial-gradient(circle, rgb(9, 97, 168) 0%, rgb(5, 49, 84) 100%)',
+        textColor: 'rgb(97, 82, 235)',
+        subTextColor: 'rgb(160, 150, 255)',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
+    cheater: {
+        label: 'Cheater', class: 'cheater', 
+        tip: 'You, and ONLY YOU, WILL win. Noone else. No matter what. (Only reveal at the end of the game)', 
+        grad: 'radial-gradient(circle, red 0%, orange 20%, yellow 40%, green 60%, blue 80%, violet 100%)',
+        textColor: 'rgb(255, 255, 0)',
+        subTextColor: 'rgb(255, 255, 150)',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.005
+    },
 };
 
 const ROLE_DATA = {
@@ -206,27 +232,27 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         modifierLists[modKey] = [];
     });
 
-    if (localStorage.getItem("role_modifers_enabled") === "true") {
+    if (localStorage.getItem("role_modifers_enabled") === "true" || FORCE_ALL_MODIFIERS) {
         players.forEach(player => {
             const name = player.player_name;
 
             Object.keys(ROLE_MODIFIERS).forEach(modKey => {
                 const modConfig = ROLE_MODIFIERS[modKey];
                 
-                // Amnesia cannot roll onto Shapeshifter role
                 if (modKey === 'amnesias') {
                     const shapeshifters = assignedRolesData.shapeshifters || [];
                     if (shapeshifters.includes(name)) return;
                 }
 
-                if (Math.random() < modConfig.chance) {
+                const calculatedChance = FORCE_ALL_MODIFIERS ? 1 : modConfig.chance;
+
+                if (Math.random() < calculatedChance) {
                     modifierLists[modKey].push(name);
                 }
             });
         });
     }
 
-    // Save outputs back to storage collections
     Object.keys(ROLE_MODIFIERS).forEach(modKey => {
         localStorage.setItem(modKey, JSON.stringify(modifierLists[modKey]));
     });
@@ -330,7 +356,11 @@ function displayRole(playerIndex) {
 
             const modTip = document.createElement('p');
             modTip.textContent = modConfig.tip;
-            modTip.style.color = '#fff';
+
+            const activeSubColor = modConfig.subTextColor || '#fff';
+            modTip.style.color = activeSubColor;
+            modTip.style.textShadow = `5px 5px 3px rgba(0, 0, 0, 0.4), 4px 4px 8px ${activeSubColor}`;
+            
             modTip.style.margin = '0';
             modTip.style.fontSize = '1.1rem';
             modTip.style.whiteSpace = 'pre-line';
