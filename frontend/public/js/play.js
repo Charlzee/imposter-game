@@ -2,7 +2,7 @@ import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase } from '../js/global.js';
 
 // === DEBUG ===
-const FORCE_ALL_MODIFIERS = true;
+const FORCE_ALL_MODIFIERS = false;
 
 // === CONFIG ===
 const ROLE_MODIFIERS = {
@@ -55,6 +55,16 @@ const ROLE_MODIFIERS = {
         showWord: true,
         overrideWordVisibility: false,
         chance: 0.005
+    },
+    lucky: {
+        label: 'Lucky', class: 'lucky', 
+        tip: 'Your vote counts as 2!', 
+        grad: 'radial-gradient(circle, lightgreen 0%, green 100%)',
+        textColor: 'rgb(94, 255, 0)',
+        subTextColor: 'rgb(55, 255, 65)',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.035
     },
 };
 
