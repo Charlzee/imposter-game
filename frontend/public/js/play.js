@@ -123,7 +123,7 @@ const ROLE_DATA = {
     },
     terrorist: {
         label: 'Terrorist', class: 'terrorist', 
-        tip: 'If you get voted out, EVERYONE loses!', 
+        tip: 'If you get voted out, EVERYONE loses (including you)!', 
         grad: 'radial-gradient(circle, rgb(235, 87, 42) 0%, rgb(118, 44, 21) 100%)',
         textColor: 'orangered',
         showWord: true 
@@ -134,6 +134,13 @@ const ROLE_DATA = {
         grad: 'radial-gradient(circle, rgb(209, 137, 115) 0%, rgb(105, 69, 58) 100%)',
         textColor: 'peru',
         showWord: true 
+    },
+    monkey: {
+        label: 'Monkey', class: 'monkey',
+        tip: 'Your word/sentence must contain the letter/number: ',
+        grad: 'radial-gradient(circle, rgb(77, 43, 33) 0%, rgb(59, 19, 7) 100%)',
+        textColor: 'rgb(53, 35, 16)',
+        showWord: true
     }
 };
 
@@ -307,6 +314,8 @@ function displayRole(playerIndex) {
     
     const config = ROLE_DATA[baseRoleKey] || INNOCENT_CONFIG;
 
+    let activeUiConfig = config
+
     function updateUi(configUi, forcedRoleClass = null) {
         roleStatus.classList.remove(...allRoleClasses);
         
@@ -408,7 +417,20 @@ function displayRole(playerIndex) {
         return "No matching players found";
     }
 
-    updateUi(config);
+    function getRandomLetter() {
+        const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        return characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+
+    if (baseRoleKey === 'monkey') {
+        const letter = getRandomLetter();
+        activeUiConfig = { 
+            ...config, 
+            tip: `${ROLE_DATA.monkey.tip}[${letter}]` 
+        };
+    }
+
+    updateUi(activeUiConfig);
 
     if (baseRoleKey === 'shapeshifters') {
         const exclude = ["shapeshifter", "hidden", "amnesia", "mime"];
@@ -445,8 +467,13 @@ function displayRole(playerIndex) {
 
                 const currentUnselected = getStorageJson("unselected_shapeshifters").filter(p => p !== playerName);
                 localStorage.setItem("unselected_shapeshifters", JSON.stringify(currentUnselected));
+
+                let finalConfig = customConfig || ROLE_DATA[roleConfigKey];
+                if (roleConfigKey === 'monkey') {
+                    const letter = getRandomLetter();
+                    finalConfig = { ...finalConfig, tip: `${ROLE_DATA.monkey.tip}[${letter}]` };
+                }
                 
-                const finalConfig = customConfig || ROLE_DATA[roleConfigKey];
                 updateUi(finalConfig, roleClass); 
 
                 if (ROLE_DATA[roleConfigKey]?.hasClue) {
@@ -467,7 +494,7 @@ function displayRole(playerIndex) {
         roleDisplay.insertBefore(selectionContainer, document.getElementById("role-tip"));
     } else if (config.hasClue){
         const playerToShow = getInspectorClue();
-        wordDisplay.textContent = wordDisplay.textContent + `\n\nONE NON-IMPOSTER:\n[${playerToShow}]`;
+        wordDisplay.textContent += `\n\nONE NON-IMPOSTER:\n[${playerToShow}]`;
     }
 }
 
