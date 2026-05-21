@@ -2,7 +2,7 @@ import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase } from '../js/global.js';
 
 // === DEBUG ===
-const FORCE_ALL_MODIFIERS = false;
+const FORCE_ALL_MODIFIERS = true;
 
 // === CONFIG ===
 const ROLE_MODIFIERS = {
@@ -66,6 +66,16 @@ const ROLE_MODIFIERS = {
         overrideWordVisibility: false,
         chance: 0.035
     },
+    terrorist: {
+        label: 'Terrorist', class: 'terrorist', 
+        tip: 'If you get voted out, EVERYONE loses (including you)!', 
+        grad: 'radial-gradient(circle, rgb(235, 87, 42) 0%, rgb(118, 44, 21) 100%)',
+        textColor: 'orangered',
+        subTextColor: 'rgb(255, 55, 55)',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.035
+    },
 };
 
 const ROLE_DATA = {
@@ -120,13 +130,6 @@ const ROLE_DATA = {
         textColor: 'goldenrod',
         showWord: true,
         hasClue: true
-    },
-    terrorist: {
-        label: 'Terrorist', class: 'terrorist', 
-        tip: 'If you get voted out, EVERYONE loses (including you)!', 
-        grad: 'radial-gradient(circle, rgb(235, 87, 42) 0%, rgb(118, 44, 21) 100%)',
-        textColor: 'orangered',
-        showWord: true 
     },
     npc: {
         label: 'NPC', class: 'npc', 

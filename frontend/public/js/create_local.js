@@ -9,7 +9,6 @@ const ROLE_DATA = [
     'guardian_angel',
     'alpha',
     'inspector',
-    'terrorist',
     'npc',
     'monkey'
 ];
