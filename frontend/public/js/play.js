@@ -95,7 +95,7 @@ const ROLE_MODIFIERS = {
         subTextColor: 'darkorange',
         showWord: true,
         overrideWordVisibility: false,
-        chance: 0.035
+        chance: 0.05
     },
     monkey: {
         label: 'Monkey', class: 'monkey',
@@ -105,7 +105,7 @@ const ROLE_MODIFIERS = {
         subTextColor: 'brown',
         showWord: true,
         overrideWordVisibility: false,
-        chance: 0.035
+        chance: 0.05
     },
 };
 
