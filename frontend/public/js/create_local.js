@@ -9,9 +9,6 @@ const ROLE_DATA = [
     'guardian_angel',
     'alpha',
     'inspector',
-    'npc',
-    'monkey',
-    'annoying'
 ];
 
 let cachedPlayers = null;
