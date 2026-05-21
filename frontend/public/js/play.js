@@ -90,7 +90,7 @@ async function fetchData() {
             clearTimeout(timeoutId);
         } catch (error) {
             clearTimeout(timeoutId);
-            console.warn("Backend word sync failed or timed out. Swapping to local word bank.");
+            console.warn("Backend word sync failed or timed out. Swapping to local topics.");
             data = await getWords();
         }
 
