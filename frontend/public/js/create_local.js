@@ -1,5 +1,18 @@
 import getWords from './words.js';
 
+// === CONFIG ===
+const ROLE_DATA = [
+    'imposter',
+    'jester',
+    'hitman',
+    'shapeshifter',
+    'guardian_angel',
+    'alpha',
+    'inspector',
+    'terrorist',
+    'npc'
+];
+
 let cachedPlayers = null;
 let topic_container;
 let player_container;
@@ -33,7 +46,6 @@ async function fetchTopics() {
         try {
             topics = await getWords(controller.signal);
             clearTimeout(timeoutId);
-            //console.log("Topics processed:", topics);
         } catch (error) {
             clearTimeout(timeoutId); 
             console.error("Critical error inside word loader wrapper:", error);
@@ -52,7 +64,7 @@ async function fetchTopics() {
                     <span>Connection Timed Out</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px;">Using Local Words Instead</span>
                 `;
-                document.getElementById("error-box").appendChild(banner)
+                document.getElementById("error-box").appendChild(banner);
             }
 
             const fragment = document.createDocumentFragment();
@@ -164,28 +176,25 @@ async function startGame() {
     if (players.length < 1) return alert("Not enough players!");
     if (!localStorage.getItem("selected_topic")) return alert("Select a topic!");
 
-    // Grab all role counts
-    const roles = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector'];
-    let totalRoles = 0;
+    localStorage.setItem(`innocents`, JSON.stringify([]));
+    localStorage.setItem(`unselected_shapeshifters`, JSON.stringify([]));
 
-    roles.forEach(role => {
-        const val = parseInt(document.getElementById(`${role}-count`).value) || 0;
-        const percent_val = document.getElementById(`${role}-percent`).value
+    // Dynamic state collection loop
+    ROLE_DATA.forEach(role => {
+        const countInput = document.getElementById(`${role}-count`);
+        const percentInput = document.getElementById(`${role}-percent`);
+
+        const val = countInput ? (parseInt(countInput.value) || 0) : 0;
+        const percent_val = percentInput ? percentInput.value : "100%";
+
         localStorage.setItem(`${role}_count`, val);
         localStorage.setItem(`${role}_percent`, percent_val);
 
-        localStorage.setItem(`${role}s`, JSON.stringify([]));
-        localStorage.setItem(`innocents`, JSON.stringify([]));
-        localStorage.setItem(`unselected_shapeshifters`, JSON.stringify([]));
-
-
-        totalRoles += val;
+        const pluralKey = role.endsWith('s') ? role : (role === 'guardian_angel' ? 'guardian_angels' : `${role}s`);
+        localStorage.setItem(pluralKey, JSON.stringify([]));
     });
 
-    localStorage.setItem("random_events_enabled", document.getElementById("random-events-enabled").checked);
-
-    //if (totalRoles > players.length) return alert("Too many roles for player count!");
-
+    localStorage.setItem("role_modifers_enabled", document.getElementById("role-modifiers-enabled").checked);
     window.location.href = "../play.html?local=true";
 }
 
@@ -199,40 +208,35 @@ function init() {
     player_name_input = document.getElementById("player-name-input");
     cachedPlayers = null;
 
-    // Role Settings UI
-    const roles = [
-        { id: 'imposter', label: 'IMPOSTER', default: 1 },
-        { id: 'jester', label: 'JESTER', default: 0 },
-        { id: 'hitman', label: 'HITMAN', default: 0 },
-        { id: 'shapeshifter', label: 'SHAPESHIFTER', default: 0 },
-        { id: 'guardian_angel', label: 'GUARDIAN ANGEL', default: 0 },
-        { id: 'alpha', label: 'ALPHA', default: 0 },
-        { id: 'inspector', label: 'INSPECTOR', default: 0 }
-    ];
-
     const settingsGroup = document.getElementById('role-settings-container');
     if (settingsGroup) {
-        settingsGroup.innerHTML = roles.map(role => `
-            <div class="role-row">
-                <p class="titan-one-regular count">${role.label} AMOUNT</p>
-                <input class="titan-one-regular amount-input setting-input" id="${role.id}-count" type="text" inputmode="numeric">
-                <input class="titan-one-regular percent-input setting-input" id="${role.id}-percent" type="text" inputmode="numeric" value="100%">
-            </div>
-        `).join('');
+        settingsGroup.innerHTML = ROLE_DATA.map(roleId => {
+            const labelText = roleId.replace('_', ' ').toUpperCase();
+            return `
+                <div class="role-row">
+                    <p class="titan-one-regular count">${labelText} AMOUNT</p>
+                    <input class="titan-one-regular amount-input setting-input" id="${roleId}-count" type="text" inputmode="numeric">
+                    <input class="titan-one-regular percent-input setting-input" id="${roleId}-percent" type="text" inputmode="numeric" value="100%">
+                </div>
+            `;
+        }).join('');
 
-        roles.forEach(role => {
-            const input = document.getElementById(`${role.id}-count`);
-            const percent_input = document.getElementById(`${role.id}-percent`);
-            if (input) {
-                const saved = localStorage.getItem(`${role.id}_count`);
-                const percent_saved = localStorage.getItem(`${role.id}_percent`);
-                input.value = (saved !== null) ? saved : role.default;
+        ROLE_DATA.forEach(roleId => {
+            const input = document.getElementById(`${roleId}-count`);
+            const percent_input = document.getElementById(`${roleId}-percent`);
+            
+            if (input && percent_input) {
+                const saved = localStorage.getItem(`${roleId}_count`);
+                const percent_saved = localStorage.getItem(`${roleId}_percent`);
+
+                const defaultCount = (roleId === 'imposter') ? 1 : 0;
+
+                input.value = (saved !== null) ? saved : defaultCount;
                 percent_input.value = (percent_saved !== null) ? percent_saved : "100%";
             }
         });
     }
 
-    // Handle Percent Inputs
     document.querySelectorAll('.percent-input').forEach(input => {
         input.onfocus = (e) => e.target.value = e.target.value.replace('%', '');
         
@@ -258,9 +262,9 @@ function init() {
     localStorage.setItem('game_started', 'false');
     updateNameValue(null, true);
 
-    const randomEventsEl = document.getElementById("random-events-enabled");
+    const randomEventsEl = document.getElementById("role-modifiers-enabled");
     if (randomEventsEl) {
-        const saved = localStorage.getItem("random_events_enabled");
+        const saved = localStorage.getItem("role_modifers_enabled");
         randomEventsEl.checked = saved !== null ? saved === "true" : true;
     }
 }

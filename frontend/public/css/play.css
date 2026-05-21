@@ -96,94 +96,9 @@
     text-align: center;
 }
 
-#role-display h3.imposter {
+#role-display h3 {
     font-size: 3rem;
     text-align: center;
-    color: red;
-    text-shadow:
-        7px 7px 4px rgba(128, 0, 0, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
-    margin-bottom: 20px;
-}
-
-
-#role-display h3.jester {
-    font-size: 3rem;
-    text-align: center;
-    color: rgb(255, 0, 200);
-    text-shadow:
-        7px 7px 4px rgba(128, 0, 128, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
-    margin-bottom: 20px;
-}
-
-#role-display h3.amnesia {
-    font-size: 3rem;
-    text-align: center;
-    color: rgb(147, 218, 250);
-    text-shadow:
-        7px 7px 4px rgba(39, 180, 230, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
-    margin-bottom: 20px;
-}
-
-#role-display h3.innocent {
-    font-size: 3rem;
-    text-align: center;
-    color: lime;
-    text-shadow:
-        7px 7px 4px rgba(23, 138, 0, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
-    margin-bottom: 20px;
-}
-
-#role-display h3.hitman {
-    font-size: 3rem;
-    text-align: center;
-    color: cornflowerblue;
-    text-shadow: 
-        7px 7px 4px rgba(62, 62, 200, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
-    margin-bottom: 20px;
-}
-
-#role-display h3.shapeshifter {
-    font-size: 3rem;
-    text-align: center;
-    color: rgb(255, 165, 0); 
-    text-shadow:
-        7px 7px 4px rgba(128, 83, 0, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
-    margin-bottom: 20px;
-}
-
-#role-display h3.guardian_angel {
-    font-size: 3rem;
-    text-align: center;
-    color: rgb(199, 255, 249); 
-    text-shadow:
-        7px 7px 4px rgba(100, 128, 125, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
-    margin-bottom: 20px;
-}
-
-#role-display h3.alpha {
-    font-size: 3rem;
-    text-align: center;
-    color: rgb(140, 140, 140); 
-    text-shadow:
-        7px 7px 4px rgba(128, 128, 128, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
-    margin-bottom: 20px;
-}
-
-#role-display h3.inspector {
-    font-size: 3rem;
-    text-align: center;
-    color: goldenrod;
-    text-shadow:
-        7px 7px 4px rgba(163, 117, 0, 0.5),
-        6px 6px 10px rgba(0, 0, 0, 0.6);
     margin-bottom: 20px;
 }
 

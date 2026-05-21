@@ -68,7 +68,7 @@
     font-size: clamp(12px, 0.75vw, 24px);
 }
 
-.amount-input, .percent-input, #random-events-enabled {
+.amount-input, .percent-input, #role-modifiers-enabled, #random-events-enabled{
     width: 60px; 
     height: 60px;
     font-size: 2.5svh;
