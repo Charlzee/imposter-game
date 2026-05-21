@@ -24,7 +24,11 @@ function invalidatePlayersCache() {
 // ==== Topic Logic ====
 async function fetchTopics() {
     try {
-        const topics = await getWords();
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('topics took too long to load')), 5000)
+        );
+        
+        const topics = await Promise.race([getWords(), timeoutPromise]);
         if (Array.isArray(topics)) {
             topic_container.innerHTML = "";
             const fragment = document.createDocumentFragment();
