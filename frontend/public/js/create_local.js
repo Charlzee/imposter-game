@@ -25,7 +25,7 @@ function invalidatePlayersCache() {
 async function fetchTopics() {
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         let topics = null; 
         window.lastFetchTimedOut = false;
