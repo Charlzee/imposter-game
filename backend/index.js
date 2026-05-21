@@ -6,11 +6,9 @@ import { google } from 'googleapis'
 import bcrypt from 'bcryptjs'
 import path from 'path'
 import words1 from './words.json'
-//import words2 from './english_language.json'
+import words2 from './english_language.json'
 
-let localWords = words1
-
-//let localWords = [...words1, ...words2]
+let localWords = [...words1, ...words2]
 
 const app = new Hono().basePath("/api")
 app.use("*", cors())
