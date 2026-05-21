@@ -86,7 +86,27 @@ const ROLE_MODIFIERS = {
         showTheme: true,
         overrideWordVisibility: true,
         chance: 0.025
-    }
+    },
+    npc: {
+        label: 'NPC', class: 'npc', 
+        tip: 'You can only use generic words (e.g. \'thing\', \'good\', \'bad\')', 
+        grad: 'radial-gradient(circle, rgb(209, 137, 115) 0%, rgb(105, 69, 58) 100%)',
+        textColor: 'peru',
+        subTextColor: 'darkorange',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.035
+    },
+    monkey: {
+        label: 'Monkey', class: 'monkey',
+        tip: 'Your word/sentence must contain the letter/number: ',
+        grad: 'radial-gradient(circle, rgb(77, 43, 33) 0%, rgb(59, 19, 7) 100%)',
+        textColor: 'rgb(53, 35, 16)',
+        subTextColor: 'brown',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.035
+    },
 };
 
 const ROLE_DATA = {
@@ -141,20 +161,6 @@ const ROLE_DATA = {
         textColor: 'goldenrod',
         showWord: true,
         hasClue: true
-    },
-    npc: {
-        label: 'NPC', class: 'npc', 
-        tip: 'You can only use generic words (e.g. \'thing\', \'good\', \'bad\')', 
-        grad: 'radial-gradient(circle, rgb(209, 137, 115) 0%, rgb(105, 69, 58) 100%)',
-        textColor: 'peru',
-        showWord: true 
-    },
-    monkey: {
-        label: 'Monkey', class: 'monkey',
-        tip: 'Your word/sentence must contain the letter/number: ',
-        grad: 'radial-gradient(circle, rgb(77, 43, 33) 0%, rgb(59, 19, 7) 100%)',
-        textColor: 'rgb(53, 35, 16)',
-        showWord: true
     },
     annoying: {
         label: 'Annoying', class: 'annoying',
