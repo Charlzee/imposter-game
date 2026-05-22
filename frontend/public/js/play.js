@@ -101,7 +101,7 @@ const ROLE_MODIFIERS = {
         label: 'Monkey', class: 'monkey',
         tip: 'Your word/sentence must contain the letter/number: ',
         //grad: 'radial-gradient(circle, rgb(77, 43, 33) 0%, rgb(59, 19, 7) 100%)',
-        grad: '../assets/IMG_0494.jpeg',
+        grad: '/assets/IMG_0494.jpeg',
         textColor: 'rgb(151,101,48)',
         subTextColor: 'brown',
         showWord: true,
