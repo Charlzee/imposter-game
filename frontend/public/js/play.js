@@ -48,13 +48,13 @@ const ROLE_MODIFIERS = {
     },
     cheater: {
         label: 'Cheater', class: 'cheater', 
-        tip: 'You, and ONLY YOU, WILL win. Noone else. No matter what. (Only reveal at the end of the game)', 
+        tip: 'You, and ONLY YOU, WILL win. No one else. No matter what. (Only reveal at the end of the game)', 
         grad: 'radial-gradient(circle, red 0%, orange 20%, yellow 40%, green 60%, blue 80%, violet 100%)',
         textColor: 'rgb(255, 255, 0)',
         subTextColor: 'rgb(255, 255, 150)',
         showWord: true,
         overrideWordVisibility: false,
-        chance: 0.005
+        chance: 0.001
     },
     lucky: {
         label: 'Lucky', class: 'lucky', 
