@@ -138,6 +138,16 @@ const ROLE_MODIFIERS = {
         overrideWordVisibility: false,
         chance: 0.05
     },
+    lang: {
+        label: 'refugee', class: 'lang',
+        tip: 'u must speak different language.',
+        grad: 'radial-gradient(circle, orange 0%, orangered 100%)',
+        textColor: 'rgb(255,101,48)',
+        subTextColor: 'darkred',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
 };
 
 const ROLE_DATA = {
