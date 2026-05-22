@@ -56,6 +56,16 @@ const ROLE_MODIFIERS = {
         overrideWordVisibility: false,
         chance: 0.001
     },
+    happy: {
+        label: 'Happy', class: 'happy', 
+        tip: 'EVERYONE WINS!!! (Only reveal at the end of the game)', 
+        grad: 'radial-gradient(circle, red 0%, orange 20%, yellow 40%, green 60%, blue 80%, violet 100%)',
+        textColor: 'rgb(255, 255, 0)',
+        subTextColor: 'rgb(255, 255, 150)',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.0001
+    },
     lucky: {
         label: 'Lucky', class: 'lucky', 
         tip: 'Your vote counts as 2!', 
@@ -71,7 +81,7 @@ const ROLE_MODIFIERS = {
         tip: 'You lose your vote!', 
         grad: 'radial-gradient(circle, green 0%, darkgreen 100%)',
         textColor: 'rgb(94, 160, 0)',
-        subTextColor: 'rgb(55, 160, 65)',
+        subTextColor: 'rgb(55, 200, 65)',
         showWord: true,
         overrideWordVisibility: false,
         chance: 0.035
@@ -123,7 +133,7 @@ const ROLE_MODIFIERS = {
         tip: 'You need to debate witn someone.',
         grad: 'radial-gradient(circle, orange 0%, orangered 100%)',
         textColor: 'rgb(255,101,48)',
-        subTextColor: 'red',
+        subTextColor: 'darkred',
         showWord: true,
         overrideWordVisibility: false,
         chance: 0.05
