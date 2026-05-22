@@ -2,7 +2,7 @@ import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase } from '../js/global.js';
 
 // === DEBUG ===
-const FORCE_ALL_MODIFIERS = false;
+const FORCE_ALL_MODIFIERS = true;
 
 // === CONFIG ===
 const ROLE_MODIFIERS = {
@@ -101,7 +101,7 @@ const ROLE_MODIFIERS = {
         label: 'Monkey', class: 'monkey',
         tip: 'Your word/sentence must contain the letter/number: ',
         //grad: 'radial-gradient(circle, rgb(77, 43, 33) 0%, rgb(59, 19, 7) 100%)',
-        grad: '../assets/mawgan.png',
+        grad: '../assets/IMG_0494.jpeg',
         textColor: 'rgb(151,101,48)',
         subTextColor: 'brown',
         showWord: true,
