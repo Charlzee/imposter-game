@@ -66,6 +66,16 @@ const ROLE_MODIFIERS = {
         overrideWordVisibility: false,
         chance: 0.035
     },
+    unlucky: {
+        label: 'Unlucky', class: 'unlucky', 
+        tip: 'You lose your vote!', 
+        grad: 'radial-gradient(circle, green 0%, darkgreen 100%)',
+        textColor: 'rgb(94, 160, 0)',
+        subTextColor: 'rgb(55, 160, 65)',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.035
+    },
     terrorist: {
         label: 'Terrorist', class: 'terrorist', 
         tip: 'If you get voted out, EVERYONE loses (including you)!', 
