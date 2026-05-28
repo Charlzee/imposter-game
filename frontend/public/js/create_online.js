@@ -168,7 +168,7 @@ export function initLobby() {
 
 // ==== Topic Logic ====
 async function fetchTopics() {
-    const topic_container = document.getElementById("topic-container");
+    const topic_container = document.getElementById("topic-container-host-only");
     if (!topic_container) return;
 
     try {
