@@ -31,7 +31,7 @@ export async function hostOnlineGame() {
         try {
             if (contentType && contentType.includes("application/json")) {
                 const data = await response.json();
-                alert(data.error || "Failed to create online room.");
+                alert(`${data.error || "Failed to create online room."}\n\nDetails: ${data.details || "No details provided"}`);
             } else {
                 alert(`Server Error: ${response.status} ${response.statusText}`);
             }

@@ -203,13 +203,12 @@ app.post('/auth/rooms/create', async (c) => {
     const { code, settings } = await c.req.json();
 
     try {
-        await c.env.D1.prepare(
-            "INSERT INTO rooms (code, host_username, settings) VALUES (?, ?, ?)"
-        ).bind(code, payload.username, JSON.stringify(settings)).run();
-
-        await c.env.D1.prepare(
-            "INSERT INTO room_players (room_code, username) VALUES (?, ?)"
-        ).bind(code, payload.username).run();
+        await c.env.D1.batch([
+            c.env.D1.prepare("INSERT INTO rooms (code, host_username, settings) VALUES (?, ?, ?)")
+                .bind(code, payload.username, JSON.stringify(settings)),
+            c.env.D1.prepare("INSERT INTO room_players (room_code, username) VALUES (?, ?)")
+                .bind(code, payload.username)
+        ]);
 
         return c.json({ success: true });
     } catch (err) {
