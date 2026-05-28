@@ -88,6 +88,9 @@ export async function updatePlayerList(code) {
             list.innerHTML = players.map(p => `<div class="player-tile"><span>${p.username}</span></div>`).join('');
             localStorage.setItem('current_players', JSON.stringify(players.map(p => ({ player_name: p.username }))));
         }
+    } else if (response.status === 404) {
+        alert("Room connection lost or timed out.");
+        window.location.href = "/";
     }
 }
 

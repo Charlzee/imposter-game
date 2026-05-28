@@ -203,6 +203,9 @@ app.post('/auth/rooms/create', async (c) => {
     const { code, settings } = await c.req.json();
 
     try {
+        // Delete rooms that haven't had activity for over an hour
+        await c.env.D1.prepare("DELETE FROM rooms WHERE last_activity < datetime('now', '-1 hour')").run();
+
         await c.env.D1.batch([
             c.env.D1.prepare("INSERT INTO rooms (code, host_username, settings) VALUES (?, ?, ?)")
                 .bind(code, payload.username, JSON.stringify(settings)),
@@ -242,6 +245,18 @@ app.post('/auth/rooms/join', async (c) => {
 
 app.get('/auth/rooms/:code/players', async (c) => {
     const code = c.req.param('code');
+    const payload = c.get('jwtPayload');
+
+    await c.env.D1.batch([
+        c.env.D1.prepare("UPDATE room_players SET last_seen = CURRENT_TIMESTAMP WHERE room_code = ? AND username = ?")
+            .bind(code, payload.username),
+        c.env.D1.prepare("UPDATE rooms SET last_activity = CURRENT_TIMESTAMP WHERE code = ?")
+            .bind(code)
+    ]);
+
+    await c.env.D1.prepare("DELETE FROM room_players WHERE room_code = ? AND last_seen < datetime('now', '-10 seconds')")
+        .bind(code).run();
+
     const players = await c.env.D1.prepare(
         "SELECT username FROM room_players WHERE room_code = ?"
     ).bind(code).all();

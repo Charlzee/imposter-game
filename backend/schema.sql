@@ -12,12 +12,14 @@ CREATE TABLE IF NOT EXISTS rooms (
     host_username TEXT,
     settings TEXT,
     status TEXT DEFAULT 'lobby',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_activity DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS room_players (
     room_code TEXT,
     username TEXT,
+    last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (room_code, username),
-    FOREIGN KEY (room_code) REFERENCES rooms(code)
+    FOREIGN KEY (room_code) REFERENCES rooms(code) ON DELETE CASCADE
 );
