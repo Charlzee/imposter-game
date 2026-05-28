@@ -1,6 +1,6 @@
 import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase, getRandomLetter } from '../js/global.js';
-import { ROLE_MODIFIERS, ROLE_DATA, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
+import { ROLE_MODIFIERS_LOCAL, ROLE_DATA_LOCAL, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
 
 // === DEBUG ===
 const FORCE_ALL_MODIFIERS = false;
@@ -64,12 +64,12 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     const players = JSON.parse(playersJson || '[]');
     if (!players.length) return;
 
-    const assessableRoleKeys = Object.keys(ROLE_DATA);
+    const assessableRoleKeys = Object.keys(ROLE_DATA_LOCAL);
 
     localStorage.removeItem('inspectorClues');
     localStorage.removeItem('innocents');
     assessableRoleKeys.forEach(roleKey => {
-        if (ROLE_DATA[roleKey].hasTarget) {
+        if (ROLE_DATA_LOCAL[roleKey].hasTarget) {
             localStorage.removeItem(`${getBaseRoleId(roleKey)}Targets`);
         }
     });
@@ -101,7 +101,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     });
 
     const modifierLists = {};
-    Object.keys(ROLE_MODIFIERS).forEach(modKey => {
+    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
         modifierLists[modKey] = [];
     });
 
@@ -109,8 +109,8 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         players.forEach(player => {
             const name = player.player_name;
 
-            Object.keys(ROLE_MODIFIERS).forEach(modKey => {
-                const modConfig = ROLE_MODIFIERS[modKey];
+            Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+                const modConfig = ROLE_MODIFIERS_LOCAL[modKey];
                 
                 if (modKey === 'amnesias') {
                     const shapeshifters = assignedRolesData.shapeshifters || [];
@@ -126,7 +126,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         });
     }
 
-    Object.keys(ROLE_MODIFIERS).forEach(modKey => {
+    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
         localStorage.setItem(modKey, JSON.stringify(modifierLists[modKey]));
     });
 
@@ -144,7 +144,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     };
 
     assessableRoleKeys.forEach(roleKey => {
-        if (ROLE_DATA[roleKey].hasTarget) {
+        if (ROLE_DATA_LOCAL[roleKey].hasTarget) {
             assignTargets(assignedRolesData[roleKey], `${getBaseRoleId(roleKey)}Targets`);
         }
     });
@@ -161,14 +161,14 @@ function displayRole(playerIndex) {
     const roleTip = document.getElementById('role-tip');
     const wordDisplay = document.getElementById('word');
 
-    const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), ...Object.values(ROLE_MODIFIERS).map(m => m.class), 'innocent', 'hidden'];
+    const allRoleClasses = [...Object.values(ROLE_DATA_LOCAL).map(r => r.class), ...Object.values(ROLE_MODIFIERS_LOCAL).map(m => m.class), 'innocent', 'hidden'];
 
-    const activeRoleKeys = Object.keys(ROLE_DATA);
+    const activeRoleKeys = Object.keys(ROLE_DATA_LOCAL);
     const baseRoleKey = activeRoleKeys.find(key => getStorageJson(key).includes(playerName));
     
-    const activeModifiers = Object.keys(ROLE_MODIFIERS).filter(modKey => getStorageJson(modKey).includes(playerName));
+    const activeModifiers = Object.keys(ROLE_MODIFIERS_LOCAL).filter(modKey => getStorageJson(modKey).includes(playerName));
     
-    const config = ROLE_DATA[baseRoleKey] || INNOCENT_CONFIG;
+    const config = ROLE_DATA_LOCAL[baseRoleKey] || INNOCENT_CONFIG;
 
     let activeUiConfig = config;
 
@@ -193,8 +193,8 @@ function displayRole(playerIndex) {
             const darkAmnesiaColor = 'rgb(30, 110, 150)'; 
             roleStatus.style.color = darkAmnesiaColor;
             roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${darkAmnesiaColor}`;
-            roleDisplay.style.backgroundImage = ROLE_MODIFIERS.amnesias.grad;
-            roleTip.textContent = ROLE_MODIFIERS.amnesias.tip;
+            roleDisplay.style.backgroundImage = ROLE_MODIFIERS_LOCAL.amnesias.grad;
+            roleTip.textContent = ROLE_MODIFIERS_LOCAL.amnesias.tip;
         } else {
             roleStatus.textContent = configUi.label;
             roleStatus.classList.add(configUi.class);
@@ -210,8 +210,8 @@ function displayRole(playerIndex) {
 
         let displayTheWord = configUi.showWord;
         activeModifiers.forEach(modKey => {
-            if (ROLE_MODIFIERS[modKey].overrideWordVisibility) {
-                displayTheWord = ROLE_MODIFIERS[modKey].showWord;
+            if (ROLE_MODIFIERS_LOCAL[modKey].overrideWordVisibility) {
+                displayTheWord = ROLE_MODIFIERS_LOCAL[modKey].showWord;
             }
         });
 
@@ -220,7 +220,7 @@ function displayRole(playerIndex) {
         // === THEME VISIBILITY ===
         let displayTheTheme = configUi.showTheme || config.showTheme;
         activeModifiers.forEach(modKey => {
-            if (ROLE_MODIFIERS[modKey].showTheme) {
+            if (ROLE_MODIFIERS_LOCAL[modKey].showTheme) {
                 displayTheTheme = true;
             }
         });
@@ -234,8 +234,8 @@ function displayRole(playerIndex) {
             }
         }
 
-        Object.keys(ROLE_DATA).forEach(key => {
-            if (ROLE_DATA[key].hasTarget) {
+        Object.keys(ROLE_DATA_LOCAL).forEach(key => {
+            if (ROLE_DATA_LOCAL[key].hasTarget) {
                 const targets = getStorageJson(`${getBaseRoleId(key)}Targets`, {});
                 if (targets[playerName]) {
                     content += `\n\nYOUR TARGET: ${targets[playerName]}`;
@@ -246,7 +246,7 @@ function displayRole(playerIndex) {
         wordDisplay.textContent = content;
 
         activeModifiers.forEach(modKey => {
-            const modConfig = ROLE_MODIFIERS[modKey];
+            const modConfig = ROLE_MODIFIERS_LOCAL[modKey];
             
             const modContainer = document.createElement('div');
             modContainer.className = 'modifier-container';
@@ -289,7 +289,7 @@ function displayRole(playerIndex) {
     }
 
     function getInspectorClue() {
-        const BlacklistedImposterRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].showWord === false);
+        const BlacklistedImposterRoles = Object.keys(ROLE_DATA_LOCAL).filter(k => ROLE_DATA_LOCAL[k].showWord === false);
         const allPlayers = getStorageJson('current_players');
         
         const combinedImposters = [];
@@ -336,7 +336,7 @@ function displayRole(playerIndex) {
                         localStorage.setItem(roleConfigKey, JSON.stringify(existingList));
                     }
 
-                    if (ROLE_DATA[roleConfigKey]?.hasTarget) {
+                    if (ROLE_DATA_LOCAL[roleConfigKey]?.hasTarget) {
                         const targetKey = `${getBaseRoleId(roleConfigKey)}Targets`;
                         const targets = getStorageJson(targetKey, {});
                         if (!targets[playerName]) {
@@ -353,12 +353,12 @@ function displayRole(playerIndex) {
                 const currentUnselected = getStorageJson("unselected_shapeshifters").filter(p => p !== playerName);
                 localStorage.setItem("unselected_shapeshifters", JSON.stringify(currentUnselected));
 
-                let finalConfig = customConfig || ROLE_DATA[roleConfigKey];
+                let finalConfig = customConfig || ROLE_DATA_LOCAL[roleConfigKey];
                 
                 
                 updateUi(finalConfig, roleClass); 
 
-                if (ROLE_DATA[roleConfigKey]?.hasClue) {
+                if (ROLE_DATA_LOCAL[roleConfigKey]?.hasClue) {
                     const wordDisplay = document.getElementById('word');
                     const playerToShow = getInspectorClue();
                     wordDisplay.textContent = wordDisplay.textContent + `\n\nONE NON-IMPOSTER:\n[${playerToShow}]`;
@@ -369,9 +369,9 @@ function displayRole(playerIndex) {
 
         addRoleBtn('innocent', 'innocents', INNOCENT_CONFIG);
 
-        Object.keys(ROLE_DATA)
-            .filter(k => !exclude.includes(ROLE_DATA[k].class))
-            .forEach(key => addRoleBtn(ROLE_DATA[key].class, key));
+        Object.keys(ROLE_DATA_LOCAL)
+            .filter(k => !exclude.includes(ROLE_DATA_LOCAL[k].class))
+            .forEach(key => addRoleBtn(ROLE_DATA_LOCAL[key].class, key));
 
         roleDisplay.insertBefore(selectionContainer, document.getElementById("role-tip"));
     } else if (config.hasClue){
@@ -421,7 +421,7 @@ function viewRoles() {
         el.className = 'player-view-role';
         const name = p.player_name;
         
-        const activeRoleKeys = Object.keys(ROLE_DATA).filter(k => k !== 'shapeshifters');
+        const activeRoleKeys = Object.keys(ROLE_DATA_LOCAL).filter(k => k !== 'shapeshifters');
         let foundKey = activeRoleKeys.find(key => getStorageJson(key).includes(name));
         
         const isshapeshifter = getStorageJson('shapeshifters').includes(name);
@@ -431,21 +431,21 @@ function viewRoles() {
             foundKey = 'shapeshifters';
         }
 
-        let roleName = foundKey ? ROLE_DATA[foundKey].label : 'Innocent';
+        let roleName = foundKey ? ROLE_DATA_LOCAL[foundKey].label : 'Innocent';
         let roleExtra = '';
         
         if (isshapeshifter && !isUnselected) {
             roleExtra += ' (Shapeshifter)';
         }
         
-        Object.keys(ROLE_MODIFIERS).forEach(modKey => {
+        Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
             if (getStorageJson(modKey).includes(name)) {
-                roleExtra += ` [${ROLE_MODIFIERS[modKey].label.toUpperCase()}]`;
+                roleExtra += ` [${ROLE_MODIFIERS_LOCAL[modKey].label.toUpperCase()}]`;
             }
         });
         
-        Object.keys(ROLE_DATA).forEach(key => {
-            if (ROLE_DATA[key].hasTarget) {
+        Object.keys(ROLE_DATA_LOCAL).forEach(key => {
+            if (ROLE_DATA_LOCAL[key].hasTarget) {
                 const target = getStorageJson(`${getBaseRoleId(key)}Targets`, {})[name];
                 if (target) roleExtra += ` [TARGET: ${target}]`;
             }
@@ -519,7 +519,7 @@ async function init() {
     }
 
     const dynamicCounts = {};
-    Object.keys(ROLE_DATA).forEach(key => {
+    Object.keys(ROLE_DATA_LOCAL).forEach(key => {
         const baseId = getBaseRoleId(key);
         dynamicCounts[baseId] = localStorage.getItem(`${baseId}_count`);
     });

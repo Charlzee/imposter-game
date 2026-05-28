@@ -1,6 +1,6 @@
 import { getRandomInt } from './global.js';
 import getWords from './words.js';
-import { ROLE_DATA, ROLE_MODIFIERS, getBaseRoleId, getPluralKey } from './roles.js';
+import { ROLE_DATA_ONLINE, ROLE_MODIFIERS_ONLINE, getBaseRoleId, getPluralKey } from './roles.js';
 
 export function generateJoinCode() {
     return Math.floor(Math.random() * 10000).toString().padStart(4, '0');
@@ -104,13 +104,13 @@ export async function startGameServer(code) {
     const players = JSON.parse(localStorage.getItem('current_players') || '[]');
     const gameSettings = { word };
 
-    Object.keys(ROLE_DATA).forEach(key => gameSettings[key] = []);
-    Object.keys(ROLE_MODIFIERS).forEach(key => gameSettings[key] = []);
+    Object.keys(ROLE_DATA_ONLINE).forEach(key => gameSettings[key] = []);
+    Object.keys(ROLE_MODIFIERS_ONLINE).forEach(key => gameSettings[key] = []);
     gameSettings.unselected_shapeshifters = [];
     gameSettings.inspectorClues = {};
 
     const occupiedIndices = new Set();
-    const activeRoleKeys = Object.keys(ROLE_DATA);
+    const activeRoleKeys = Object.keys(ROLE_DATA_ONLINE);
 
     activeRoleKeys.forEach(roleKey => {
         const baseId = getBaseRoleId(roleKey);
@@ -134,8 +134,8 @@ export async function startGameServer(code) {
 
     // Assign Modifiers
     players.forEach(player => {
-        Object.keys(ROLE_MODIFIERS).forEach(modKey => {
-            const modConfig = ROLE_MODIFIERS[modKey];
+        Object.keys(ROLE_MODIFIERS_ONLINE).forEach(modKey => {
+            const modConfig = ROLE_MODIFIERS_ONLINE[modKey];
             if (modKey === 'amnesias' && gameSettings.shapeshifters.includes(player.player_name)) return;
 
             if (Math.random() < modConfig.chance) {
@@ -162,7 +162,7 @@ export async function startGameServer(code) {
 
     // Inspector Clues
     gameSettings.inspectors.forEach(name => {
-        const BlacklistedImposterRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].showWord === false);
+        const BlacklistedImposterRoles = Object.keys(ROLE_DATA_ONLINE).filter(k => ROLE_DATA_ONLINE[k].showWord === false);
         const combinedImposters = [];
         BlacklistedImposterRoles.forEach(key => combinedImposters.push(...gameSettings[key]));
 
