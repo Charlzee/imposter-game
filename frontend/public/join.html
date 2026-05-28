@@ -52,7 +52,17 @@
             class="join-input titan-one-regular"
             id="join-code"
             placeholder="Enter Room Code">
+        <br><br>
+        <button class="titan-one-regular" id="join-btn">JOIN ROOM</button>
     </div>
+
+    <script type="module">
+        import { joinOnlineGame } from './js/create_online.js';
+        document.getElementById('join-btn').onclick = () => {
+            const code = document.getElementById('join-code').value;
+            if (code) joinOnlineGame(code);
+        };
+    </script>
 </body>
 <div id="educational-context">
 <footer>

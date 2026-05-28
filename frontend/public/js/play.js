@@ -138,12 +138,12 @@ const ROLE_MODIFIERS = {
         overrideWordVisibility: false,
         chance: 0.05
     },
-    lang: {
-        label: 'refugee', class: 'lang',
-        tip: 'u must speak different language.',
-        grad: 'radial-gradient(circle, orange 0%, orangered 100%)',
-        textColor: 'rgb(255,101,48)',
-        subTextColor: 'darkred',
+    refugee: {
+        label: 'Refugee', class: 'refugee',
+        tip: 'You must speak different language the entire round.',
+        grad: 'radial-gradient(circle, lightblue 0%, cyan 100%)',
+        textColor: 'rgb(109, 255, 187)',
+        subTextColor: 'aliceblue',
         showWord: true,
         overrideWordVisibility: false,
         chance: 0.05

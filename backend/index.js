@@ -1,17 +1,23 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { sign } from 'hono/jwt'
-import { jwt } from 'hono/jwt'
+import { sign, jwt } from 'hono/jwt'
 import { google } from 'googleapis'
 import bcrypt from 'bcryptjs'
-import path from 'path'
-import words1 from './words.json'
-import words2 from './english_language.json'
+import words1 from './words.json' with { type: 'json' }
+import words2 from './english_language.json' with { type: 'json' }
 
 let localWords = [...words1, ...words2]
 
 const app = new Hono().basePath("/api")
 app.use("*", cors())
+
+app.onError((err, c) => {
+    const status = err.status || 500;
+    if (status === 401) {
+        return c.json({ error: "Unauthorized: Please log in again." }, 401);
+    }
+    return c.json({ error: err.message || "Internal Server Error" }, status);
+});
 
 let cachedWords = null;
 let lastFetchTime = 0;
@@ -180,18 +186,66 @@ app.post('/login', async (c) => {
     });
 });
 
-app.use('/auth/*', async (c, next) => {
-    const jwtMiddleware = jwt({
+app.use('/auth/*', (c, next) => {
+    return jwt({
         secret: c.env.JWT_SECRET,
         alg: 'HS256'
-    })
-    return jwtMiddleware(c, next)
+    })(c, next)
 })
 
 app.get('/auth/me', (c) => {
     const payload = c.get('jwtPayload')
     return c.json({ message: "Token is valid!", user: payload.username })
 })
+
+app.post('/auth/rooms/create', async (c) => {
+    const payload = c.get('jwtPayload');
+    const { code, settings } = await c.req.json();
+
+    try {
+        await c.env.D1.prepare(
+            "INSERT INTO rooms (code, host_username, settings) VALUES (?, ?, ?)"
+        ).bind(code, payload.username, JSON.stringify(settings)).run();
+
+        await c.env.D1.prepare(
+            "INSERT INTO room_players (room_code, username) VALUES (?, ?)"
+        ).bind(code, payload.username).run();
+
+        return c.json({ success: true });
+    } catch (err) {
+        if (err.message && err.message.includes("UNIQUE constraint failed")) {
+            return c.json({ error: "Failed to create room: The generated code is already in use. Please try again." }, 409); // 409 Conflict
+        }
+        return c.json({ error: "Failed to create room due to a server error.", details: err.message }, 500);
+    }
+});
+
+app.post('/auth/rooms/join', async (c) => {
+    const payload = c.get('jwtPayload');
+    const { code } = await c.req.json();
+
+    const room = await c.env.D1.prepare("SELECT * FROM rooms WHERE code = ?").bind(code).first();
+    if (!room) return c.json({ error: "Room not found" }, 404);
+
+    try {
+        await c.env.D1.prepare(
+            "INSERT OR IGNORE INTO room_players (room_code, username) VALUES (?, ?)"
+        ).bind(code, payload.username).run();
+        
+        return c.json({ success: true, host: room.host_username });
+    } catch (err) {
+        return c.json({ error: "Failed to join room" }, 500);
+    }
+});
+
+app.get('/auth/rooms/:code/players', async (c) => {
+    const code = c.req.param('code');
+    const players = await c.env.D1.prepare(
+        "SELECT username FROM room_players WHERE room_code = ?"
+    ).bind(code).all();
+    
+    return c.json(players.results);
+});
 
 app.post('/auth/update-stats', async (c) => {
     const payload = c.get('jwtPayload');
@@ -240,6 +294,14 @@ app.post('/auth/update-stats', async (c) => {
         console.error("Internal Server Error:", e.message);
         return c.json({ error: "Failed to update stats", details: e.message }, 500);
     }
+});
+
+app.notFound((c) => {
+    return c.json({ 
+        error: "Route not found", 
+        path: c.req.path, 
+        method: c.req.method 
+    }, 404);
 });
 
 export default app
