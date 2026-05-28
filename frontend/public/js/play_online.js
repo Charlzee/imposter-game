@@ -1,6 +1,11 @@
 import { getURLParameter, getRandomLetter, toTitleCase } from './global.js';
 import { ROLE_DATA, ROLE_MODIFIERS, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
 
+let myUsername = '';
+let lastFetchedMessageId = 0;
+let chatPollInterval;
+const CHAT_POLL_INTERVAL_MS = 1500; // 1.5 seconds
+
 async function initOnlinePlay() {
     const code = getURLParameter('code');
     const token = localStorage.getItem('token');
@@ -9,7 +14,7 @@ async function initOnlinePlay() {
         headers: { "Authorization": `Bearer ${token}` }
     });
     const meData = await meRes.json();
-    const myUsername = meData.user;
+    myUsername = meData.user;
 
     // Fetch assigned roles
     const roomRes = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/status`, {
@@ -27,6 +32,10 @@ async function initOnlinePlay() {
     const wordDisplay = document.getElementById('word');
     const roleTip = document.getElementById('role-tip');
     const roleDisplay = document.getElementById('role-display');
+
+    const chatInput = document.getElementById('chat-input');
+    const sendChatButton = document.getElementById('send-chat');
+    const chatMessagesContainer = document.getElementById('chat-messages');
 
     const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), ...Object.values(ROLE_MODIFIERS).map(m => m.class), 'innocent', 'hidden'];
 
@@ -114,7 +123,7 @@ async function initOnlinePlay() {
         });
     }
 
-    // Handle Shapeshifter Selection UI
+    // Shapeshifter Selection UI
     if (myRoleKey === 'shapeshifters') {
         const exclude = ["shapeshifter", "hidden", "amnesia", "mime"];
         const selectionContainer = document.createElement('div');
@@ -142,15 +151,64 @@ async function initOnlinePlay() {
 
     updateUi(config);
 
-    const main = document.getElementById('main');
-    const discussBtn = document.createElement('button');
-    discussBtn.className = 'titan-one-regular';
-    discussBtn.textContent = "START DISCUSSION";
-    discussBtn.onclick = () => {
-        document.getElementById('big-text').textContent = "DISCUSS!";
-        discussBtn.remove();
-    };
-    main.appendChild(discussBtn);
+    sendChatButton.onclick = () => sendChatMessage(code, token, chatInput);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendChatMessage(code, token, chatInput);
+        }
+    });
+
+    // Start polling chat messages
+    await fetchChatMessages(code, token);
+    chatPollInterval = setInterval(() => fetchChatMessages(code, token), CHAT_POLL_INTERVAL_MS);
+}
+
+async function sendChatMessage(code, token, chatInput) {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    try {
+        const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/chat`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message })
+        });
+
+        if (response.ok) {
+            chatInput.value = ''; // Clear input
+
+            await fetchChatMessages(code, token);
+        } else {
+            console.error("Failed to send message:", response.status, await response.text());
+            alert("Failed to send message.");
+        }
+    } catch (error) {
+        console.error("Error sending message:", error);
+        alert("Error sending message.");
+    }
+}
+
+async function fetchChatMessages(code, token) {
+    const chatMessagesContainer = document.getElementById('chat-messages');
+    const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/chat?last_id=${lastFetchedMessageId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (response.ok) {
+        const newMessages = await response.json();
+        newMessages.forEach(msg => {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'chat-message';
+            messageElement.innerHTML = `<strong>${msg.username}:</strong> ${msg.message}`;
+            chatMessagesContainer.appendChild(messageElement);
+            lastFetchedMessageId = msg.id; // Update last fetched ID
+        });
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight; // Scroll to bottom
+    } else {
+        console.error("Failed to fetch chat messages:", response.status, await response.text());
+    }
 }
 
 document.addEventListener('DOMContentLoaded', initOnlinePlay);

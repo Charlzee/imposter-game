@@ -311,6 +311,35 @@ app.get('/auth/rooms/:code/status', async (c) => {
     return c.json({ status: room.status, ...settings });
 });
 
+app.post('/auth/rooms/:code/chat', async (c) => {
+    const code = c.req.param('code');
+    const payload = c.get('jwtPayload');
+    const { message } = await c.req.json();
+
+    if (!message || message.trim() === '') {
+        return c.json({ error: "Message cannot be empty" }, 400);
+    }
+
+    try {
+        await c.env.D1.prepare(
+            "INSERT INTO room_chats (room_code, username, message) VALUES (?, ?, ?)"
+        ).bind(code, payload.username, message.trim()).run();
+        return c.json({ success: true });
+    } catch (err) {
+        return c.json({ error: "Failed to send message", details: err.message }, 500);
+    }
+});
+
+app.get('/auth/rooms/:code/chat', async (c) => {
+    const code = c.req.param('code');
+    const lastId = c.req.query('last_id') || 0;
+
+    const messages = await c.env.D1.prepare(
+        "SELECT id, username, message, timestamp FROM room_chats WHERE room_code = ? AND id > ? ORDER BY timestamp ASC"
+    ).bind(code, lastId).all();
+    return c.json(messages.results);
+});
+
 app.post('/auth/update-stats', async (c) => {
     const payload = c.get('jwtPayload');
     const username = payload.username;
