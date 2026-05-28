@@ -157,6 +157,10 @@ export function initLobby() {
     } else {
         const startBtn = document.getElementById('start-game-btn');
         if (startBtn) startBtn.style.display = 'none';
+
+        document.querySelectorAll('[id*="host-only"]').forEach(element => {
+            element.style.display = 'none';
+        });
         setInterval(() => checkRoomStatus(code), 2000);
     }
 }
