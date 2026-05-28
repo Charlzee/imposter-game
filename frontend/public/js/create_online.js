@@ -154,6 +154,7 @@ export function initLobby() {
 
     if (isHost) {
         document.getElementById('start-game-btn').onclick = () => startGameServer(code);
+        fetchTopics();
     } else {
         const startBtn = document.getElementById('start-game-btn');
         if (startBtn) startBtn.style.display = 'none';
@@ -167,6 +168,9 @@ export function initLobby() {
 
 // ==== Topic Logic ====
 async function fetchTopics() {
+    const topic_container = document.getElementById("topic-container");
+    if (!topic_container) return;
+
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3500);
@@ -195,7 +199,7 @@ async function fetchTopics() {
                     <span>Connection Timed Out</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px;">Using Local Words Instead</span>
                 `;
-                document.getElementById("error-box").appendChild(banner);
+                document.getElementById("error-box-host-only").appendChild(banner);
             }
 
             const fragment = document.createDocumentFragment();
@@ -227,8 +231,6 @@ async function fetchTopics() {
 
     const savedTopic = localStorage.getItem("selected_topic");
     if (savedTopic) selectTopic(savedTopic);
-
-    renderPlayers();
 }
 
 async function selectTopic(topic_id) {
