@@ -204,6 +204,7 @@ async function checkRoomStatus(code) {
         const data = await response.json();
 
         if (data.topic) {
+            localStorage.setItem('selected_topic', data.topic);
             const topicElement = document.getElementById(data.topic);
             if (topicElement && !topicElement.classList.contains('is-selected')) {
                 applyTopicSelectionUI(data.topic);
@@ -305,6 +306,9 @@ async function fetchTopics() {
             }
             topic_container.appendChild(fragment);
         }
+
+        const savedTopic = localStorage.getItem("selected_topic");
+        if (savedTopic) selectTopic(savedTopic, true);
     } catch (error) {
         console.error("Failed to render topics component:", error);
         topic_container.innerHTML = "<span>Error displaying topics.</span>";
@@ -314,6 +318,8 @@ async function fetchTopics() {
 async function selectTopic(topic_id, isFromSync = false) {
     const code = new URLSearchParams(window.location.search).get('code');
     const token = localStorage.getItem('token');
+
+    localStorage.setItem("selected_topic", topic_id);
 
     if (!isFromSync) {
         await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/settings`, {
