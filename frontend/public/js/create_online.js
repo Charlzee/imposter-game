@@ -165,5 +165,89 @@ export function initLobby() {
     }
 }
 
+// ==== Topic Logic ====
+async function fetchTopics() {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+        let topics = null; 
+        window.lastFetchTimedOut = false;
+
+        try {
+            topics = await getWords(controller.signal);
+            clearTimeout(timeoutId);
+        } catch (error) {
+            clearTimeout(timeoutId); 
+            console.error("Critical error inside word loader wrapper:", error);
+            topic_container.innerHTML = "<span>Error initializing topics.</span>";
+            return;
+        }
+
+        if (Array.isArray(topics)) {
+            topic_container.innerHTML = "";
+
+            if (window.lastFetchTimedOut) {
+                console.warn("Request timed out");
+                const banner = document.createElement("div");
+                banner.className = "error-msg";
+                banner.innerHTML = `
+                    <span>Connection Timed Out</span>
+                    <span style="text-decoration: underline; text-underline-offset: 3px;">Using Local Words Instead</span>
+                `;
+                document.getElementById("error-box").appendChild(banner);
+            }
+
+            const fragment = document.createDocumentFragment();
+            for (const topic of topics) {
+                const topic_element = document.createElement("div");
+                topic_element.className = "topic";
+                topic_element.id = topic.id;
+                topic_element.onclick = () => selectTopic(topic.id);
+
+                topic_element.innerHTML = `
+                    <h2>${topic.display_name}</h2>
+                    <div class="topic-stats">
+                        <span style="font-size: 0.8rem">Difficulty: ${topic.difficulty_imposter}</span>
+                        <span style="font-size: 0.8rem">Word Count: ${topic.words.length}</span>
+                    </div>
+                `;
+
+                if (topic.id.includes("docs")) {
+                    topic_element.style.backgroundImage = "linear-gradient(180deg, rgb(255, 0, 212) 0%, rgb(167, 91, 255) 100%)";
+                }
+                fragment.appendChild(topic_element);
+            }
+            topic_container.appendChild(fragment);
+        }
+    } catch (error) {
+        console.error("Failed to render topics component:", error);
+        topic_container.innerHTML = "<span>Error displaying topics.</span>";
+    }
+
+    const savedTopic = localStorage.getItem("selected_topic");
+    if (savedTopic) selectTopic(savedTopic);
+
+    renderPlayers();
+}
+
+async function selectTopic(topic_id) {
+    const topic_element = document.getElementById(topic_id);
+    if (!topic_element) return;
+
+    const previousId = localStorage.getItem("selected_topic");
+    if (previousId) {
+        const prev_element = document.getElementById(previousId);
+        if (prev_element) prev_element.classList.remove("is-selected", "docs");
+    }
+
+    localStorage.setItem("selected_topic", topic_id);
+    topic_element.classList.add("is-selected");
+    if (topic_id.includes("docs")) topic_element.classList.add("docs");
+    
+    topic_element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+
 window.hostOnlineGame = hostOnlineGame;
 window.joinOnlineGame = joinOnlineGame;
