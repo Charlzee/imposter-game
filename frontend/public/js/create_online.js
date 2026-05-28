@@ -201,9 +201,8 @@ export function initLobby() {
         const startBtn = document.getElementById('start-game-btn');
         if (startBtn) startBtn.style.display = 'none';
 
-        document.querySelectorAll('[id*="host-only"]').forEach(element => {
-            element.style.display = 'none';
-        });
+        const hostSettings = document.getElementById('host-settings');
+        if (hostSettings) hostSettings.style.display = 'none';
 
         setInterval(() => checkRoomStatus(code), 2000);
     }
