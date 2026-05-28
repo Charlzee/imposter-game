@@ -247,12 +247,14 @@ app.get('/auth/rooms/:code/players', async (c) => {
     const code = c.req.param('code');
     const payload = c.get('jwtPayload');
 
-    await c.env.D1.batch([
-        c.env.D1.prepare("UPDATE room_players SET last_seen = CURRENT_TIMESTAMP WHERE room_code = ? AND username = ?")
-            .bind(code, payload.username),
-        c.env.D1.prepare("UPDATE rooms SET last_activity = CURRENT_TIMESTAMP WHERE code = ?")
-            .bind(code)
-    ]);
+    await c.env.D1.prepare(`
+        INSERT INTO room_players (room_code, username, last_seen) 
+        VALUES (?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(room_code, username) DO UPDATE SET last_seen = CURRENT_TIMESTAMP
+    `).bind(code, payload.username).run();
+
+    await c.env.D1.prepare("UPDATE rooms SET last_activity = CURRENT_TIMESTAMP WHERE code = ?")
+        .bind(code).run();
 
     await c.env.D1.prepare("DELETE FROM room_players WHERE room_code = ? AND last_seen < datetime('now', '-10 seconds')")
         .bind(code).run();

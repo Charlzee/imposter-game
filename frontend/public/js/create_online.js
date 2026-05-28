@@ -91,6 +91,9 @@ export async function updatePlayerList(code) {
     } else if (response.status === 404) {
         alert("Room connection lost or timed out.");
         window.location.href = "/";
+    } else {
+        const errData = await response.json().catch(() => ({}));
+        console.error("Player List Sync Error:", errData);
     }
 }
 

@@ -2,7 +2,7 @@ import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase } from '../js/global.js';
 
 // === DEBUG ===
-const FORCE_ALL_MODIFIERS = true;
+const FORCE_ALL_MODIFIERS = false;
 
 // === CONFIG ===
 const ROLE_MODIFIERS = {
