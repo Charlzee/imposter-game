@@ -159,16 +159,15 @@ export function initLobby() {
         const startBtn = document.getElementById('start-game-btn');
         if (startBtn) startBtn.style.display = 'none';
 
-        document.querySelectorAll('[id*="host-only"]').forEach(element => {
-            element.style.display = 'none';
-        });
+        const hostSettings = document.getElementById('host-settings');
+        if (hostSettings) hostSettings.style.display = 'none';
         setInterval(() => checkRoomStatus(code), 2000);
     }
 }
 
 // ==== Topic Logic ====
 async function fetchTopics() {
-    const topic_container = document.getElementById("topic-container-host-only");
+    const topic_container = document.getElementById("topic-container");
     if (!topic_container) return;
 
     try {
@@ -199,7 +198,7 @@ async function fetchTopics() {
                     <span>Connection Timed Out</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px;">Using Local Words Instead</span>
                 `;
-                document.getElementById("error-box-host-only").appendChild(banner);
+                document.getElementById("error-box").appendChild(banner);
             }
 
             const fragment = document.createDocumentFragment();
