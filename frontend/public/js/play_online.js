@@ -277,7 +277,9 @@ async function castVote(code, token, votedForUsername) {
             const submitBtn = document.getElementById('submit-vote-btn');
             submitBtn.disabled = true;
             submitBtn.textContent = "VOTE CAST!";
-            document.querySelectorAll('.vote-player-btn').forEach(btn => btn.disabled = true);
+            document.querySelectorAll('.vote-player-btn').forEach(btn => {
+                btn.disabled = true;
+            });
             await fetchVoteCounts(code, token); // Update tallies immediately
         } else {
             const errorData = await response.json();

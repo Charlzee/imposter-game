@@ -22,6 +22,13 @@
     background-attachment: scroll;
 }
 
+.vote-player-btn.is-selected {
+    background-color: lime !important;
+    color: black !important;
+    border: 3px solid white;
+    box-shadow: 0 0 15px lime;
+}
+
 .game-layout {
     display: flex;
     width: 100%;
