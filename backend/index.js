@@ -213,7 +213,10 @@ app.post('/auth/rooms/create', async (c) => {
         return c.json({ success: true });
     } catch (err) {
         if (err.message && err.message.includes("UNIQUE constraint failed")) {
-            return c.json({ error: "Failed to create room: The generated code is already in use. Please try again." }, 409); // 409 Conflict
+            return c.json({ 
+                error: "The generated code is already in use.", 
+                details: "A collision occurred with an existing room code. Retrying..." 
+            }, 409);
         }
         return c.json({ error: "Failed to create room due to a server error.", details: err.message }, 500);
     }
@@ -244,6 +247,30 @@ app.get('/auth/rooms/:code/players', async (c) => {
     ).bind(code).all();
     
     return c.json(players.results);
+});
+
+app.post('/auth/rooms/:code/start', async (c) => {
+    const code = c.req.param('code');
+    const payload = c.get('jwtPayload');
+    const { word } = await c.req.json();
+
+    const room = await c.env.D1.prepare("SELECT host_username FROM rooms WHERE code = ?").bind(code).first();
+    if (room.host_username !== payload.username) return c.json({ error: "Only the host can start" }, 403);
+
+    await c.env.D1.prepare(
+        "UPDATE rooms SET status = 'playing', settings = ? WHERE code = ?"
+    ).bind(JSON.stringify({ word }), code).run();
+
+    return c.json({ success: true });
+});
+
+app.get('/auth/rooms/:code/status', async (c) => {
+    const code = c.req.param('code');
+    const room = await c.env.D1.prepare("SELECT status, settings FROM rooms WHERE code = ?").bind(code).first();
+    if (!room) return c.json({ error: "Room not found" }, 404);
+    
+    const settings = JSON.parse(room.settings || '{}');
+    return c.json({ status: room.status, word: settings.word });
 });
 
 app.post('/auth/update-stats', async (c) => {

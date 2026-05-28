@@ -1,8 +1,11 @@
+import { getRandomInt } from './global.js';
+import getWords from './words.js';
+
 export function generateJoinCode() {
     return Math.floor(Math.random() * 10000).toString().padStart(4, '0');
 }
 
-export async function hostOnlineGame() {
+export async function hostOnlineGame(retries = 5) {
     const code = generateJoinCode();
     const token = localStorage.getItem('token');
     if (!token) {
@@ -26,6 +29,8 @@ export async function hostOnlineGame() {
 
     if (response.ok) {
         window.location.href = `/create/online.html?code=${code}&isHost=true`;
+    } else if (response.status === 409 && retries > 0) {
+        return hostOnlineGame(retries - 1);
     } else {
         const contentType = response.headers.get("content-type");
         try {
@@ -86,6 +91,45 @@ export async function updatePlayerList(code) {
     }
 }
 
+export async function startGameServer(code) {
+    const token = localStorage.getItem('token');
+    const topics = await getWords();
+    const topicId = localStorage.getItem('selected_topic') || 'foods_and_drinks';
+    const selectedTopic = topics.find(t => t.id === topicId) || topics[0];
+    const word = selectedTopic.words[getRandomInt(selectedTopic.words.length)];
+
+    const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/start`, {
+        method: "POST",
+        headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ word })
+    });
+
+    if (response.ok) {
+        localStorage.setItem('selected_word', btoa(encodeURIComponent(word)));
+        localStorage.setItem('game_started', 'false');
+        window.location.href = `/play.html?online=true&code=${code}`;
+    }
+}
+
+async function checkRoomStatus(code) {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/status`, {
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        if (data.status === 'playing') {
+            localStorage.setItem('selected_word', btoa(encodeURIComponent(data.word)));
+            localStorage.setItem('game_started', 'false');
+            window.location.href = `/play.html?online=true&code=${code}`;
+        }
+    }
+}
+
 export function initLobby() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -98,11 +142,16 @@ export function initLobby() {
 
     document.getElementById('display-code').textContent = code;
     updatePlayerList(code);
-    setInterval(() => updatePlayerList(code), 3000);
+    
+    // player list updates
+    setInterval(() => updatePlayerList(code), 1500);
 
-    if (!isHost) {
+    if (isHost) {
+        document.getElementById('start-game-btn').onclick = () => startGameServer(code);
+    } else {
         const startBtn = document.getElementById('start-game-btn');
         if (startBtn) startBtn.style.display = 'none';
+        setInterval(() => checkRoomStatus(code), 2000);
     }
 }
 
