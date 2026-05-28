@@ -266,6 +266,27 @@ app.get('/auth/rooms/:code/players', async (c) => {
     return c.json(players.results);
 });
 
+app.patch('/auth/rooms/:code/settings', async (c) => {
+    const code = c.req.param('code');
+    const payload = c.get('jwtPayload');
+    const { settings } = await c.req.json();
+
+    const room = await c.env.D1.prepare("SELECT host_username, settings FROM rooms WHERE code = ?")
+        .bind(code).first();
+
+    if (!room) return c.json({ error: "Room not found" }, 404);
+    if (room.host_username !== payload.username) return c.json({ error: "Only the host can modify settings" }, 403);
+
+    const currentSettings = JSON.parse(room.settings || '{}');
+    const updatedSettings = { ...currentSettings, ...settings };
+
+    await c.env.D1.prepare("UPDATE rooms SET settings = ? WHERE code = ?")
+        .bind(JSON.stringify(updatedSettings), code)
+        .run();
+
+    return c.json({ success: true, settings: updatedSettings });
+});
+
 app.post('/auth/rooms/:code/start', async (c) => {
     const code = c.req.param('code');
     const payload = c.get('jwtPayload');
