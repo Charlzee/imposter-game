@@ -1,16 +1,8 @@
 import getWords from './words.js';
+import { BASE_ROLE_IDS } from './roles.js';
 
 // === CONFIG ===
-const ROLE_DATA = [
-    'imposter',
-    'jester',
-    'hitman',
-    'shapeshifter',
-    'guardian_angel',
-    'alpha',
-    'inspector',
-    'annoying'
-];
+const ROLE_DATA = BASE_ROLE_IDS;
 
 let cachedPlayers = null;
 let topic_container;

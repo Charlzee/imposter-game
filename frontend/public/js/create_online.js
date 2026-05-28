@@ -1,5 +1,6 @@
 import { getRandomInt } from './global.js';
 import getWords from './words.js';
+import { ROLE_DATA, ROLE_MODIFIERS, getBaseRoleId, getPluralKey } from './roles.js';
 
 export function generateJoinCode() {
     return Math.floor(Math.random() * 10000).toString().padStart(4, '0');
@@ -30,6 +31,7 @@ export async function hostOnlineGame(retries = 5) {
     if (response.ok) {
         window.location.href = `/create/online.html?code=${code}&isHost=true`;
     } else if (response.status === 409 && retries > 0) {
+        // If code is taken, try again automatically with a new code
         return hostOnlineGame(retries - 1);
     } else {
         const contentType = response.headers.get("content-type");
@@ -88,35 +90,76 @@ export async function updatePlayerList(code) {
             list.innerHTML = players.map(p => `<div class="player-tile"><span>${p.username}</span></div>`).join('');
             localStorage.setItem('current_players', JSON.stringify(players.map(p => ({ player_name: p.username }))));
         }
-    } else if (response.status === 404) {
-        alert("Room connection lost or timed out.");
-        window.location.href = "/";
-    } else {
-        const errData = await response.json().catch(() => ({}));
-        console.error("Player List Sync Error:", errData);
     }
 }
 
 export async function startGameServer(code) {
     const token = localStorage.getItem('token');
+
     const topics = await getWords();
     const topicId = localStorage.getItem('selected_topic') || 'foods_and_drinks';
     const selectedTopic = topics.find(t => t.id === topicId) || topics[0];
     const word = selectedTopic.words[getRandomInt(selectedTopic.words.length)];
 
+    const players = JSON.parse(localStorage.getItem('current_players') || '[]');
+    const gameSettings = { word };
+    
+    // Initialize role and modifier arrays
+    Object.keys(ROLE_DATA).forEach(key => gameSettings[key] = []);
+    Object.keys(ROLE_MODIFIERS).forEach(key => gameSettings[key] = []);
+
+    // Assignment logic adapted from play.js
+    const occupiedIndices = new Set();
+    Object.keys(ROLE_DATA).forEach(roleKey => {
+        const baseId = getBaseRoleId(roleKey);
+        const count = (roleKey === 'imposters') ? 1 : 0; // Default: 1 imposter
+        for (let i = 0; i < count; i++) {
+            if (occupiedIndices.size >= players.length) break;
+            let idx;
+            do { idx = Math.floor(Math.random() * players.length); } while (occupiedIndices.has(idx));
+            occupiedIndices.add(idx);
+            gameSettings[roleKey].push(players[idx].player_name);
+        }
+    });
+
+    // Modifiers
+    players.forEach(player => {
+        Object.keys(ROLE_MODIFIERS).forEach(modKey => {
+            if (Math.random() < ROLE_MODIFIERS[modKey].chance) {
+                gameSettings[modKey].push(player.player_name);
+            }
+        });
+    });
+
+    // Target assignment
+    const assignTargets = (roleArray, storageKey) => {
+        const targets = {};
+        roleArray.forEach(name => {
+            const myIdx = players.findIndex(p => p.player_name === name);
+            let targetIdx;
+            do { targetIdx = Math.floor(Math.random() * players.length); } while (targetIdx === myIdx && players.length > 1);
+            targets[name] = players[targetIdx].player_name;
+        });
+        gameSettings[storageKey] = targets;
+    };
+
+    if (gameSettings.hitmans.length) assignTargets(gameSettings.hitmans, 'hitmanTargets');
+    if (gameSettings.guardian_angels.length) assignTargets(gameSettings.guardian_angels, 'guardian_angelTargets');
+    if (gameSettings.annoying.length) assignTargets(gameSettings.annoying, 'annoyingTargets');
+
+    // Send to server
     const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/start`, {
         method: "POST",
         headers: { 
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ word })
+        body: JSON.stringify(gameSettings)
     });
 
     if (response.ok) {
-        localStorage.setItem('selected_word', btoa(encodeURIComponent(word)));
         localStorage.setItem('game_started', 'false');
-        window.location.href = `/play.html?online=true&code=${code}`;
+        window.location.href = `/play_online.html?code=${code}`;
     }
 }
 
@@ -129,9 +172,8 @@ async function checkRoomStatus(code) {
     if (response.ok) {
         const data = await response.json();
         if (data.status === 'playing') {
-            localStorage.setItem('selected_word', btoa(encodeURIComponent(data.word)));
             localStorage.setItem('game_started', 'false');
-            window.location.href = `/play.html?online=true&code=${code}`;
+            window.location.href = `/play_online.html?code=${code}`;
         }
     }
 }
@@ -149,7 +191,7 @@ export function initLobby() {
     document.getElementById('display-code').textContent = code;
     updatePlayerList(code);
     
-    // player list updates
+    // Poll for player list updates
     setInterval(() => updatePlayerList(code), 1500);
 
     if (isHost) {
@@ -159,8 +201,10 @@ export function initLobby() {
         const startBtn = document.getElementById('start-game-btn');
         if (startBtn) startBtn.style.display = 'none';
 
-        const hostSettings = document.getElementById('host-settings');
-        if (hostSettings) hostSettings.style.display = 'none';
+        document.querySelectorAll('[id*="host-only"]').forEach(element => {
+            element.style.display = 'none';
+        });
+
         setInterval(() => checkRoomStatus(code), 2000);
     }
 }

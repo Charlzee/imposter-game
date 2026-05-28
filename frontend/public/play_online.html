@@ -26,44 +26,31 @@
     <meta name="keywords" content="English revision, GCSE English, literacy tool, vocabulary game, classroom activity, SPAG, education, learning resources">
     <meta name="subject" content="Education - English Language">
     <meta name="robots" content="index, follow">
-
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unkempt:wght@400;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/create.css">
-
-    <script type="module" src="../js/create_online.js"></script>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/play.css">
+    
+    <script type="module" src="./js/play_online.js"></script>
 </head>
 <body>
     <h1 style="font-size: 1px; color: transparent; margin: 0;">Interactive English Grammar & Vocabulary Revision Tool</h1>
 
-    <div class="big-container titan-one-regular">
-        ROOM CODE: <span id="display-code">----</span>
-    </div>
-
-    <div class="player-count-container titan-one-regular">
-        <div class="player-container" id="player-list">
-            Waiting for players...
+    <div class="main-screen titan-one-regular" id="main">
+        <h1 id="big-text">VIEW ROLE</h1>
+        <div class="titan-one-regular" id="role-display">
+            <h2 class="titan-one-regular" id="role-title">Loading...</h2>
+            <h3 class="hidden" id="role-status">Loading...</h3>
+            <h4 class="titan-one-regular" id="word">Loading...</h4>
+            <p class="titan-one-regular" id="role-description"></p>
+            <h2 class="hidden" id="role-tip">Loading...</h2>
         </div>
-        <button class="start-button titan-one-regular" id="start-game-btn">Start Game</button>
     </div>
-
-    <!-- Host Only -->
-    <div id="host-settings">
-        <div class="big-container titan-one-regular" id="host-only">
-            SELECT TOPIC
-        </div>
-        <div class="titan-one-regular" id="error-box host-only"></div>
-        <div class="topics titan-one-regular" id="topic-container host-only"></div>
-    </div>
-
-    <script type="module">
-        import { initLobby } from '../js/create_online.js';
-        initLobby();
-    </script>
 </body>
 <div id="educational-context">
 <footer>

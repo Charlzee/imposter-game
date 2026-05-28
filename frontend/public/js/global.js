@@ -13,3 +13,8 @@ export function toTitleCase(str) {
         text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
     );
 }
+
+export function getRandomLetter() {
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return characters.charAt(Math.floor(Math.random() * characters.length));
+}

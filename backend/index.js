@@ -269,14 +269,14 @@ app.get('/auth/rooms/:code/players', async (c) => {
 app.post('/auth/rooms/:code/start', async (c) => {
     const code = c.req.param('code');
     const payload = c.get('jwtPayload');
-    const { word } = await c.req.json();
+    const gameSettings = await c.req.json(); // contains word, roles, modifiers
 
     const room = await c.env.D1.prepare("SELECT host_username FROM rooms WHERE code = ?").bind(code).first();
     if (room.host_username !== payload.username) return c.json({ error: "Only the host can start" }, 403);
 
     await c.env.D1.prepare(
         "UPDATE rooms SET status = 'playing', settings = ? WHERE code = ?"
-    ).bind(JSON.stringify({ word }), code).run();
+    ).bind(JSON.stringify(gameSettings), code).run();
 
     return c.json({ success: true });
 });
@@ -286,8 +286,8 @@ app.get('/auth/rooms/:code/status', async (c) => {
     const room = await c.env.D1.prepare("SELECT status, settings FROM rooms WHERE code = ?").bind(code).first();
     if (!room) return c.json({ error: "Room not found" }, 404);
     
-    const settings = JSON.parse(room.settings || '{}');
-    return c.json({ status: room.status, word: settings.word });
+    const settings = JSON.parse(room.settings || '{}'); 
+    return c.json({ status: room.status, ...settings });
 });
 
 app.post('/auth/update-stats', async (c) => {
