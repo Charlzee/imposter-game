@@ -311,6 +311,43 @@ app.get('/auth/rooms/:code/status', async (c) => {
     return c.json({ status: room.status, ...settings });
 });
 
+app.post('/auth/rooms/:code/vote', async (c) => {
+    const code = c.req.param('code');
+    const payload = c.get('jwtPayload');
+    const { voted_for_username } = await c.req.json();
+
+    if (!voted_for_username) {
+        return c.json({ error: "No player selected to vote for" }, 400);
+    }
+
+    try {
+        const playerExists = await c.env.D1.prepare("SELECT 1 FROM room_players WHERE room_code = ? AND username = ?")
+            .bind(code, voted_for_username).first();
+        if (!playerExists) {
+            return c.json({ error: "Voted player not found in this room" }, 404);
+        }
+
+        await c.env.D1.prepare(
+            "INSERT INTO room_votes (room_code, voter_username, voted_for_username) VALUES (?, ?, ?)"
+        ).bind(code, payload.username, voted_for_username).run();
+        return c.json({ success: true });
+    } catch (err) {
+        if (err.message && err.message.includes("UNIQUE constraint failed")) {
+            return c.json({ error: "You have already voted in this round." }, 409);
+        }
+        return c.json({ error: "Failed to cast vote", details: err.message }, 500);
+    }
+});
+
+app.get('/auth/rooms/:code/votes', async (c) => {
+    const code = c.req.param('code');
+
+    const votes = await c.env.D1.prepare(
+        "SELECT voted_for_username, COUNT(voter_username) as votes FROM room_votes WHERE room_code = ? GROUP BY voted_for_username ORDER BY votes DESC"
+    ).bind(code).all();
+    return c.json(votes.results);
+});
+
 app.post('/auth/rooms/:code/chat', async (c) => {
     const code = c.req.param('code');
     const payload = c.get('jwtPayload');

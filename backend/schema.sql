@@ -23,6 +23,16 @@ CREATE TABLE IF NOT EXISTS room_players (
     FOREIGN KEY (room_code) REFERENCES rooms(code) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS room_votes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    room_code TEXT NOT NULL,
+    voter_username TEXT NOT NULL,
+    voted_for_username TEXT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (room_code, voter_username),
+    FOREIGN KEY (room_code) REFERENCES rooms(code) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS room_chats (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     room_code TEXT NOT NULL,

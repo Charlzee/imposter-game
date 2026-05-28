@@ -4,6 +4,9 @@ import { ROLE_DATA_ONLINE, ROLE_MODIFIERS_ONLINE, INNOCENT_CONFIG, getBaseRoleId
 let myUsername = '';
 let lastFetchedMessageId = 0;
 let chatPollInterval;
+let votePollInterval;
+let currentPlayersInRoom = [];
+let hasVoted = false;
 const CHAT_POLL_INTERVAL_MS = 1500; // 1.5 seconds
 
 async function initOnlinePlay() {
@@ -32,6 +35,10 @@ async function initOnlinePlay() {
     const wordDisplay = document.getElementById('word');
     const roleTip = document.getElementById('role-tip');
     const roleDisplay = document.getElementById('role-display');
+
+    // Voting UI elements
+    const main = document.getElementById('main');
+    const voteSection = document.createElement('div');
 
     const chatInput = document.getElementById('chat-input');
     const sendChatButton = document.getElementById('send-chat');
@@ -76,7 +83,7 @@ async function initOnlinePlay() {
 
         // Theme Visibility logic
         if (configUi.showTheme || config.showTheme || activeModifiers.some(m => ROLE_MODIFIERS_ONLINE[m].showTheme)) {
-            const theme = localStorage.getItem('selected_theme') || "Unknown";
+            const theme = localStorage.getItem('selected_topic') || "Unknown";
             content += `\nTHEME: ${theme}`;
         }
 

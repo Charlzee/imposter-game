@@ -178,7 +178,7 @@ export async function startGameServer(code) {
         }
     });
 
-    localStorage.setItem('selected_theme', localStorage.getItem('selected_theme') || "Random");
+    localStorage.setItem('selected_topic', localStorage.getItem('selected_topic') || "Random");
 
     // Send to server
     const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/start`, {
