@@ -156,9 +156,11 @@ export async function startGameServer(code) {
         gameSettings[storageKey] = targets;
     };
 
-    if (gameSettings.hitmans.length) assignTargets(gameSettings.hitmans, 'hitmanTargets');
-    if (gameSettings.guardian_angels.length) assignTargets(gameSettings.guardian_angels, 'guardian_angelTargets');
-    if (gameSettings.annoying.length) assignTargets(gameSettings.annoying, 'annoyingTargets');
+    activeRoleKeys.forEach(roleKey => {
+        if (ROLE_DATA_ONLINE[roleKey].hasTarget && gameSettings[roleKey]?.length > 0) {
+            assignTargets(gameSettings[roleKey], `${getBaseRoleId(roleKey)}Targets`);
+        }
+    });
 
     // Inspector Clues
     gameSettings.inspectors.forEach(name => {

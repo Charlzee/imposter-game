@@ -1,5 +1,5 @@
 import { getURLParameter, getRandomLetter, toTitleCase } from './global.js';
-import { ROLE_DATA, ROLE_MODIFIERS, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
+import { ROLE_DATA_ONLINE, ROLE_MODIFIERS_ONLINE, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
 
 let myUsername = '';
 let lastFetchedMessageId = 0;
@@ -22,9 +22,9 @@ async function initOnlinePlay() {
     });
     const game = await roomRes.json();
 
-    let myRoleKey = Object.keys(ROLE_DATA).find(key => game[key]?.includes(myUsername));
-    const activeModifiers = Object.keys(ROLE_MODIFIERS).filter(key => game[key]?.includes(myUsername));
-    let config = ROLE_DATA[myRoleKey] || INNOCENT_CONFIG;
+    let myRoleKey = Object.keys(ROLE_DATA_ONLINE).find(key => game[key]?.includes(myUsername));
+    const activeModifiers = Object.keys(ROLE_MODIFIERS_ONLINE).filter(key => game[key]?.includes(myUsername));
+    let config = ROLE_DATA_ONLINE[myRoleKey] || INNOCENT_CONFIG;
     const myWord = game.word;
 
     const roleTitle = document.getElementById('role-title');
@@ -37,7 +37,7 @@ async function initOnlinePlay() {
     const sendChatButton = document.getElementById('send-chat');
     const chatMessagesContainer = document.getElementById('chat-messages');
 
-    const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), ...Object.values(ROLE_MODIFIERS).map(m => m.class), 'innocent', 'hidden'];
+    const allRoleClasses = [...Object.values(ROLE_DATA_ONLINE).map(r => r.class), ...Object.values(ROLE_MODIFIERS_ONLINE).map(m => m.class), 'innocent', 'hidden'];
 
     roleStatus.classList.remove('hidden');
     roleTitle.textContent = `YOUR ROLE IS:`;
@@ -53,8 +53,8 @@ async function initOnlinePlay() {
             const darkAmnesiaColor = 'rgb(30, 110, 150)';
             roleStatus.style.color = darkAmnesiaColor;
             roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${darkAmnesiaColor}`;
-            roleDisplay.style.backgroundImage = ROLE_MODIFIERS.amnesias.grad;
-            roleTip.textContent = ROLE_MODIFIERS.amnesias.tip;
+            roleDisplay.style.backgroundImage = ROLE_MODIFIERS_ONLINE.amnesias.grad;
+            roleTip.textContent = ROLE_MODIFIERS_ONLINE.amnesias.tip;
         } else {
             roleStatus.textContent = configUi.label;
             roleStatus.classList.add(configUi.class);
@@ -67,15 +67,15 @@ async function initOnlinePlay() {
 
         let displayTheWord = configUi.showWord;
         activeModifiers.forEach(modKey => {
-            if (ROLE_MODIFIERS[modKey].overrideWordVisibility) {
-                displayTheWord = ROLE_MODIFIERS[modKey].showWord;
+            if (ROLE_MODIFIERS_ONLINE[modKey].overrideWordVisibility) {
+                displayTheWord = ROLE_MODIFIERS_ONLINE[modKey].showWord;
             }
         });
 
         let content = displayTheWord ? myWord : '';
 
         // Theme Visibility logic
-        if (configUi.showTheme || config.showTheme || activeModifiers.some(m => ROLE_MODIFIERS[m].showTheme)) {
+        if (configUi.showTheme || config.showTheme || activeModifiers.some(m => ROLE_MODIFIERS_ONLINE[m].showTheme)) {
             const theme = localStorage.getItem('selected_theme') || "Unknown";
             content += `\nTHEME: ${theme}`;
         }
@@ -91,7 +91,7 @@ async function initOnlinePlay() {
 
     function renderModifiers() {
         activeModifiers.forEach(modKey => {
-            const modConfig = ROLE_MODIFIERS[modKey];
+            const modConfig = ROLE_MODIFIERS_ONLINE[modKey];
             const modContainer = document.createElement('div');
             modContainer.className = 'modifier-container';
             modContainer.style.marginTop = '20px';
@@ -135,16 +135,16 @@ async function initOnlinePlay() {
             roleBtn.className = 'titan-one-regular';
             roleBtn.textContent = toTitleCase(roleClass.replace('_', ' '));
             roleBtn.onclick = () => {
-                updateUi(customConfig || ROLE_DATA[roleConfigKey]);
+                updateUi(customConfig || ROLE_DATA_ONLINE[roleConfigKey]);
                 selectionContainer.remove();
             };
             selectionContainer.appendChild(roleBtn);
         };
 
         addRoleBtn('innocent', 'innocents', INNOCENT_CONFIG);
-        Object.keys(ROLE_DATA)
-            .filter(k => !exclude.includes(ROLE_DATA[k].class))
-            .forEach(key => addRoleBtn(ROLE_DATA[key].class, key));
+        Object.keys(ROLE_DATA_ONLINE)
+            .filter(k => !exclude.includes(ROLE_DATA_ONLINE[k].class))
+            .forEach(key => addRoleBtn(ROLE_DATA_ONLINE[key].class, key));
 
         roleDisplay.insertBefore(selectionContainer, roleTip);
     }
