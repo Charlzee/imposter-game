@@ -103,35 +103,48 @@ export async function startGameServer(code) {
 
     const players = JSON.parse(localStorage.getItem('current_players') || '[]');
     const gameSettings = { word };
-    
-    // Initialize role and modifier arrays
+
     Object.keys(ROLE_DATA).forEach(key => gameSettings[key] = []);
     Object.keys(ROLE_MODIFIERS).forEach(key => gameSettings[key] = []);
+    gameSettings.unselected_shapeshifters = [];
+    gameSettings.inspectorClues = {};
 
-    // Assignment logic adapted from play.js
     const occupiedIndices = new Set();
-    Object.keys(ROLE_DATA).forEach(roleKey => {
+    const activeRoleKeys = Object.keys(ROLE_DATA);
+
+    activeRoleKeys.forEach(roleKey => {
         const baseId = getBaseRoleId(roleKey);
-        const count = (roleKey === 'imposters') ? 1 : 0; // Default: 1 imposter
+        const count = parseInt(localStorage.getItem(`${baseId}_count`)) || (roleKey === 'imposters' ? 1 : 0);
+        const spawnChance = parseInt((localStorage.getItem(`${baseId}_percent`) || "100%").replace('%', '')) / 100;
+
         for (let i = 0; i < count; i++) {
             if (occupiedIndices.size >= players.length) break;
-            let idx;
-            do { idx = Math.floor(Math.random() * players.length); } while (occupiedIndices.has(idx));
-            occupiedIndices.add(idx);
-            gameSettings[roleKey].push(players[idx].player_name);
+            if (Math.random() < spawnChance) {
+                let idx;
+                do { idx = Math.floor(Math.random() * players.length); } while (occupiedIndices.has(idx));
+                occupiedIndices.add(idx);
+                gameSettings[roleKey].push(players[idx].player_name);
+                
+                if (roleKey === 'shapeshifters') {
+                    gameSettings.unselected_shapeshifters.push(players[idx].player_name);
+                }
+            }
         }
     });
 
-    // Modifiers
+    // Assign Modifiers
     players.forEach(player => {
         Object.keys(ROLE_MODIFIERS).forEach(modKey => {
-            if (Math.random() < ROLE_MODIFIERS[modKey].chance) {
+            const modConfig = ROLE_MODIFIERS[modKey];
+            if (modKey === 'amnesias' && gameSettings.shapeshifters.includes(player.player_name)) return;
+
+            if (Math.random() < modConfig.chance) {
                 gameSettings[modKey].push(player.player_name);
             }
         });
     });
 
-    // Target assignment
+    // Assign Targets and Clues
     const assignTargets = (roleArray, storageKey) => {
         const targets = {};
         roleArray.forEach(name => {
@@ -146,6 +159,24 @@ export async function startGameServer(code) {
     if (gameSettings.hitmans.length) assignTargets(gameSettings.hitmans, 'hitmanTargets');
     if (gameSettings.guardian_angels.length) assignTargets(gameSettings.guardian_angels, 'guardian_angelTargets');
     if (gameSettings.annoying.length) assignTargets(gameSettings.annoying, 'annoyingTargets');
+
+    // Inspector Clues
+    gameSettings.inspectors.forEach(name => {
+        const BlacklistedImposterRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].showWord === false);
+        const combinedImposters = [];
+        BlacklistedImposterRoles.forEach(key => combinedImposters.push(...gameSettings[key]));
+
+        const nonImposters = players.filter(p => 
+            p.player_name !== name && !combinedImposters.includes(p.player_name)
+        );
+
+        if (nonImposters.length > 0) {
+            const randomIdx = Math.floor(Math.random() * nonImposters.length);
+            gameSettings.inspectorClues[name] = nonImposters[randomIdx].player_name;
+        }
+    });
+
+    localStorage.setItem('selected_theme', localStorage.getItem('selected_theme') || "Random");
 
     // Send to server
     const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/start`, {
@@ -171,6 +202,14 @@ async function checkRoomStatus(code) {
 
     if (response.ok) {
         const data = await response.json();
+
+        if (data.topic) {
+            const topicElement = document.getElementById(data.topic);
+            if (topicElement && !topicElement.classList.contains('is-selected')) {
+                applyTopicSelectionUI(data.topic);
+            }
+        }
+
         if (data.status === 'playing') {
             localStorage.setItem('game_started', 'false');
             window.location.href = `/play_online.html?code=${code}`;
@@ -270,22 +309,35 @@ async function fetchTopics() {
         console.error("Failed to render topics component:", error);
         topic_container.innerHTML = "<span>Error displaying topics.</span>";
     }
-
-    const savedTopic = localStorage.getItem("selected_topic");
-    if (savedTopic) selectTopic(savedTopic);
 }
 
-async function selectTopic(topic_id) {
+async function selectTopic(topic_id, isFromSync = false) {
+    const code = new URLSearchParams(window.location.search).get('code');
+    const token = localStorage.getItem('token');
+
+    if (!isFromSync) {
+        await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/settings`, {
+            method: "PATCH",
+            headers: { 
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ settings: { topic: topic_id } })
+        });
+    }
+
+    applyTopicSelectionUI(topic_id);
+}
+
+function applyTopicSelectionUI(topic_id) {
     const topic_element = document.getElementById(topic_id);
     if (!topic_element) return;
 
-    const previousId = localStorage.getItem("selected_topic");
-    if (previousId) {
-        const prev_element = document.getElementById(previousId);
-        if (prev_element) prev_element.classList.remove("is-selected", "docs");
-    }
+    // Remove selection
+    document.querySelectorAll('.topic.is-selected').forEach(el => {
+        el.classList.remove("is-selected", "docs");
+    });
 
-    localStorage.setItem("selected_topic", topic_id);
     topic_element.classList.add("is-selected");
     if (topic_id.includes("docs")) topic_element.classList.add("docs");
     

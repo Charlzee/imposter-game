@@ -1,5 +1,5 @@
-import { getURLParameter, getRandomLetter } from './global.js';
-import { ROLE_DATA, ROLE_MODIFIERS, INNOCENT_CONFIG } from './roles.js';
+import { getURLParameter, getRandomLetter, toTitleCase } from './global.js';
+import { ROLE_DATA, ROLE_MODIFIERS, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
 
 async function initOnlinePlay() {
     const code = getURLParameter('code');
@@ -17,9 +17,9 @@ async function initOnlinePlay() {
     });
     const game = await roomRes.json();
 
-    const myRoleKey = Object.keys(ROLE_DATA).find(key => game[key]?.includes(myUsername));
+    let myRoleKey = Object.keys(ROLE_DATA).find(key => game[key]?.includes(myUsername));
     const activeModifiers = Object.keys(ROLE_MODIFIERS).filter(key => game[key]?.includes(myUsername));
-    const config = ROLE_DATA[myRoleKey] || INNOCENT_CONFIG;
+    let config = ROLE_DATA[myRoleKey] || INNOCENT_CONFIG;
     const myWord = game.word;
 
     const roleTitle = document.getElementById('role-title');
@@ -31,62 +31,116 @@ async function initOnlinePlay() {
     const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), ...Object.values(ROLE_MODIFIERS).map(m => m.class), 'innocent', 'hidden'];
 
     roleStatus.classList.remove('hidden');
-    roleTitle.textContent = `${myUsername}, your role is:`;
+    roleTitle.textContent = `YOUR ROLE IS:`;
 
-    roleStatus.classList.remove(...allRoleClasses);
-    roleStatus.textContent = config.label;
-    roleStatus.classList.add(config.class);
-    const activeColor = config.textColor || 'white';
-    roleStatus.style.color = activeColor;
-    roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${activeColor}`;
-    roleDisplay.style.backgroundImage = config.grad;
-    roleTip.textContent = config.tip;
+    function updateUi(configUi) {
+        roleStatus.classList.remove(...allRoleClasses);
+        document.querySelectorAll('.modifier-container').forEach(el => el.remove());
 
-    let displayWord = config.showWord;
-    activeModifiers.forEach(modKey => {
-        if (ROLE_MODIFIERS[modKey].overrideWordVisibility) displayWord = ROLE_MODIFIERS[modKey].showWord;
-    });
+        const hasAmnesia = activeModifiers.includes('amnesias');
+        if (hasAmnesia) {
+            roleStatus.textContent = "%?$?£$";
+            roleStatus.classList.add('amnesia');
+            const darkAmnesiaColor = 'rgb(30, 110, 150)';
+            roleStatus.style.color = darkAmnesiaColor;
+            roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${darkAmnesiaColor}`;
+            roleDisplay.style.backgroundImage = ROLE_MODIFIERS.amnesias.grad;
+            roleTip.textContent = ROLE_MODIFIERS.amnesias.tip;
+        } else {
+            roleStatus.textContent = configUi.label;
+            roleStatus.classList.add(configUi.class);
+            const activeColor = configUi.textColor || 'white';
+            roleStatus.style.color = activeColor;
+            roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${activeColor}`;
+            roleDisplay.style.backgroundImage = configUi.grad;
+            roleTip.textContent = configUi.tip;
+        }
 
-    let content = displayWord ? myWord : '???';
+        let displayTheWord = configUi.showWord;
+        activeModifiers.forEach(modKey => {
+            if (ROLE_MODIFIERS[modKey].overrideWordVisibility) {
+                displayTheWord = ROLE_MODIFIERS[modKey].showWord;
+            }
+        });
 
-    activeModifiers.forEach(modKey => {
-        const modConfig = ROLE_MODIFIERS[modKey];
-        const modContainer = document.createElement('div');
-        modContainer.className = 'modifier-container';
-        modContainer.style.marginTop = '20px';
-        modContainer.style.padding = '15px';
-        modContainer.style.borderRadius = '10px';
-        modContainer.style.background = modConfig.grad;
-        modContainer.style.border = `2px solid ${modConfig.textColor}`;
+        let content = displayTheWord ? myWord : '???';
 
-        const modTitle = document.createElement('h4');
-        modTitle.className = 'titan-one-regular';
-        modTitle.textContent = `MODIFIER: ${modConfig.label.toUpperCase()}`;
-        modTitle.style.color = modConfig.textColor;
-        modTitle.style.fontSize = '1.5rem';
-        modTitle.style.margin = '0 0 10px 0';
-        modTitle.style.textShadow = `3px 3px 2px rgba(0,0,0,0.5), 0 0 8px ${modConfig.textColor}`;
+        // Theme Visibility logic
+        if (configUi.showTheme || config.showTheme || activeModifiers.some(m => ROLE_MODIFIERS[m].showTheme)) {
+            const theme = localStorage.getItem('selected_theme') || "Unknown";
+            content += `\nTHEME: ${theme}`;
+        }
 
-        const modTip = document.createElement('p');
-        modTip.textContent = (modKey === 'monkey') ? `${modConfig.tip}[${getRandomLetter()}]` : modConfig.tip;
-        const activeSubColor = modConfig.subTextColor || '#fff';
-        modTip.style.color = activeSubColor;
-        modTip.style.textShadow = `5px 5px 3px rgba(0, 0, 0, 0.4), 4px 4px 8px ${activeSubColor}`;
-        modTip.style.margin = '0';
-        modTip.style.fontSize = '1.1rem';
-        modTip.style.whiteSpace = 'pre-line';
+        if (game.hitmanTargets?.[myUsername]) content += `\n\nYOUR TARGET: ${game.hitmanTargets[myUsername]}`;
+        if (game.guardian_angelTargets?.[myUsername]) content += `\n\nYOUR TARGET: ${game.guardian_angelTargets[myUsername]}`;
+        if (game.annoyingTargets?.[myUsername]) content += `\n\nYOUR TARGET: ${game.annoyingTargets[myUsername]}`;
+        if (game.inspectorClues?.[myUsername]) content += `\n\nONE NON-IMPOSTER:\n[${game.inspectorClues[myUsername]}]`;
 
-        modContainer.appendChild(modTitle);
-        modContainer.appendChild(modTip);
-        roleDisplay.insertBefore(modContainer, wordDisplay);
-    });
+        wordDisplay.textContent = content;
+        renderModifiers();
+    }
 
-    if (game.hitmanTargets?.[myUsername]) content += `\n\nYOUR TARGET: ${game.hitmanTargets[myUsername]}`;
-    if (game.guardian_angelTargets?.[myUsername]) content += `\n\nYOUR TARGET: ${game.guardian_angelTargets[myUsername]}`;
-    if (game.annoyingTargets?.[myUsername]) content += `\n\nYOUR TARGET: ${game.annoyingTargets[myUsername]}`;
-    if (game.inspectorClues?.[myUsername]) content += `\n\nONE NON-IMPOSTER:\n[${game.inspectorClues[myUsername]}]`;
+    function renderModifiers() {
+        activeModifiers.forEach(modKey => {
+            const modConfig = ROLE_MODIFIERS[modKey];
+            const modContainer = document.createElement('div');
+            modContainer.className = 'modifier-container';
+            modContainer.style.marginTop = '20px';
+            modContainer.style.padding = '15px';
+            modContainer.style.borderRadius = '10px';
+            modContainer.style.background = modConfig.grad;
+            modContainer.style.border = `2px solid ${modConfig.textColor}`;
 
-    wordDisplay.textContent = content;
+            const modTitle = document.createElement('h4');
+            modTitle.className = 'titan-one-regular';
+            modTitle.textContent = `MODIFIER: ${modConfig.label.toUpperCase()}`;
+            modTitle.style.color = modConfig.textColor;
+            modTitle.style.fontSize = '1.5rem';
+            modTitle.style.margin = '0 0 10px 0';
+            modTitle.style.textShadow = `3px 3px 2px rgba(0,0,0,0.5), 0 0 8px ${modConfig.textColor}`;
+
+            const modTip = document.createElement('p');
+            modTip.textContent = (modKey === 'monkey') ? `${modConfig.tip}[${getRandomLetter()}]` : modConfig.tip;
+            const activeSubColor = modConfig.subTextColor || '#fff';
+            modTip.style.color = activeSubColor;
+            modTip.style.textShadow = `5px 5px 3px rgba(0, 0, 0, 0.4), 4px 4px 8px ${activeSubColor}`;
+            modTip.style.margin = '0';
+            modTip.style.fontSize = '1.1rem';
+            modTip.style.whiteSpace = 'pre-line';
+
+            modContainer.appendChild(modTitle);
+            modContainer.appendChild(modTip);
+            roleDisplay.insertBefore(modContainer, wordDisplay);
+        });
+    }
+
+    // Handle Shapeshifter Selection UI
+    if (myRoleKey === 'shapeshifters') {
+        const exclude = ["shapeshifter", "hidden", "amnesia", "mime"];
+        const selectionContainer = document.createElement('div');
+        selectionContainer.id = 'shapeshifter-role-selection';
+        selectionContainer.classList.add('shapeshifter-role-selection');
+
+        const addRoleBtn = (roleClass, roleConfigKey, customConfig = null) => {
+            const roleBtn = document.createElement('button');
+            roleBtn.className = 'titan-one-regular';
+            roleBtn.textContent = toTitleCase(roleClass.replace('_', ' '));
+            roleBtn.onclick = () => {
+                updateUi(customConfig || ROLE_DATA[roleConfigKey]);
+                selectionContainer.remove();
+            };
+            selectionContainer.appendChild(roleBtn);
+        };
+
+        addRoleBtn('innocent', 'innocents', INNOCENT_CONFIG);
+        Object.keys(ROLE_DATA)
+            .filter(k => !exclude.includes(ROLE_DATA[k].class))
+            .forEach(key => addRoleBtn(ROLE_DATA[key].class, key));
+
+        roleDisplay.insertBefore(selectionContainer, roleTip);
+    }
+
+    updateUi(config);
 
     const main = document.getElementById('main');
     const discussBtn = document.createElement('button');
