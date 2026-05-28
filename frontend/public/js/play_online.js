@@ -168,6 +168,37 @@ async function initOnlinePlay() {
     // Start polling chat messages
     await fetchChatMessages(code, token);
     chatPollInterval = setInterval(() => fetchChatMessages(code, token), CHAT_POLL_INTERVAL_MS);
+
+    voteSection.id = 'vote-section';
+    voteSection.innerHTML = `
+        <h2 class="titan-one-regular">Who do you want to vote out?</h2>
+        <div id="player-vote-list" class="shapeshifter-role-selection"></div>
+        <button id="submit-vote-btn" class="titan-one-regular" disabled>SUBMIT VOTE</button>
+        <div id="vote-tallies" class="titan-one-regular"></div>
+    `;
+    document.querySelector('.role-section').appendChild(voteSection);
+
+    // Fetch current players for voting list
+    const playersRes = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/players`, {
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (playersRes.ok) {
+        const playersData = await playersRes.json();
+        currentPlayersInRoom = playersData.map(p => p.username);
+        const playerVoteList = document.getElementById('player-vote-list');
+        currentPlayersInRoom.forEach(player => {
+            if (player === myUsername) return; // Can't vote for self
+            const voteButton = document.createElement('button');
+            voteButton.className = 'titan-one-regular vote-player-btn';
+            voteButton.textContent = player;
+            voteButton.onclick = () => selectPlayerToVote(player, token, code);
+            playerVoteList.appendChild(voteButton);
+        });
+    }
+
+    // Start polling for votes
+    await fetchVoteCounts(code, token);
+    votePollInterval = setInterval(() => fetchVoteCounts(code, token), CHAT_POLL_INTERVAL_MS);
 }
 
 async function sendChatMessage(code, token, chatInput) {
@@ -215,6 +246,66 @@ async function fetchChatMessages(code, token) {
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight; // Scroll to bottom
     } else {
         console.error("Failed to fetch chat messages:", response.status, await response.text());
+    }
+}
+
+function selectPlayerToVote(player, token, code) {
+    document.querySelectorAll('.vote-player-btn').forEach(btn => btn.classList.remove('is-selected'));
+    const selectedBtn = Array.from(document.querySelectorAll('.vote-player-btn')).find(btn => btn.textContent === player);
+    if (selectedBtn) selectedBtn.classList.add('is-selected');
+
+    const submitVoteBtn = document.getElementById('submit-vote-btn');
+    submitVoteBtn.disabled = false;
+    submitVoteBtn.onclick = () => castVote(code, token, player);
+}
+
+async function castVote(code, token, votedForUsername) {
+    if (hasVoted) return; // Prevent double voting
+
+    try {
+        const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/vote`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ voted_for_username: votedForUsername })
+        });
+
+        if (response.ok) {
+            hasVoted = true;
+            const submitBtn = document.getElementById('submit-vote-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = "VOTE CAST!";
+            document.querySelectorAll('.vote-player-btn').forEach(btn => btn.disabled = true);
+            await fetchVoteCounts(code, token); // Update tallies immediately
+        } else {
+            const errorData = await response.json();
+            alert(errorData.error || "Failed to cast vote.");
+        }
+    } catch (error) {
+        console.error("Error casting vote:", error);
+    }
+}
+
+async function fetchVoteCounts(code, token) {
+    const voteTalliesContainer = document.getElementById('vote-tallies');
+    if (!voteTalliesContainer) return;
+
+    const response = await fetch(`https://imposter-gm.com/api/auth/rooms/${code}/votes`, {
+        headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+        const voteResults = await response.json();
+        if (voteResults.length > 0) {
+            voteTalliesContainer.innerHTML = `<h3>Current Votes:</h3>`;
+            voteResults.forEach(result => {
+                voteTalliesContainer.innerHTML += `<p>${result.voted_for_username}: ${result.votes}</p>`;
+            });
+        } else {
+            voteTalliesContainer.innerHTML = `<p>No votes cast yet.</p>`;
+        }
     }
 }
 
