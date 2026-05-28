@@ -63,7 +63,7 @@ async function initOnlinePlay() {
             }
         });
 
-        let content = displayTheWord ? myWord : '???';
+        let content = displayTheWord ? myWord : '';
 
         // Theme Visibility logic
         if (configUi.showTheme || config.showTheme || activeModifiers.some(m => ROLE_MODIFIERS[m].showTheme)) {

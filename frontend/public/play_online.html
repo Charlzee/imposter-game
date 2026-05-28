@@ -41,14 +41,28 @@
 <body>
     <h1 style="font-size: 1px; color: transparent; margin: 0;">Interactive English Grammar & Vocabulary Revision Tool</h1>
 
+    
     <div class="main-screen titan-one-regular" id="main">
-        <h1 id="big-text">VIEW ROLE</h1>
-        <div class="titan-one-regular" id="role-display">
-            <h2 class="titan-one-regular" id="role-title">Loading...</h2>
-            <h3 class="hidden" id="role-status">Loading...</h3>
-            <h4 class="titan-one-regular" id="word">Loading...</h4>
-            <p class="titan-one-regular" id="role-description"></p>
-            <h2 class="hidden" id="role-tip">Loading...</h2>
+        <div class="game-layout">
+            <div class="role-section">
+                <h1 id="big-text">VIEW ROLE</h1>
+                <div class="titan-one-regular" id="role-display">
+                    <h2 class="titan-one-regular" id="role-title">Loading...</h2>
+                    <h3 class="hidden" id="role-status">Loading...</h3>
+                    <h4 class="titan-one-regular" id="word">Loading...</h4>
+                    <p class="titan-one-regular" id="role-description"></p>
+                    <h2 class="hidden" id="role-tip">Loading...</h2>
+                </div>
+            </div>
+
+            <div class="chat-section">
+                <h1>CHAT</h1>
+                <div id="chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" class="titan-one-regular" placeholder="Type a message...">
+                    <button id="send-chat" class="titan-one-regular">SEND</button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
