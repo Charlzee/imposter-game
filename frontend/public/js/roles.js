@@ -169,10 +169,12 @@ export const ROLE_DATA_LOCAL = {
         hasTarget: true
     },
     shapeshifters: {
-        label: 'Shapeshifter',
+        //label: 'Shapeshifter',
+        label: 'Trans',
         class: 'shapeshifter',
         tip: 'CHOOSE YOUR ROLE.',
-        grad: 'radial-gradient(circle, rgb(255, 165, 0) 0%, rgb(128, 83, 0) 100%)',
+        //grad: 'radial-gradient(circle, rgb(255, 165, 0) 0%, rgb(128, 83, 0) 100%)',
+        grad: 'linear-gradient(to bottom, #5BCEFA 0% 20%, #F5A9B8 20% 40%, #FFFFFF 40% 60%, #F5A9B8 60% 80%, #5BCEFA 80% 100%)',
         textColor: 'rgb(255, 165, 0)',
         showWord: false
     },
