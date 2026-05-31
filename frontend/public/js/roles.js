@@ -175,7 +175,6 @@ export const ROLE_DATA_LOCAL = {
         //tip: 'CHOOSE YOUR ROLE.',
         tip: 'Happy pride month :3',
         //grad: 'radial-gradient(circle, rgb(255, 165, 0) 0%, rgb(128, 83, 0) 100%)',
-        grad: 'rgb(255, 165, 0) 0%, rgb(128, 83, 0) 100%)',
         grad: 'linear-gradient(to bottom, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)',
         textColor: 'rgb(255, 165, 0)',
         showWord: false
