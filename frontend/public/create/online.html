@@ -60,6 +60,18 @@
         <div class="topics titan-one-regular" id="topic-container"></div>
     </div>
 
+    <div id="settings-overlay">
+        <div class="settings-content">
+            <h2 class="settings-txt">GAME SETTINGS</h2>
+
+            <div id="role-settings-container"></div>
+
+            <p class="titan-one-regular count">Role Modifiers Enabled:</p> <input class="titan-one-regular" id="role-modifiers-enabled" type="checkbox" checked>
+            <p class="titan-one-regular count">Random Events Enabled:</p> <input class="titan-one-regular" id="random-events-enabled" type="checkbox" checked>
+            <button class="titan-one-regular" id="close-settings-btn">Close</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initLobby } from '../js/create_online.js';
         initLobby();
