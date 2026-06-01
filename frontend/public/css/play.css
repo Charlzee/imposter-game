@@ -98,6 +98,7 @@
 
 .player-view-role {
     min-width: 120px;
+    max-width: 200px;
     min-height: 160px;
     padding: 12px;
 
@@ -119,11 +120,11 @@
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     
-    flex-wrap: wrap;
     line-height: 1.1;
     height: auto;
-    width: fit-content;
-    display: inline-flex;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 #role-display {
