@@ -81,6 +81,11 @@
     white-space: pre-line;
 }
 
+#roles-list {
+    width: 70%
+
+}
+
 #role-display {
     width: 70%;
     max-width: 500px;
