@@ -94,8 +94,8 @@
 }
 
 .player-view-role {
-    width: auto;
-    height: auto;
+    width: 20%;
+    height: 90%;
 
     background: radial-gradient(ellipse, #fc5c7d 0%, #6a82fb 100%);
     border: 3px solid black;
