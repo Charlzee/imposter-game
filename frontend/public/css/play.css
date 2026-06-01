@@ -90,15 +90,16 @@
 
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 15px;
     padding: 15px;
 }
 
 .player-view-role {
-    width: 120px;
-    height: 160px;
+    min-width: 120px;
+    max-width: 120px;
+    min-height: 160px;
     padding: 12px;
 
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -119,10 +120,9 @@
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     
-    overflow: hidden;
     word-wrap: break-word;
     line-height: 1.2;
-    max-height: 100%;
+    height: auto;
 }
 
 #role-display {
