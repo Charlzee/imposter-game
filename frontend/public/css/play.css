@@ -82,23 +82,23 @@
 }
 
 #roles-list {
-    width: 70%;
+    width: 90%;
     background-image: radial-gradient(ellipse, #667eea 0%, #764ba2 100%);
     
     border: 3px solid black;
     border-radius: 5px;
 
-    flex-direction: column;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    display: flex;
-    gap: 12px;
+    gap: 15px;
     padding: 15px;
 }
 
 .player-view-role {
-    width: 90%;
-    min-height: 80px;
+    width: 150px;
+    height: 200px;
     padding: 15px;
 
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
