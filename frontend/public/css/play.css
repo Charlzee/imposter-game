@@ -82,8 +82,11 @@
 }
 
 #roles-list {
-    width: 70%
-
+    width: 70%;
+    background-image: radial-gradient(ellipse, #667eea 0%, #764ba2 100%);
+    
+    border: 3px solid black;
+    border-radius: 5px;
 }
 
 #role-display {
