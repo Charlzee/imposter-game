@@ -119,11 +119,11 @@
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     
-    word-break: break-word;
+    flex-wrap: wrap;
     line-height: 1.1;
     height: auto;
     width: fit-content;
-    white-space: normal;
+    display: inline-flex;
 }
 
 #role-display {
