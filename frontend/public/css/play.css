@@ -87,6 +87,23 @@
     
     border: 3px solid black;
     border-radius: 5px;
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-view-role {
+    width: auto;
+    height: auto;
+
+    background: radial-gradient(ellipse, #fc5c7d 0%, #6a82fb 100%);
+    border: 3px solid black;
+    border-radius: 5px;
+    
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #role-display {
