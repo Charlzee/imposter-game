@@ -140,6 +140,16 @@ export const ROLE_MODIFIERS_LOCAL = {
         overrideWordVisibility: false,
         chance: 0.05
     },
+    narccisist: {
+        label: 'narccisist', class: 'narccisist',
+        tip: 'WIP (sowwy)',
+        grad: 'radial-gradient(circle, lightblue 0%, cyan 100%)',
+        textColor: 'rgb(109, 255, 187)',
+        subTextColor: 'aliceblue',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
 };
 
 export const ROLE_DATA_LOCAL = {
