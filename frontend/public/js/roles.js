@@ -150,6 +150,26 @@ export const ROLE_MODIFIERS_LOCAL = {
         overrideWordVisibility: false,
         chance: 0.05
     },
+    furry: {
+        label: 'Furry', class: 'furry',
+        tip: 'You must meow, bark, etc, at the end of each sentence',
+        grad: 'radial-gradient(circle, #ff2fc0, #f516cd, #e600dd, #d200ed, #b700ff)',
+        textColor: 'rgb(200, 200, 200)',
+        subTextColor: 'white',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
+    big: {
+        label: 'Big Idea', class: 'big',
+        tip: 'You must say "BIG IDEA" in a bold voice before each sentence.',
+        grad: 'radial-gradient(circle, #d2ff2f, #c5ff25, #b7ff1a, #a7ff0e, #96ff00)',
+        textColor: 'rgb(0, 200, 40)',
+        subTextColor: 'green',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
 };
 
 export const ROLE_DATA_LOCAL = {
