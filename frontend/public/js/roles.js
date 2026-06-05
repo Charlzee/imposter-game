@@ -125,7 +125,7 @@ export const ROLE_MODIFIERS_LOCAL = {
         tip: 'You need to debate witn someone.',
         grad: 'radial-gradient(circle, orange 0%, orangered 100%)',
         textColor: 'rgb(255,101,48)',
-        subTextColor: 'darkred',
+        subTextColor: 'red',
         showWord: true,
         overrideWordVisibility: false,
         chance: 0.05
@@ -148,7 +148,7 @@ export const ROLE_MODIFIERS_LOCAL = {
         subTextColor: 'orange',
         showWord: true,
         overrideWordVisibility: false,
-        chance: 0.05
+        chance: 0.04
     },
 };
 
