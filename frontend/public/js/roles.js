@@ -141,11 +141,11 @@ export const ROLE_MODIFIERS_LOCAL = {
         chance: 0.05
     },
     narccisist: {
-        label: 'narccisist', class: 'narccisist',
+        label: 'Narccisist', class: 'narccisist',
         tip: 'WIP (sowwy)',
-        grad: 'radial-gradient(circle, lightblue 0%, cyan 100%)',
-        textColor: 'rgb(109, 255, 187)',
-        subTextColor: 'aliceblue',
+        grad: 'radial-gradient(circle, #ff0000, #ff3a00, #ff5400, #ff6800, #ff7a00)',
+        textColor: 'rgb(204,0,0)',
+        subTextColor: 'orange',
         showWord: true,
         overrideWordVisibility: false,
         chance: 0.05
