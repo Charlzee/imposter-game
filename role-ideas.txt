@@ -1,0 +1,479 @@
+ROLE IDEAS (Using existing Logic)
+
+1. The Bodyguard
+Logic: hasTarget = true, showWord = true.
+Description: You are an Innocent who is assigned a "VIP" (the target). Your goal is to keep them from being voted out. If they leave the game, you lose.
+
+2. The Rival
+Logic: hasTarget = true, showWord = true.
+Description: You are an Innocent, but you have a personal grudge. You only win if you survive the round and your target is the one voted out.
+
+3. The Paranoid
+Logic: hasClue = true, showWord = true.
+Description: You receive a "confirmed non-imposter" clue, but your tip tells you that the person you saw is actually the Imposter! You must convince the group to vote them out, even though you are technically an Innocent.
+
+4. The Oracle
+Logic: hasClue = true, showWord = true.
+Description: You know one person who is definitely Innocent, but you are cursed. You cannot say that person's name directly during the discussion.
+
+5. The Amnesiac Imposter
+Logic: showWord = false.
+Description: You are an Imposter but you have no idea what the word is or who your teammates are. You have to play perfectly to blend in until you figure it out.
+
+MODIFIER IDEAS (Using existing "Tip" and Random Logic)
+
+1. The Interrogator
+Tip: "You can only speak in questions. You cannot make direct statements."
+
+2. The Echo
+Tip: "You must repeat the last word of every sentence you speak."
+
+3. The Alliterator
+Tip: "Every word in your clue/description must start with the same letter."
+
+4. The Hype-Man
+Tip: "You must aggressively compliment the person who spoke before you before you are allowed to give your own clue."
+
+5. The Skeptic
+Tip: "You must start every sentence with 'Actually...' or 'I highly doubt that...'"
+
+6. The Vowel Hater
+Tip: "Your clue cannot contain a specific vowel (like 'E' or 'A')."
+
+7. The Gossip
+Logic: hasClue = true, showWord = true.
+Description: You received a "confirmed non-imposter" clue. You must mention this person's name at least twice during the discussion while trying to make them look suspicious.
+
+8. The Sympathizer
+Logic: showWord = true.
+Description: You are an Innocent, but you only win if the Imposter wins. You must subtly help the Imposter blend in without revealing your own identity.
+
+9. The Martyr
+Logic: showWord = true.
+Description: You are an Innocent. You win if you are voted out. If you are successfully voted out, you get to reveal one name of your choice that is definitely NOT the Imposter.
+
+7. The Robot
+Tip: "You must speak in a monotone, robotic voice and end every sentence with 'Beep Boop'."
+
+8. The Reverse-Psychologist
+Tip: "You must describe the secret word by only saying what it is NOT (e.g., for 'Pizza', say 'It is not a vegetable and it doesn't live in the ocean')."
+
+9. The Conspiracy Theorist
+Tip: "You must link the secret word to a ridiculous conspiracy theory involving aliens, the government, or secret societies."
+
+10. The Haikuist
+Tip: "Your description of the word must follow a 5-7-5 syllable structure (a Haiku)."
+
+ADDITIONAL NORMAL ROLES (Logic-Based)
+
+11. The Twin
+Logic: hasTarget = true, showWord = true.
+Description: You have a "Twin". You win if both you and your target survive the round.
+
+12. The Sniper
+Logic: hasTarget = true, showWord = true.
+Description: You must be the first person to mention your target's name in the discussion.
+
+13. The Stalker
+Logic: hasTarget = true, showWord = true.
+Description: You must vote for your target, no matter what evidence is presented.
+
+14. The Ghost
+Logic: showWord = false, hasClue = true.
+Description: You don't know the word, but you know one person who is definitely Innocent. Help them find the Imposter.
+
+15. The Wise Man
+Logic: showWord = true, showTheme = true.
+Description: You know the word and the theme. You must give the most complex description possible.
+
+16. The Shadow
+Logic: hasTarget = true, showWord = true.
+Description: You must vote for whoever your target votes for.
+
+17. The Lawyer
+Logic: hasTarget = true, showWord = true.
+Description: You must defend your target against any accusations, even if you think they are the Imposter.
+
+18. The Fanatic
+Logic: hasTarget = true, showWord = true.
+Description: You win if your target is the Imposter and they win, OR if they are Innocent and survive.
+
+19. The Narcissist
+Logic: showWord = true.
+Description: You must mention yourself or your own skills at least three times while describing the word.
+
+20. The Coward
+Logic: showWord = true.
+Description: You cannot be the first person to accuse anyone. You must wait for someone else to point a finger.
+
+21. The Understudy
+Logic: hasTarget = true, showWord = false.
+Description: You don't know the word. Your target is the Imposter. Try to mimic their descriptions to blend in.
+
+22. The Historian
+Logic: showWord = true, showTheme = true.
+Description: You must describe the word by talking about its history or how it was invented.
+
+23. The Rival
+Logic: hasTarget = true, showWord = true.
+Description: You only win if your target is voted out, regardless of whether they are the Imposter.
+
+24. The Informant
+Logic: hasClue = true, showWord = true.
+Description: You know one Innocent. You must try to get the group to trust that specific person.
+
+25. The Glitch
+Logic: showWord = true.
+Description: You must describe the word as if you are lagging (repeating syllables or pausing mid-sentence).
+
+26. The Executioner
+Logic: hasTarget = true.
+Description: You have a "bounty". You win if your target is voted out, regardless of their role.
+
+27. The Detective
+Logic: hasClue = true (2 players).
+Description: You know two people who are definitely NOT the Imposter. Use this information to narrow down the suspects.
+
+28. The Mayor
+Logic: Modifier.
+Description: You are an Innocent. Your vote counts for 3. Use your power wisely.
+
+29. The Scapegoat
+Logic: showWord = true.
+Description: You win if you are voted out. If you survive, you lose.
+
+30. The Medium
+Logic: Requires new logic.
+Description: After someone is voted out, you learn their true identity (even if it's hidden from others).
+
+31. The Architect
+Logic: showTheme = true.
+Description: You know the theme and the number of letters in the secret word, but not the word itself.
+
+32. The Mimic
+Logic: hasTarget = true.
+Description: You must use at least three words from the sentence your target last spoke in every one of your turns.
+
+33. The Traitor
+Logic: showWord = true.
+Description: You are an Innocent, but you only win if the Imposter wins. You must subtly guide the group toward Innocents.
+
+34. The Bodyguard
+Logic: hasTarget = true.
+Description: You win if your target survives the round. If they are voted out, you lose immediately.
+
+35. The Sniper
+Logic: showWord = true.
+Description: You must correctly identify the Imposter in your very first sentence of the game to win.
+
+36. The Mason
+Logic: hasTarget = true.
+Description: Your target is another Mason. You both know each other are Innocent.
+
+37. The Drunk
+Logic: showWord = true (scrambled).
+Description: The secret word is shown to you, but the letters are all mixed up.
+
+38. The Cupid
+Logic: hasTarget = true.
+Description: You and your target are "in love". You both win if both of you survive the round.
+
+39. The Veteran
+Logic: Modifier.
+Description: You cannot be voted out in the first 60 seconds of the discussion.
+
+40. The Librarian
+Logic: showWord = true.
+Description: You know the secret word and its dictionary definition. You must use at least one word from that definition.
+
+41. The Scout
+Logic: hasClue = true.
+Description: You know which players have modifiers, but you don't know which modifiers they have.
+
+42. The Mirror
+Logic: showWord = true.
+Description: If someone accuses you, you must immediately mirror their exact accusation back at them.
+
+43. The Gambler
+Logic: showWord = true.
+Description: You win extra "XP" if you are the first person to vote for the correct Imposter.
+
+44. The King
+Logic: Modifier.
+Description: If you are voted out, the game ends in a total draw. No one wins.
+
+45. The Janitor
+Logic: Requires new logic.
+Description: You can "clean" the board. Once per game, you can choose to ignore all votes cast in the first 30 seconds.
+
+46. The Chef
+Logic: showWord = true.
+Description: You must describe the secret word as if it were a key ingredient in a five-course meal.
+
+47. The Pilot
+Logic: Modifier.
+Description: You can choose to skip the voting phase entirely once per round.
+
+48. The Hacker
+Logic: showWord = false.
+Description: You don't know the word, but you can see a live update of who is voting for whom.
+
+49. The Ghost
+Logic: Requires new logic.
+Description: If you are voted out, you can send one final 5-word message to the group before leaving.
+
+50. The Juggernaut
+Logic: Modifier.
+Description: You are an Innocent. You require a 2/3 majority to be voted out instead of a simple majority.
+
+51. The Alchemist
+Logic: hasTarget = true.
+Description: You can swap your role with your target's role at any point during the discussion.
+
+52. The Bard
+Logic: showWord = true.
+Description: You must describe the word using only song lyrics from famous pop songs.
+
+53. The Priest
+Logic: hasTarget = true.
+Description: You can "bless" your target, making them immune to all modifiers for the rest of the game.
+
+54. The Ninja
+Logic: Modifier.
+Description: Your votes are invisible to other players until the very end of the game.
+
+55. The Pirate
+Logic: hasTarget = true.
+Description: You "steal" your target's vote. They cannot vote, and your vote counts as 2.
+
+56. The Cowboy
+Logic: showWord = true.
+Description: You must "call out" a suspect and challenge them to a debate every time you speak.
+
+57. The Alien
+Logic: showWord = true.
+Description: You must refer to the secret word as "Specimen X" and describe it from an extraterrestrial perspective.
+
+58. The Professor
+Logic: showWord = true.
+Description: You must define the secret word using its formal dictionary definition and Latin root (even if you make it up).
+
+59. The Blacksmith
+Logic: hasTarget = true.
+Description: You can "armor" your target. The first vote cast against them does not count.
+
+60. The Witch
+Logic: hasClue = true.
+Description: You know if the Imposter has a modifier or not.
+
+61. The Fortune Teller
+Logic: hasClue = true.
+Description: You know if the Imposter's name starts with a vowel or a consonant.
+
+62. The Hermit
+Logic: Modifier.
+Description: You cannot be the target of a Hitman, Guardian Angel, or any other target-based role.
+
+63. The Assassin
+Logic: showWord = false.
+Description: You are an Imposter. You win instantly if you can correctly guess the roles of two other players.
+
+64. The Chemist
+Logic: Modifier.
+Description: Once per game, you can "neutralize" the room, disabling all modifiers for 30 seconds.
+
+65. The Mirror Image
+Logic: showWord = true (backwards).
+Description: The secret word is shown to you backwards (e.g., "AZZIP" for "PIZZA").
+
+66. The Collector
+Logic: showWord = true.
+Description: You win if you survive the game and at least three different people voted for you at some point.
+
+67. The Undercover
+Logic: showWord = false.
+Description: You are an Imposter, but if an Inspector checks you, you will appear as "Innocent".
+
+68. The Serial Killer
+Logic: showWord = false.
+Description: You win if the game timer reaches zero and no one has been voted out yet.
+
+69. The Thief
+Logic: hasTarget = true.
+Description: You steal your target's clue. They see nothing, and you see their "confirmed non-imposter" clue.
+
+70. The Saboteur
+Logic: showWord = false.
+Description: You can "short-circuit" the game, making the discussion timer run twice as fast for 20 seconds.
+
+71. The Banker
+Logic: Modifier.
+Description: You can "invest" your vote. If you don't vote this round, your vote counts for 4 in the next game.
+
+72. The Tourist
+Logic: showWord = true.
+Description: You must mention a different country every time it is your turn to speak.
+
+73. The Critic
+Logic: showWord = true.
+Description: You must find at least one negative thing to say about the secret word in your description.
+
+74. The Merchant
+Logic: showWord = true.
+Description: You can "sell" your knowledge. You can trade your word visibility for a "non-imposter" clue mid-game.
+
+75. The Monarch
+Logic: Modifier.
+Description: If there is a tie in the voting, your vote is the one that breaks the tie and decides who leaves.
+
+ADDITIONAL MODIFIER IDEAS (Tip-Based)
+
+22. The Shaker
+Tip: "You must shake your head or your phone significantly while you are speaking."
+
+23. The High-Pitch
+Tip: "You must speak in a squeaky, high-pitched voice for the entire round."
+
+24. The Deep-Voice
+Tip: "You must speak in the deepest, most booming voice you can manage."
+
+25. The Yeller
+Tip: "You must yell every single word you say during the discussion."
+
+26. The Lag
+Tip: "You must wait exactly 3 seconds in silence before answering any question directed at you."
+
+27. The Stammer
+Tip: "You must repeat the first syllable of every word that starts with the letter 'S'."
+
+28. The One-Breath
+Tip: "You must give your entire description of the word in a single breath. If you inhale, you must stop talking."
+
+29. The No-E
+Tip: "You cannot use any words that contain the letter 'E' while speaking."
+
+30. The No-A
+Tip: "You cannot use any words that contain the letter 'A' while speaking."
+
+31. The Animal
+Tip: "You must start every sentence with an animal noise (e.g., 'Meow', 'Woof', 'Moo')."
+
+32. The Polite
+Tip: "You must start every sentence with 'Forgive me for speaking, but...' and end with '...if it pleases the court'."
+
+33. The Aggressive
+Tip: "You must end every sentence with '...and I'll fight anyone who says otherwise!'"
+
+34. The Sad
+Tip: "You must speak as if you are on the verge of tears and deeply depressed about the secret word."
+
+35. The Nervous
+Tip: "You must interject a high-pitched, nervous giggle after every three words you speak."
+
+36. The Statue
+Tip: "You cannot move any part of your body, including your eyes or hands, while you are speaking."
+
+37. The Accent
+Tip: "You must use a completely fake and over-the-top accent (e.g., French, Texan, Australian)."
+
+38. The Backward
+Tip: "You must attempt to say at least one word in every sentence backwards."
+
+39. The Syllable-Limit
+Tip: "You can only use words that have 2 or fewer syllables."
+
+40. The Long-Word
+Tip: "You must use at least one word with more than 10 letters in every sentence you speak."
+
+41. The Repetitive
+Tip: "You must repeat the first word of every sentence three times (e.g., 'The, the, the word is...')."
+
+42. The Color-Coded
+Tip: "You must mention a color in every clue or description you give."
+
+43. The Numbered
+Tip: "You must start your first sentence with 'One', your second with 'Two', and so on."
+
+44. The Rhyming-Name
+Tip: "Every time you say another player's name, you must follow it with a word that rhymes with it (e.g., 'Bob-Slob')."
+
+45. The Mime-Hand
+Tip: "You must use hand gestures to describe the size and shape of the secret word while you talk."
+
+46. The Speed-Talker
+Tip: "You must speak as fast as humanly possible, leaving no gaps between your words."
+
+47. The Slow-Talker
+Tip: "You must speak as slowly as possible, with a 1-second gap between every word."
+
+48. The Underwater
+Tip: "You must speak as if you have water in your mouth (gurgling) while giving your description."
+
+49. The British
+Tip: "You must use as much British slang as possible (e.g., 'Mate', 'Bollocks', 'Bloody', 'Rubbish')."
+
+50. The Cowboy
+Tip: "You must use Western slang and refer to other players as 'Partner' or 'Varmint'."
+
+51. The Shakespearean
+Tip: "You must use archaic language like 'thou', 'thee', 'hath', and 'wherefore'."
+
+52. The 50s-News
+Tip: "You must speak like a 1950s radio news announcer."
+
+53. The Sportscaster
+Tip: "You must narrate the discussion as if it were a high-stakes championship sports match."
+
+54. The Cooking-Show
+Tip: "You must describe the secret word as if you are hosting a cooking show and it is the main dish."
+
+55. The Weather-Report
+Tip: "You must use weather terms (e.g., 'cloudy', 'stormy', 'sunny') to describe the 'vibe' of the secret word."
+
+56. The Parent
+Tip: "You must speak to every other player as if they are a naughty 5-year-old child."
+
+57. The Teenager
+Tip: "You must use the words 'like', 'literally', and 'slay' in every single sentence."
+
+58. The Robot-Beep
+Tip: "You must say the word 'Beep' or 'Boop' between every three words you speak."
+
+59. The Alien-Visitor
+Tip: "You must refer to all other players as 'Biological Specimens' and ask about human customs."
+
+60. The Dramatic-Pause
+Tip: "You must pause for exactly 2 seconds after every noun you say."
+
+61. The Poet
+Tip: "Your description of the word must be a 4-line rhyming poem."
+
+62. The Alliterator
+Tip: "Every word in your sentence must start with the same letter (e.g., 'Peter picked perfect pizzas')."
+
+63. The Complimenter
+Tip: "You must give a genuine compliment to the person who spoke before you before you can give your clue."
+
+64. The Whisperer
+Tip: "You can only speak in a stage whisper, as if you are sharing a deep secret."
+
+65. The Tongue-Tied
+Tip: "You must intentionally trip over your words or 'stumble' at least once per sentence."
+
+66. The Echo
+Tip: "You must repeat the last word of every sentence you speak twice... twice."
+
+67. The Rhyme-Witch
+Tip: "The last word of your turn must rhyme with the last word of the person who spoke before you."
+
+68. The Vowel-Swap
+Tip: "Replace all instances of the letter 'A' with the letter 'O' when you speak."
+
+69. The Secret-Agent
+Tip: "End every sentence by touching your ear as if you are speaking into a hidden radio."
+
+70. The Yoga-Instructor
+Tip: "You must tell everyone to 'Inhale' and 'Exhale' before you are allowed to speak your turn."
+
+71. The Fortune-Teller
+Tip: "You must start every clue with the phrase: 'I see in my crystal ball...'"
