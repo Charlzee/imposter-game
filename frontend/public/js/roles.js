@@ -142,7 +142,7 @@ export const ROLE_MODIFIERS_LOCAL = {
     },
     narccisist: {
         label: 'Narccisist', class: 'narccisist',
-        tip: 'WIP (sowwy)',
+        tip: 'You must mention yourself or your own skills at least three times while describing the word.',
         grad: 'radial-gradient(circle, #ff0000, #ff3a00, #ff5400, #ff6800, #ff7a00)',
         textColor: 'rgb(204,0,0)',
         subTextColor: 'orange',
