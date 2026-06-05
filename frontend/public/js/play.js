@@ -73,6 +73,11 @@ function decidePlayerList(playersJson, roleCounts = {}) {
             localStorage.removeItem(`${getBaseRoleId(roleKey)}Targets`);
         }
     });
+    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+        if (ROLE_MODIFIERS_LOCAL[modKey].hasTarget) {
+            localStorage.removeItem(`${getBaseRoleId(modKey)}Targets`);
+        }
+    });
 
     const occupiedIndices = new Set();
     const assignedRolesData = {};
@@ -148,6 +153,11 @@ function decidePlayerList(playersJson, roleCounts = {}) {
             assignTargets(assignedRolesData[roleKey], `${getBaseRoleId(roleKey)}Targets`);
         }
     });
+    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+        if (ROLE_MODIFIERS_LOCAL[modKey].hasTarget) {
+            assignTargets(modifierLists[modKey], `${getBaseRoleId(modKey)}Targets`);
+        }
+    });
     
     localStorage.setItem("unselected_shapeshifters", JSON.stringify(assignedRolesData.shapeshifters || []));
 }
@@ -180,7 +190,7 @@ function displayRole(playerIndex) {
     function updateUi(configUi, forcedRoleClass = null) {
         roleStatus.classList.remove(...allRoleClasses);
         
-        document.querySelectorAll('.modifier-container').forEach(el => el.remove());
+        document.getElementById('modifiers-wrapper')?.remove();
 
         roleTitle.textContent = `Player ${playerIndex} role:`;
         
@@ -192,7 +202,7 @@ function displayRole(playerIndex) {
 
             const darkAmnesiaColor = 'rgb(30, 110, 150)'; 
             roleStatus.style.color = darkAmnesiaColor;
-            roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${darkAmnesiaColor}`;
+            roleStatus.style.textShadow = '0 2px 10px rgba(0, 0, 0, 0.5)';
             roleDisplay.style.backgroundImage = ROLE_MODIFIERS_LOCAL.amnesias.grad;
             roleTip.textContent = ROLE_MODIFIERS_LOCAL.amnesias.tip;
         } else {
@@ -201,7 +211,7 @@ function displayRole(playerIndex) {
 
             const activeColor = configUi.textColor || 'white';
             roleStatus.style.color = activeColor;
-            roleStatus.style.textShadow = `7px 7px 4px rgba(0, 0, 0, 0.4), 6px 6px 10px ${activeColor}`;
+            roleStatus.style.textShadow = '0 2px 10px rgba(0, 0, 0, 0.5)';
             roleDisplay.style.backgroundImage = configUi.grad;
             roleTip.textContent = configUi.tip;
         }
@@ -235,47 +245,70 @@ function displayRole(playerIndex) {
         }
 
         Object.keys(ROLE_DATA_LOCAL).forEach(key => {
-            if (ROLE_DATA_LOCAL[key].hasTarget) {
+            const config = ROLE_DATA_LOCAL[key];
+            if (config.hasTarget) {
                 const targets = getStorageJson(`${getBaseRoleId(key)}Targets`, {});
                 if (targets[playerName]) {
                     content += `\n\nYOUR TARGET: ${targets[playerName]}`;
                 }
             }
         });
-        
+
         wordDisplay.textContent = content;
+
+        let modsWrapper = null;
+        if (activeModifiers.length > 0) {
+            modsWrapper = document.createElement('div');
+            modsWrapper.id = 'modifiers-wrapper';
+            modsWrapper.style.display = 'flex';
+            modsWrapper.style.flexWrap = 'wrap';
+            modsWrapper.style.justifyContent = 'center';
+            modsWrapper.style.gap = '15px';
+            modsWrapper.style.width = '100%';
+            modsWrapper.style.marginTop = '20px';
+            modsWrapper.style.marginBottom = '20px';
+            roleDisplay.insertBefore(modsWrapper, document.getElementById("word-area-wrapper") || wordDisplay);
+        }
 
         activeModifiers.forEach(modKey => {
             const modConfig = ROLE_MODIFIERS_LOCAL[modKey];
             
             const modContainer = document.createElement('div');
             modContainer.className = 'modifier-container';
-            modContainer.style.marginTop = '20px';
+            modContainer.style.flex = '1 1 250px';
+            modContainer.style.maxWidth = '400px';
             modContainer.style.padding = '15px';
             modContainer.style.borderRadius = '10px';
             modContainer.style.background = modConfig.grad;
             modContainer.style.border = `2px solid ${modConfig.textColor}`;
 
             const modTitle = document.createElement('h4');
-            modTitle.className = 'titan-one-regular';
-            modTitle.textContent = `MODIFIER: ${modConfig.label.toUpperCase()}`;
+            modTitle.className = 'custom-font';
+            modTitle.textContent = `Modifier: ${modConfig.label}`;
             modTitle.style.color = modConfig.textColor;
             modTitle.style.fontSize = '1.5rem';
             modTitle.style.margin = '0 0 10px 0';
-            modTitle.style.textShadow = `3px 3px 2px rgba(0,0,0,0.5), 0 0 8px ${modConfig.textColor}`;
+            modTitle.style.textShadow = '0 2px 4px rgba(0,0,0,0.5)';
 
             const modTip = document.createElement('p');
             
-            // if modifier is monkey, append the letter
+            let tipText = modConfig.tip;
             if (modKey === 'monkey') {
-                modTip.textContent = `${modConfig.tip}[${getRandomLetter()}]`;
-            } else {
-                modTip.textContent = modConfig.tip;
+                tipText += `[${getRandomLetter()}]`;
             }
 
+            if (modConfig.hasTarget) {
+                const targets = getStorageJson(`${getBaseRoleId(modKey)}Targets`, {});
+                const targetName = targets[playerName];
+                if (targetName) {
+                    tipText += `\n\nYOUR TARGET: ${targetName}`;
+                }
+            }
+
+            modTip.textContent = tipText;
             const activeSubColor = modConfig.subTextColor || '#fff';
             modTip.style.color = activeSubColor;
-            modTip.style.textShadow = `5px 5px 3px rgba(0, 0, 0, 0.4), 4px 4px 8px ${activeSubColor}`;
+            modTip.style.textShadow = '0 1px 3px rgba(0, 0, 0, 0.4)';
             
             modTip.style.margin = '0';
             modTip.style.fontSize = '1.1rem';
@@ -284,7 +317,7 @@ function displayRole(playerIndex) {
             modContainer.appendChild(modTitle);
             modContainer.appendChild(modTip);
 
-            roleDisplay.insertBefore(modContainer, document.getElementById("word-area-wrapper") || wordDisplay);
+            modsWrapper.appendChild(modContainer);
         });
     }
 
@@ -317,19 +350,23 @@ function displayRole(playerIndex) {
     // Run standard initial setup UI
     updateUi(activeUiConfig);
 
-    if (baseRoleKey === 'shapeshifters') {
-        const exclude = ["shapeshifter", "hidden", "amnesia", "mime"];
-        const selectionContainer = document.createElement('div');
-        selectionContainer.id = 'shapeshifter-role-selection';
-        selectionContainer.classList.add('shapeshifter-role-selection');
+    if (config.isShapeshifter) {
+        const selectionList = document.createElement('div');
+        selectionList.id = 'roles-list'; 
+        selectionList.style.marginTop = '30px';
 
-        const addRoleBtn = (roleClass, roleConfigKey, customConfig = null) => {
-            const roleBtn = document.createElement('button');
-            roleBtn.className = 'titan-one-regular';
-            roleBtn.textContent = toTitleCase(roleClass.replace('_', ' '));
+        const selectableRoles = Object.keys(ROLE_DATA_LOCAL).filter(k => ROLE_DATA_LOCAL[k].selectable);
+
+        selectableRoles.forEach(roleKey => {
+            const roleCfg = ROLE_DATA_LOCAL[roleKey];
+            const roleBtn = document.createElement('div');
+            roleBtn.className = 'player-view-role';
+            roleBtn.textContent = roleCfg.label;
+            roleBtn.style.background = roleCfg.grad;
 
             roleBtn.onclick = () => {
-                if (roleClass !== 'innocent') {
+                if (roleKey !== 'innocents') {
+                    const roleConfigKey = roleKey;
                     const existingList = getStorageJson(roleConfigKey);
                     if (!existingList.includes(playerName)) {
                         existingList.push(playerName);
@@ -353,30 +390,22 @@ function displayRole(playerIndex) {
                 const currentUnselected = getStorageJson("unselected_shapeshifters").filter(p => p !== playerName);
                 localStorage.setItem("unselected_shapeshifters", JSON.stringify(currentUnselected));
 
-                let finalConfig = customConfig || ROLE_DATA_LOCAL[roleConfigKey];
-                
-                
-                updateUi(finalConfig, roleClass); 
+                updateUi(roleCfg); 
+                selectionList.remove();
 
-                if (ROLE_DATA_LOCAL[roleConfigKey]?.hasClue) {
+                if (roleCfg.hasClue) {
                     const wordDisplay = document.getElementById('word');
                     const playerToShow = getInspectorClue();
-                    wordDisplay.textContent = wordDisplay.textContent + `\n\nONE NON-IMPOSTER:\n[${playerToShow}]`;
+                    wordDisplay.textContent = wordDisplay.textContent + `\n\nONE NON-IMPOSTER:\n${playerToShow}`;
                 }
             };
-            selectionContainer.appendChild(roleBtn);
-        };
+            selectionList.appendChild(roleBtn);
+        });
 
-        addRoleBtn('innocent', 'innocents', INNOCENT_CONFIG);
-
-        Object.keys(ROLE_DATA_LOCAL)
-            .filter(k => !exclude.includes(ROLE_DATA_LOCAL[k].class))
-            .forEach(key => addRoleBtn(ROLE_DATA_LOCAL[key].class, key));
-
-        roleDisplay.insertBefore(selectionContainer, document.getElementById("role-tip"));
+        roleDisplay.insertBefore(selectionList, document.getElementById("role-tip"));
     } else if (config.hasClue){
         const playerToShow = getInspectorClue();
-        wordDisplay.textContent += `\n\nONE NON-IMPOSTER:\n[${playerToShow}]`;
+        wordDisplay.textContent += `\n\nONE NON-IMPOSTER:\n${playerToShow}`;
     }
 }
 
@@ -473,7 +502,7 @@ async function startGame(updateStats = true) {
 
     const viewRolesBtn = document.createElement('button');
     viewRolesBtn.id = 'view-roles';
-    viewRolesBtn.className = 'titan-one-regular';
+    viewRolesBtn.className = 'custom-font';
     viewRolesBtn.textContent = "View Roles";
     viewRolesBtn.onclick = viewRoles;
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
