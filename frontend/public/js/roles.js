@@ -175,8 +175,8 @@ export const ROLE_MODIFIERS_LOCAL = {
         label: 'Annoying',
         class: 'annoying',
         tip: 'You need to repeat everything your target says right after they do!',
-        grad: 'linear-gradient(135deg, rgb(223, 255, 0) 0%, rgb(152, 175, 0) 100%)',
-        textColor: '#4A5D00',
+        grad: 'linear-gradient(135deg, #DFFF00 0%, #98AF00 100%)',
+        textColor: '#9AB62B',
         showWord: true,
         overrideWordVisibility: false,
         hasTarget: true,
@@ -192,7 +192,7 @@ export const ROLE_MODIFIERS_LOCAL = {
         overrideWordVisibility: false,
         appendRandomLetter: true,
         chance: 0.05
-    },
+    }
 };
 
 export const ROLE_DATA_LOCAL = {
@@ -239,7 +239,7 @@ export const ROLE_DATA_LOCAL = {
         class: 'shapeshifter',
         //tip: 'CHOOSE YOUR ROLE.',
         tip: 'Happy pride month :3',
-        //grad: 'radial-gradient(circle, rgb(255, 165, 0) 0%, rgb(128, 83, 0) 100%)',
+        //grad: 'radial-gradient(circle, #FFA500 0%, #805300 100%)',
         grad: 'linear-gradient(to bottom, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)',
         textColor: '#333333',
         showWord: false,
@@ -273,7 +273,17 @@ export const ROLE_DATA_LOCAL = {
         showWord: true,
         hasClue: true,
         selectable: true
-    }
+    },
+    kings: {
+        label: 'King',
+        class: 'king',
+        tip: 'You are the king. All the Innocents know that you are the King, you win if the imposter doesn\'t vote you.',
+        grad: 'linear-gradient(135deg, #FFFF00 0%, #AFAF00 100%)',
+        textColor: '#FFFFAA',
+        showWord: true,
+        revealRoleToInnocents: true,
+        selectable: false
+    },
 };
 
 export const INNOCENT_CONFIG = {
@@ -285,7 +295,7 @@ export const INNOCENT_CONFIG = {
     showWord: true
 };
 
-export const BASE_ROLE_IDS = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector'];
+export const BASE_ROLE_IDS = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector', 'king'];
 
 export const getBaseRoleId = (configKey) => configKey.replace(/s$/, '').replace('guardian_angel', 'guardian_angel');
 export const getPluralKey = (role) => role.endsWith('s') ? role : (role === 'guardian_angel' ? 'guardian_angels' : `${role}s`);

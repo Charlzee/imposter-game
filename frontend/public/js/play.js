@@ -165,7 +165,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
 function displayRole(playerIndex) {
     const players = getStorageJson('current_players');
     const playerName = players[playerIndex - 1]?.player_name || "Unknown";
-    
+
     const roleTitle = document.getElementById('role-title');
     const roleStatus = document.getElementById('role-status');
     const roleTip = document.getElementById('role-tip');
@@ -175,9 +175,9 @@ function displayRole(playerIndex) {
 
     const activeRoleKeys = Object.keys(ROLE_DATA_LOCAL);
     const baseRoleKey = activeRoleKeys.find(key => getStorageJson(key).includes(playerName));
-    
+
     const activeModifiers = Object.keys(ROLE_MODIFIERS_LOCAL).filter(modKey => getStorageJson(modKey).includes(playerName));
-    
+
     const config = ROLE_DATA_LOCAL[baseRoleKey] || INNOCENT_CONFIG;
 
     let activeUiConfig = config;
@@ -226,6 +226,19 @@ function displayRole(playerIndex) {
         });
 
         let content = displayTheWord ? selectedWord : '';
+
+        // === PUBLIC ROLES REVEAL ===
+        Object.keys(ROLE_DATA_LOCAL).forEach(roleKey => {
+            const roleCfg = ROLE_DATA_LOCAL[roleKey];
+            if (roleCfg.revealRoleToInnocents) {
+                const publicPlayers = getStorageJson(roleKey);
+                publicPlayers.forEach(pName => {
+                    if (playerName !== pName && (!baseRoleKey || baseRoleKey === 'innocents')) {
+                        content += (content ? '\n\n' : '') + `THE ${roleCfg.label.toUpperCase()} IS: ${pName}`;
+                    }
+                });
+            }
+        });
 
         // === THEME VISIBILITY ===
         let displayTheTheme = configUi.showTheme || config.showTheme;
