@@ -3,7 +3,7 @@ import { getURLParameter, getRandomInt, toTitleCase, getRandomLetter } from '../
 import { ROLE_MODIFIERS_LOCAL, ROLE_DATA_LOCAL, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
 
 // === DEBUG ===
-const FORCE_ALL_MODIFIERS = false;
+const FORCE_ALL_MODIFIERS = true;
 
 // ==== GLOBAL STATE ====
 let data, selectedTopic, words, selectedWord = null;
@@ -200,9 +200,9 @@ function displayRole(playerIndex) {
             roleStatus.textContent = "%?$?£$";
             roleStatus.classList.add('amnesia');
 
-            const darkAmnesiaColor = 'rgb(30, 110, 150)'; 
+            const darkAmnesiaColor = '#1E6E96'; 
             roleStatus.style.color = darkAmnesiaColor;
-            roleStatus.style.textShadow = '0 2px 10px rgba(0, 0, 0, 0.5)';
+            roleStatus.style.textShadow = '0 2px 10px #00000080';
             roleDisplay.style.backgroundImage = ROLE_MODIFIERS_LOCAL.amnesias.grad;
             roleTip.textContent = ROLE_MODIFIERS_LOCAL.amnesias.tip;
         } else {
@@ -211,7 +211,7 @@ function displayRole(playerIndex) {
 
             const activeColor = configUi.textColor || 'white';
             roleStatus.style.color = activeColor;
-            roleStatus.style.textShadow = '0 2px 10px rgba(0, 0, 0, 0.5)';
+            roleStatus.style.textShadow = '0 2px 10px #00000080';
             roleDisplay.style.backgroundImage = configUi.grad;
             roleTip.textContent = configUi.tip;
         }
@@ -288,12 +288,12 @@ function displayRole(playerIndex) {
             modTitle.style.color = modConfig.textColor;
             modTitle.style.fontSize = '1.5rem';
             modTitle.style.margin = '0 0 10px 0';
-            modTitle.style.textShadow = '0 2px 4px rgba(0,0,0,0.5)';
+            modTitle.style.textShadow = '0 2px 4px #00000080';
 
             const modTip = document.createElement('p');
             
             let tipText = modConfig.tip;
-            if (modKey === 'monkey') {
+            if (modConfig.appendRandomLetter) {
                 tipText += `[${getRandomLetter()}]`;
             }
 
@@ -308,7 +308,7 @@ function displayRole(playerIndex) {
             modTip.textContent = tipText;
             const activeSubColor = modConfig.subTextColor || '#fff';
             modTip.style.color = activeSubColor;
-            modTip.style.textShadow = '0 1px 3px rgba(0, 0, 0, 0.4)';
+            modTip.style.textShadow = '0 1px 3px #00000066';
             
             modTip.style.margin = '0';
             modTip.style.fontSize = '1.1rem';
@@ -425,7 +425,7 @@ function hideRole(playerIndex) {
     document.getElementById('role-tip').style.fontSize = '2em';
     document.getElementById('role-title').textContent = `Player ${playerIndex} role:`;
     wordDisplay.textContent = "Click 'Next' to reveal!";
-    roleDisplay.style.backgroundImage = 'radial-gradient(circle, rgb(255, 255, 0) 0%, rgb(128, 128, 0) 100%)';
+    roleDisplay.style.backgroundImage = 'radial-gradient(circle, #FFFF00 0%, #808000 100%)';
 }
 
 function viewRoles() {
