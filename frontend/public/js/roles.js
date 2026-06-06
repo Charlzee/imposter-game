@@ -10,7 +10,7 @@ export const ROLE_MODIFIERS_LOCAL = {
         overrideWordVisibility: true,
         overrideRoleDisplay: true,
         displayLabel: '%?$?£$',
-        chance: 1
+        chance: 0.05
     },
     mimes: { 
         label: 'Mime', class: 'mime', 

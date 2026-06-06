@@ -126,34 +126,6 @@ header {
     transition: transform 0.05s;
 }
 
-/* Educational Context */
-
-.big-container[data-label="local-session"]::before {
-    content: "PLAY LOCALLY";
-}
-
-.small-button[data-label="create-local"]::before {
-    content: "CREATE LOCAL ROOM";
-}
-
-.small-button[data-label="create-lan"]::before {
-    content: "CREATE LAN ROOM";
-}
-
-.small-button[data-label="join-lan"]::before {
-    content: "JOIN LAN ROOM";
-}
-
-footer {
-    margin-top: auto;
-    padding: 10px;
-    font-size: 0px;
-    color: #ddd;
-    background-color: rgba(0, 0, 0, 0);
-    border: none;
-    border-radius: 10px;
-}
-
 .unkempt-regular {
   font-family: "Unkempt", cursive;
   font-weight: 400;

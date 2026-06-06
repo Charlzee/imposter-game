@@ -289,7 +289,8 @@ function displayRole(playerIndex) {
             
             const modContainer = document.createElement('div');
             modContainer.className = 'modifier-container';
-            modContainer.style.flex = '1 1 250px';
+            modContainer.style.flex = '0 1 auto';
+            modContainer.style.minWidth = '250px';
             modContainer.style.maxWidth = '400px';
             modContainer.style.padding = '15px';
             modContainer.style.borderRadius = '10px';
@@ -458,6 +459,12 @@ function viewRoles() {
     const players = getStorageJson('current_players');
     const listContainer = document.createElement('div');
     listContainer.id = 'roles-list';
+    listContainer.style.width = '100%';
+    listContainer.style.display = 'flex';
+    listContainer.style.flexWrap = 'wrap';
+    listContainer.style.justifyContent = 'center';
+    listContainer.style.gap = '15px';
+    listContainer.style.marginTop = '20px';
 
     const wordInfo = document.createElement('div');
     wordInfo.id = 'word-display';
@@ -479,18 +486,77 @@ function viewRoles() {
             foundKey = 'shapeshifters';
         }
 
-        let roleName = foundKey ? ROLE_DATA_LOCAL[foundKey].label : 'Innocent';
+        const roleConfig = (foundKey && ROLE_DATA_LOCAL[foundKey]) ? ROLE_DATA_LOCAL[foundKey] : INNOCENT_CONFIG;
+
+        // Main player row container
+        el.style.background = 'rgba(255, 255, 255, 0.05)';
+        el.style.marginBottom = '15px';
+        el.style.padding = '15px';
+        el.style.borderRadius = '15px';
+        el.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+        el.style.display = 'flex';
+        el.style.flexDirection = 'column';
+        el.style.alignItems = 'center';
+        el.style.height = 'auto';
+        el.style.minHeight = 'fit-content';
+        el.style.width = 'fit-content';
+        el.style.minWidth = '220px';
+        el.style.margin = '0'; 
+        el.style.boxSizing = 'border-box';
+        el.style.wordBreak = 'break-word';
+        el.style.gap = '10px';
+
+        // Player Name
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = name;
+        nameSpan.style.fontSize = '1.2rem';
+        nameSpan.style.fontWeight = 'bold';
+        nameSpan.style.color = 'white';
+        nameSpan.style.textAlign = 'center';
+        nameSpan.style.width = '100%';
+        el.appendChild(nameSpan);
+
+        // Wrapper for badges
+        const badgeWrapper = document.createElement('div');
+        badgeWrapper.style.display = 'flex';
+        badgeWrapper.style.flexWrap = 'wrap';
+        badgeWrapper.style.justifyContent = 'center';
+        badgeWrapper.style.gap = '8px';
+        badgeWrapper.style.width = '100%';
+
+        const createBadge = (label, config) => {
+            const badge = document.createElement('div');
+            badge.textContent = label.toUpperCase();
+            badge.style.background = config.grad;
+            badge.style.color = config.textColor || 'white';
+            badge.style.padding = '6px 14px';
+            badge.style.borderRadius = '10px';
+            badge.style.fontSize = '0.8rem';
+            badge.style.fontWeight = 'bold';
+            badge.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
+            badge.style.border = `1px solid ${config.textColor === 'white' ? 'rgba(255,255,255,0.3)' : config.textColor}`;
+            badge.style.wordBreak = 'break-word';
+            return badge;
+        };
+
+        // Add Role Badge
+        const roleName = foundKey ? ROLE_DATA_LOCAL[foundKey].label : 'Innocent';
+        badgeWrapper.appendChild(createBadge(roleName, roleConfig));
+
+        // Add Modifier Badges
+        Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+            if (getStorageJson(modKey).includes(name)) {
+                badgeWrapper.appendChild(createBadge(ROLE_MODIFIERS_LOCAL[modKey].label, ROLE_MODIFIERS_LOCAL[modKey]));
+            }
+        });
+
+        el.appendChild(badgeWrapper);
+
         let roleExtra = '';
         
         if (isshapeshifter && !isUnselected) {
             roleExtra += ' (Shapeshifter)';
         }
-        
-        Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
-            if (getStorageJson(modKey).includes(name)) {
-                roleExtra += ` [${ROLE_MODIFIERS_LOCAL[modKey].label.toUpperCase()}]`;
-            }
-        });
         
         Object.keys(ROLE_DATA_LOCAL).forEach(key => {
             if (ROLE_DATA_LOCAL[key].hasTarget) {
@@ -504,7 +570,17 @@ function viewRoles() {
             roleExtra += ` [CLUE: ${inspectorClues[name]}]`;
         }
 
-        el.textContent = `${name} (${roleName})${roleExtra}`;
+        if (roleExtra) {
+            const extraEl = document.createElement('div');
+            extraEl.textContent = roleExtra.trim();
+            extraEl.style.fontSize = '0.85rem';
+            extraEl.style.opacity = '0.7';
+            extraEl.style.textAlign = 'center';
+            extraEl.style.width = '100%';
+            extraEl.style.overflowWrap = 'break-word';
+            el.appendChild(extraEl);
+        }
+
         listContainer.appendChild(el);
     });
     main.appendChild(listContainer);
