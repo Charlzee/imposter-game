@@ -244,7 +244,7 @@ export const ROLE_DATA_LOCAL = {
         tip: 'Happy pride month :3',
         //grad: 'radial-gradient(circle, #FFA500 0%, #805300 100%)',
         grad: 'linear-gradient(to bottom, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)',
-        textColor: '#333333',
+        textColor: '#fcb0ff',
         showWord: false,
         isShapeshifter: true
     },

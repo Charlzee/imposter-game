@@ -531,11 +531,12 @@ function viewRoles() {
             badge.style.color = config.textColor || 'white';
             badge.style.padding = '6px 14px';
             badge.style.borderRadius = '10px';
-            badge.style.fontSize = '0.8rem';
+            badge.style.fontSize = '1.1rem';
             badge.style.fontWeight = 'bold';
             badge.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
             badge.style.border = `1px solid ${config.textColor === 'white' ? 'rgba(255,255,255,0.3)' : config.textColor}`;
             badge.style.wordBreak = 'break-word';
+            badge.className = 'titan-one-regular'
             return badge;
         };
 
