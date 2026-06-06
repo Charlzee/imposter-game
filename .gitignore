@@ -1,3 +1,5 @@
+pdn-versions/
+
 .vscode
 .wrangler
 package-lock.json

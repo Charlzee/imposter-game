@@ -5,9 +5,12 @@ export const ROLE_MODIFIERS_LOCAL = {
         grad: 'linear-gradient(135deg, #27B4F5 0%, #145A7B 100%)',
         textColor: '#B0E2FF',
         subTextColor: '#E0F5FF',
+        image: 'assets/amnesia-bg.png',
         showWord: false,
         overrideWordVisibility: true,
-        chance: 0.05
+        overrideRoleDisplay: true,
+        displayLabel: '%?$?£$',
+        chance: 1
     },
     mimes: { 
         label: 'Mime', class: 'mime', 

@@ -182,6 +182,12 @@ function displayRole(playerIndex) {
 
     let activeUiConfig = config;
 
+    // === MODIFIER UI OVERRIDE ===
+    const overridingModifierKey = activeModifiers.find(modKey => ROLE_MODIFIERS_LOCAL[modKey].overrideRoleDisplay);
+    if (overridingModifierKey) {
+        activeUiConfig = ROLE_MODIFIERS_LOCAL[overridingModifierKey];
+    }
+
     function getRandomLetter() {
         const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         return characters.charAt(Math.floor(Math.random() * characters.length));
@@ -194,27 +200,22 @@ function displayRole(playerIndex) {
 
         roleTitle.textContent = `Player ${playerIndex} role:`;
         
-        // === AMNESIA CONFIG OVERRIDES ===
-        const hasAmnesia = activeModifiers.includes('amnesias');
-        if (hasAmnesia) {
-            roleStatus.textContent = "%?$?£$";
-            roleStatus.classList.add('amnesia');
+        roleStatus.textContent = configUi.displayLabel || configUi.label;
+        roleStatus.classList.add(configUi.class);
 
-            const darkAmnesiaColor = '#1E6E96'; 
-            roleStatus.style.color = darkAmnesiaColor;
-            roleStatus.style.textShadow = '0 2px 10px #00000080';
-            roleDisplay.style.backgroundImage = ROLE_MODIFIERS_LOCAL.amnesias.grad;
-            roleTip.textContent = ROLE_MODIFIERS_LOCAL.amnesias.tip;
+        const activeColor = configUi.textColor || 'white';
+        roleStatus.style.color = activeColor;
+        roleStatus.style.textShadow = '0 2px 10px #00000080';
+        
+        roleDisplay.style.backgroundImage = configUi.image ? `url(${configUi.image})` : configUi.grad;
+        if (configUi.image) {
+            roleDisplay.style.backgroundSize = 'cover';
+            roleDisplay.style.backgroundPosition = 'center';
         } else {
-            roleStatus.textContent = configUi.label;
-            roleStatus.classList.add(configUi.class);
-
-            const activeColor = configUi.textColor || 'white';
-            roleStatus.style.color = activeColor;
-            roleStatus.style.textShadow = '0 2px 10px #00000080';
-            roleDisplay.style.backgroundImage = configUi.grad;
-            roleTip.textContent = configUi.tip;
+            roleDisplay.style.backgroundSize = '';
         }
+
+        roleTip.textContent = configUi.tip;
 
         if (document.getElementById("shapeshifter-role-selection")) document.getElementById("shapeshifter-role-selection").remove();
 
@@ -292,7 +293,12 @@ function displayRole(playerIndex) {
             modContainer.style.maxWidth = '400px';
             modContainer.style.padding = '15px';
             modContainer.style.borderRadius = '10px';
-            modContainer.style.background = modConfig.grad;
+            
+            modContainer.style.backgroundImage = (modConfig.image && !modConfig.overrideRoleDisplay) ? `url(${modConfig.image})` : modConfig.grad;
+            if (modConfig.image && !modConfig.overrideRoleDisplay) {
+                modContainer.style.backgroundSize = 'cover';
+                modContainer.style.backgroundPosition = 'center';
+            }
             modContainer.style.border = `2px solid ${modConfig.textColor}`;
 
             const modTitle = document.createElement('h4');
