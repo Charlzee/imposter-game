@@ -302,7 +302,7 @@ function displayRole(playerIndex) {
             modContainer.style.border = `2px solid ${modConfig.textColor}`;
 
             const modTitle = document.createElement('h4');
-            modTitle.className = 'custom-font';
+            modTitle.className = 'titan-one-regular';
             modTitle.textContent = `Modifier: ${modConfig.label}`;
             modTitle.style.color = modConfig.textColor;
             modTitle.style.fontSize = '1.5rem';
@@ -521,7 +521,7 @@ async function startGame(updateStats = true) {
 
     const viewRolesBtn = document.createElement('button');
     viewRolesBtn.id = 'view-roles';
-    viewRolesBtn.className = 'custom-font';
+    viewRolesBtn.className = 'titan-one-regular';
     viewRolesBtn.textContent = "View Roles";
     viewRolesBtn.onclick = viewRoles;
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
