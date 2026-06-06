@@ -3,7 +3,7 @@ import { getURLParameter, getRandomInt, toTitleCase, getRandomLetter } from '../
 import { ROLE_MODIFIERS_LOCAL, ROLE_DATA_LOCAL, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
 
 // === DEBUG ===
-const FORCE_ALL_MODIFIERS = true;
+const FORCE_ALL_MODIFIERS = false;
 
 // ==== GLOBAL STATE ====
 let data, selectedTopic, words, selectedWord = null;
