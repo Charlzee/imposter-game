@@ -33,6 +33,7 @@ async function fetchTopics() {
 
         let topics = null; 
         window.lastFetchTimedOut = false;
+        window.wordsLoadedFromCache = false;
 
         try {
             topics = await getWords(controller.signal);
@@ -56,6 +57,16 @@ async function fetchTopics() {
                     <span style="text-decoration: underline; text-underline-offset: 3px;">Using Local Words Instead</span>
                 `;
                 document.getElementById("error-box").appendChild(banner);
+            }
+
+            if (window.wordsLoadedFromCache) {
+                const cacheBanner = document.createElement("div");
+                cacheBanner.className = "error-msg";
+                cacheBanner.innerHTML = `
+                    <span>Using Offline Cache</span>
+                    <span style="text-decoration: underline; text-underline-offset: 3px;">Loaded from last successful sync</span>
+                `;
+                document.getElementById("error-box").appendChild(cacheBanner);
             }
 
             const fragment = document.createDocumentFragment();

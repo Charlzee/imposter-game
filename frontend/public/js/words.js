@@ -15,6 +15,11 @@ async function fetchBackendWords(signal) {
             throw new Error('Backend returned invalid word list');
         }
 
+        try {
+            localStorage.setItem('cached_backend_words', JSON.stringify(data));
+        } catch (e) {
+            console.warn('Failed to save backend words to local storage:', e);
+        }
         return data;
     } catch (error) {
         if (error.name === 'AbortError') {
@@ -42,6 +47,20 @@ async function getWords(signal, forceLocal=false) {
         if (error.isTimeout) {
             window.lastFetchTimedOut = true;
         }
+    }
+
+    // Fallback to locally cached words from a previous successful fetch
+    try {
+        const cached = localStorage.getItem('cached_backend_words');
+        if (cached) {
+            const parsedData = JSON.parse(cached);
+            if (Array.isArray(parsedData) && parsedData.length > 0) {
+                window.wordsLoadedFromCache = true;
+                return parsedData;
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to retrieve or parse cached words:', e);
     }
 
     return localWords;
