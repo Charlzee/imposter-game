@@ -1,5 +1,5 @@
 import getWords from './words.js';
-import { BASE_ROLE_IDS } from './roles.js';
+import { ROLE_MODIFIERS_LOCAL, BASE_ROLE_IDS } from './roles.js';
 
 // === CONFIG ===
 const ROLE_DATA = BASE_ROLE_IDS;
@@ -29,7 +29,7 @@ function invalidatePlayersCache() {
 async function fetchTopics() {
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const timeoutId = setTimeout(() => controller.abort(), 7000);
 
         let topics = null; 
         window.lastFetchTimedOut = false;
@@ -185,6 +185,13 @@ async function startGame() {
         localStorage.setItem(pluralKey, JSON.stringify([]));
     });
 
+    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+        const percentInput = document.getElementById(`${modKey}-percent`);
+        const percent_val = percentInput ? percentInput.value : "0%";
+        localStorage.setItem(`${modKey}_percent`, percent_val);
+        localStorage.setItem(modKey, JSON.stringify([]));
+    });
+
     localStorage.setItem("role_modifers_enabled", document.getElementById("role-modifiers-enabled").checked);
     window.location.href = "../play.html?local=true";
 }
@@ -200,8 +207,9 @@ function init() {
     cachedPlayers = null;
 
     const settingsGroup = document.getElementById('role-settings-container');
+    const modifierSettingsGroup = document.getElementById('modifier-settings-container')
     if (settingsGroup) {
-        settingsGroup.innerHTML = ROLE_DATA.map(roleId => {
+        let settingsHtml = ROLE_DATA.map(roleId => {
             const labelText = roleId.replace('_', ' ').toUpperCase();
             return `
                 <div class="role-row">
@@ -211,6 +219,21 @@ function init() {
                 </div>
             `;
         }).join('');
+
+        let modifierSettingsHtml = Object.keys(ROLE_MODIFIERS_LOCAL).map(modKey => {
+            let labelText = ROLE_MODIFIERS_LOCAL[modKey].label.toUpperCase();
+            if (labelText.toLowerCase() == "cheater" || labelText.toLowerCase() == "happy"){labelText = "(???)"}
+            return `
+                <div class="role-row">
+                    <p class="titan-one-regular count">${labelText} CHANCE</p>
+                    <input class="titan-one-regular amount-input setting-input" style="visibility: hidden;">
+                    <input class="titan-one-regular percent-input setting-input" id="${modKey}-percent" type="text" inputmode="numeric">
+                </div>
+            `;
+        }).join('');
+
+        settingsGroup.innerHTML = settingsHtml;
+        modifierSettingsGroup.innerHTML = modifierSettingsHtml;
 
         ROLE_DATA.forEach(roleId => {
             const input = document.getElementById(`${roleId}-count`);
@@ -223,7 +246,28 @@ function init() {
                 const defaultCount = (roleId === 'imposter') ? 1 : 0;
 
                 input.value = (saved !== null) ? saved : defaultCount;
-                percent_input.value = (percent_saved !== null) ? percent_saved : "100%";
+                
+                if (percent_saved !== null) {
+                    const cleanValue = parseFloat(parseFloat(percent_saved.replace('%', '')).toFixed(4));
+                    percent_input.value = cleanValue + "%";
+                } else {
+                    percent_input.value = "100%";
+                }
+            }
+        });
+
+        Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+            const percent_input = document.getElementById(`${modKey}-percent`);
+            if (percent_input) {
+                const saved = localStorage.getItem(`${modKey}_percent`);
+                const defaultChance = ROLE_MODIFIERS_LOCAL[modKey].chance || 0.05;
+                const displayChance = parseFloat((defaultChance * 100).toFixed(4));
+                if (saved !== null) {
+                    const cleanValue = parseFloat(parseFloat(saved.replace('%', '')).toFixed(4));
+                    percent_input.value = cleanValue + "%";
+                } else {
+                    percent_input.value = displayChance + "%";
+                }
             }
         });
     }
@@ -232,22 +276,48 @@ function init() {
         input.onfocus = (e) => e.target.value = e.target.value.replace('%', '');
         
         input.oninput = (e) => {
-            let val = e.target.value.replace(/[^0-9]/g, '');
+            let val = e.target.value.replace(/[^0-9.]/g, '');
             if (parseInt(val) > 100) val = '100';
             e.target.value = val;
         };
 
         input.onblur = (e) => {
             let val = e.target.value.trim();
+            if (val !== "" && !isNaN(val)) {
+                val = parseFloat(parseFloat(val).toFixed(4));
+            }
             e.target.value = (val === "" || isNaN(val) ? "0" : val) + "%";
         };
     });
+
+    const resetRoles = () => {
+        ROLE_DATA.forEach(roleId => {
+            const input = document.getElementById(`${roleId}-count`);
+            const percentInput = document.getElementById(`${roleId}-percent`);
+            const defaultCount = (roleId === 'imposter') ? 1 : 0;
+            if (input) input.value = defaultCount;
+            if (percentInput) percentInput.value = "100%";
+        });
+    };
+
+    const resetModifiers = () => {
+        Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+            const percentInput = document.getElementById(`${modKey}-percent`);
+            if (percentInput) {
+                const defaultChance = ROLE_MODIFIERS_LOCAL[modKey].chance || 0.05;
+                const displayChance = parseFloat((defaultChance * 100).toFixed(4));
+                percentInput.value = displayChance + "%";
+            }
+        });
+    };
 
     // Global Setup
     window.addPlayer = addPlayer;
     window.startGame = startGame;
     window.updateNameValue = updateNameValue;
     document.getElementById('close-settings-btn')?.addEventListener('click', window.closeSettings);
+    document.getElementById('reset-roles-btn')?.addEventListener('click', resetRoles);
+    document.getElementById('reset-modifiers-btn')?.addEventListener('click', resetModifiers);
 
     fetchTopics();
     localStorage.setItem('game_started', 'false');

@@ -42,10 +42,18 @@
             <div class="settings-content">
                 <h2 class="settings-txt">GAME SETTINGS</h2>
 
-                <div id="role-settings-container"></div>
-
-                <p class="titan-one-regular count">Role Modifiers Enabled:</p> <input class="titan-one-regular" id="role-modifiers-enabled" type="checkbox" checked>
-                <p class="titan-one-regular count">Random Events Enabled:</p> <input class="titan-one-regular" id="random-events-enabled" type="checkbox" checked>
+                <div class="settings-grid-wrapper">
+                    <div id="left-container">
+                        <div id="role-settings-container"></div>
+                        <button class="titan-one-regular reset-btn" id="reset-roles-btn">RESET ROLES</button>
+                    </div>
+                    <div id="right-container">
+                        <div id="modifier-settings-container"></div>
+                        <p class="titan-one-regular count">Role Modifiers Enabled: <input class="titan-one-regular" id="role-modifiers-enabled" type="checkbox" checked></p>
+                        <p class="titan-one-regular count">Random Events Enabled: <input class="titan-one-regular" id="random-events-enabled" type="checkbox" checked></p>
+                        <button class="titan-one-regular reset-btn" id="reset-modifiers-btn">RESET MODIFIERS</button>
+                    </div>
+                </div>
                 <button class="titan-one-regular" id="close-settings-btn">Close</button>
             </div>
         </div>

@@ -1,5 +1,5 @@
 import getWords from './words.js';
-import { getURLParameter, getRandomInt, toTitleCase, getRandomLetter } from '../js/global.js';
+import { getURLParameter, getRandomInt, toTitleCase, getRandomLetter, getRandomLetterOrNumber } from '../js/global.js';
 import { ROLE_MODIFIERS_LOCAL, ROLE_DATA_LOCAL, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
 
 // === DEBUG ===
@@ -88,7 +88,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
 
         const count = parseInt(roleCounts[baseId]) || 0;
         const rawPercent = localStorage.getItem(`${baseId}_percent`) || "100%";
-        const spawnChance = parseInt(rawPercent.replace('%', '')) / 100;
+        const spawnChance = parseFloat(rawPercent.replace('%', '')) / 100;
 
         for (let i = 0; i < count; i++) {
             if (occupiedIndices.size >= players.length) break;
@@ -122,7 +122,8 @@ function decidePlayerList(playersJson, roleCounts = {}) {
                     if (shapeshifters.includes(name)) return;
                 }
 
-                const calculatedChance = FORCE_ALL_MODIFIERS ? 1 : modConfig.chance;
+                const savedPercent = localStorage.getItem(`${modKey}_percent`);
+                const calculatedChance = FORCE_ALL_MODIFIERS ? 1 : (savedPercent ? parseFloat(savedPercent) / 100 : modConfig.chance);
 
                 if (Math.random() < calculatedChance) {
                     modifierLists[modKey].push(name);
@@ -186,11 +187,6 @@ function displayRole(playerIndex) {
     const overridingModifierKey = activeModifiers.find(modKey => ROLE_MODIFIERS_LOCAL[modKey].overrideRoleDisplay);
     if (overridingModifierKey) {
         activeUiConfig = ROLE_MODIFIERS_LOCAL[overridingModifierKey];
-    }
-
-    function getRandomLetter() {
-        const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        return characters.charAt(Math.floor(Math.random() * characters.length));
     }
 
     function updateUi(configUi, forcedRoleClass = null) {
@@ -315,6 +311,9 @@ function displayRole(playerIndex) {
             let tipText = modConfig.tip;
             if (modConfig.appendRandomLetter) {
                 tipText += `[${getRandomLetter()}]`;
+            }
+            if (modConfig.appendRandomLetterOrNumber) {
+                tipText += `[${getRandomLetterOrNumber()}]`;
             }
 
             if (modConfig.hasTarget) {

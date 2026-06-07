@@ -14,7 +14,12 @@ export function toTitleCase(str) {
     );
 }
 
-export function getRandomLetter() {
+export function getRandomLetterOrNumber() {
     const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return characters.charAt(Math.floor(Math.random() * characters.length));
+}
+
+export function getRandomLetter() {
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     return characters.charAt(Math.floor(Math.random() * characters.length));
 }

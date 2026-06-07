@@ -115,13 +115,13 @@ export const ROLE_MODIFIERS_LOCAL = {
     },
     monkey: {
         label: 'Monkey', class: 'monkey',
-        tip: 'Your word/sentence must contain the letter/number: ',
+        tip: 'Your word/sentence MUST contain the letter/number: ',
         grad: 'linear-gradient(135deg, #4D2B21 0%, #3B1307 100%)',
         textColor: '#FFDBAC',
         subTextColor: '#D2B48C',
         showWord: true,
         overrideWordVisibility: false,
-        appendRandomLetter: true,
+        appendRandomLetterOrNumber: true,
         chance: 0.05
     },
     kirk: {
@@ -188,7 +188,7 @@ export const ROLE_MODIFIERS_LOCAL = {
     forbidden: {
         label: 'Forbidden',
         class: 'forbidden',
-        tip: 'Your word/sentence CANNOT contain the letter/number: ',
+        tip: 'Your word/sentence CANNOT contain the letter: ',
         grad: 'linear-gradient(135deg, #A1FFA6 0%, #0FFF07 100%)',
         textColor: '#68FF7C',
         showWord: true,
