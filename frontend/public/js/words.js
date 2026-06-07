@@ -1,8 +1,10 @@
+// Import local word JSON files
 import words1 from './words_local.json' with { type: 'json' };
 import words2 from './english_language.json' with { type: 'json' };
 
 let localWords = [...words1, ...words2];
 
+// Fetch word list from backend API
 async function fetchBackendWords(signal) {
     try {
         const response = await fetch('https://imposter-gm.com/api/words', { signal });
@@ -15,6 +17,7 @@ async function fetchBackendWords(signal) {
             throw new Error('Backend returned invalid word list');
         }
 
+        // Cache successful response to localStorage
         try {
             localStorage.setItem('cached_backend_words', JSON.stringify(data));
         } catch (e) {
@@ -33,6 +36,7 @@ async function fetchBackendWords(signal) {
     }
 }
 
+// Primary entry point for word retrieval
 async function getWords(signal, forceLocal=false) {
     if (forceLocal){
         return localWords;
@@ -49,7 +53,7 @@ async function getWords(signal, forceLocal=false) {
         }
     }
 
-    // Fallback to locally cached words from a previous successful fetch
+    // Load words from offline cache
     try {
         const cached = localStorage.getItem('cached_backend_words');
         if (cached) {
@@ -63,6 +67,7 @@ async function getWords(signal, forceLocal=false) {
         console.warn('Failed to retrieve or parse cached words:', e);
     }
 
+    // Ultimate fallback to local files
     return localWords;
 }
 

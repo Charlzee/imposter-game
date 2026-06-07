@@ -6,11 +6,16 @@ import bcrypt from 'bcryptjs'
 import words1 from './words.json' with { type: 'json' }
 import words2 from './english_language.json' with { type: 'json' }
 
+// --- CONFIGURATION & GLOBAL STATE ---
 let localWords = [...words1, ...words2]
+let cachedWords = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 30 * 1000;
 
 const app = new Hono().basePath("/api")
 app.use("*", cors())
 
+// --- MIDDLEWARE & ERROR HANDLING ---
 app.onError((err, c) => {
     const status = err.status || 500;
     if (status === 401) {
@@ -19,10 +24,7 @@ app.onError((err, c) => {
     return c.json({ error: err.message || "Internal Server Error" }, status);
 });
 
-let cachedWords = null;
-let lastFetchTime = 0;
-const CACHE_TTL = 30 * 1000; // 30 seconds
-
+// --- UTILITY FUNCTIONS ---
 async function getDocsWords(docId, auth) {
     const docs = google.docs({ version: 'v1', auth });
     const res = await docs.documents.get({ 
@@ -81,6 +83,7 @@ async function getDocsWords(docId, auth) {
     return tabsResult;
 }
 
+// --- WORD ROUTES ---
 app.get("/words", async (c) => {
     const now = Date.now();
 
@@ -129,8 +132,7 @@ app.get("/words", async (c) => {
     }
 });
 
-
-// Accounts
+// --- AUTHENTICATION ROUTES ---
 app.post('/register', async (c) => {
   try {
     const { username, password } = await c.req.json();
@@ -186,17 +188,12 @@ app.post('/login', async (c) => {
     });
 });
 
-app.use('/auth/*', (c, next) => {
-    return jwt({
-        secret: c.env.JWT_SECRET,
-        alg: 'HS256'
-    })(c, next)
-})
-
 app.get('/auth/me', (c) => {
     const payload = c.get('jwtPayload')
     return c.json({ message: "Token is valid!", user: payload.username })
 })
+
+// --- ROOM MANAGEMENT ROUTES ---
 
 app.post('/auth/rooms/create', async (c) => {
     const payload = c.get('jwtPayload');
@@ -311,6 +308,8 @@ app.get('/auth/rooms/:code/status', async (c) => {
     return c.json({ status: room.status, ...settings });
 });
 
+// --- GAMEPLAY ACTIONS (VOTING/CHAT) ---
+
 app.post('/auth/rooms/:code/vote', async (c) => {
     const code = c.req.param('code');
     const payload = c.get('jwtPayload');
@@ -376,6 +375,8 @@ app.get('/auth/rooms/:code/chat', async (c) => {
     ).bind(code, lastId).all();
     return c.json(messages.results);
 });
+
+// --- USER STATISTICS ---
 
 app.post('/auth/update-stats', async (c) => {
     const payload = c.get('jwtPayload');

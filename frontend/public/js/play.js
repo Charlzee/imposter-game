@@ -1,3 +1,4 @@
+// Import game logic and constants
 import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase, getRandomLetter, getRandomLetterOrNumber } from '../js/global.js';
 import { ROLE_MODIFIERS_LOCAL, ROLE_DATA_LOCAL, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
@@ -13,9 +14,10 @@ let gameTimer = null;
 const main = document.getElementById('main');
 const roleDisplay = document.getElementById('role-display');
 
-// ==== HELPERS ====
+// Retrieve JSON data from localStorage
 const getStorageJson = (key, fallback = []) => JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
 
+// Load word topics and select one
 async function fetchData() {
     const fallbackTopic = { id: "local_default", words: ["Error Loading Words"] };
 
@@ -53,13 +55,14 @@ async function fetchData() {
     }
 }
 
+// Pick a random secret word
 function createSelectedWord() {
     const word = words[getRandomInt(words.length)];
     localStorage.setItem('selected_word', btoa(encodeURIComponent(word)));
     return word;
 }
 
-// ==== GAME LOGIC ====
+// Randomly assign roles and modifiers
 function decidePlayerList(playersJson, roleCounts = {}) {
     const players = JSON.parse(playersJson || '[]');
     if (!players.length) return;
@@ -136,6 +139,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         localStorage.setItem(modKey, JSON.stringify(modifierLists[modKey]));
     });
 
+    // Assign random targets to specific roles
     const assignTargets = (roleArray, storageKey) => {
         const targets = {};
         roleArray.forEach(name => {
@@ -163,6 +167,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     localStorage.setItem("unselected_shapeshifters", JSON.stringify(assignedRolesData.shapeshifters || []));
 }
 
+// Update the role card UI
 function displayRole(playerIndex) {
     const players = getStorageJson('current_players');
     const playerName = players[playerIndex - 1]?.player_name || "Unknown";
@@ -189,6 +194,7 @@ function displayRole(playerIndex) {
         activeUiConfig = ROLE_MODIFIERS_LOCAL[overridingModifierKey];
     }
 
+    // Helper function to build UI
     function updateUi(configUi, forcedRoleClass = null) {
         roleStatus.classList.remove(...allRoleClasses);
         
@@ -340,6 +346,7 @@ function displayRole(playerIndex) {
         });
     }
 
+    // Generate clues for the Inspector role
     function getInspectorClue() {
         const BlacklistedImposterRoles = Object.keys(ROLE_DATA_LOCAL).filter(k => ROLE_DATA_LOCAL[k].showWord === false);
         const allPlayers = getStorageJson('current_players');
@@ -366,9 +373,10 @@ function displayRole(playerIndex) {
         return "No matching players found";
     }
 
-    // Run standard initial setup UI
+    // Initialize the role card display
     updateUi(activeUiConfig);
 
+    // Handle Shapeshifter role selection menu
     if (config.isShapeshifter) {
         const selectionList = document.createElement('div');
         selectionList.id = 'roles-list'; 
@@ -428,6 +436,7 @@ function displayRole(playerIndex) {
     }
 }
 
+// Reset UI between player turns
 function hideRole(playerIndex) {
     sessionStorage.setItem('current_player_is_ready', 'false');
     const roleStatus = document.getElementById('role-status');
@@ -447,6 +456,7 @@ function hideRole(playerIndex) {
     roleDisplay.style.backgroundImage = 'radial-gradient(circle, #FFFF00 0%, #808000 100%)';
 }
 
+// Show summary of all roles
 function viewRoles() {
     if (viewingRoles) {
         document.getElementById('roles-list')?.remove();
@@ -586,6 +596,7 @@ function viewRoles() {
     main.appendChild(listContainer);
 }
 
+// Trigger the discussion phase
 async function startGame(updateStats = true) {
     const maxTime = 120;
     let time = maxTime;
@@ -611,6 +622,8 @@ async function startGame(updateStats = true) {
             clearInterval(gameTimer);
         }
     }, 1000);
+
+    // Record game play in stats
     if (updateStats) {
         const token = localStorage.getItem('token');
         if (token) {
@@ -623,6 +636,7 @@ async function startGame(updateStats = true) {
     }
 }
 
+// Return to the setup screen
 function lobby() {
     if (confirm("Are you sure you want to go back to lobby?")) {
         if (gameTimer) clearInterval(gameTimer);
@@ -630,6 +644,7 @@ function lobby() {
     }
 }
 
+// Initialize logic when page loads
 async function init() {
     await fetchData();
     window.lobby = lobby;
@@ -654,6 +669,7 @@ async function init() {
     hideRole(currentIndex);
 }
 
+// Handle role reveal button clicks
 document.getElementById('ready-button').addEventListener('click', () => {
     const players = getStorageJson('current_players');
     const name = players[currentIndex - 1]?.player_name;

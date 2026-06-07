@@ -10,6 +10,7 @@ let player_container;
 let player_name_input;
 
 // ==== Player Management ====
+// Fetch player list from storage
 function getPlayers() {
     if (cachedPlayers === null) {
         try {
@@ -21,11 +22,13 @@ function getPlayers() {
     return cachedPlayers;
 }
 
+// Reset the local player cache
 function invalidatePlayersCache() {
     cachedPlayers = null;
 }
 
 // ==== Topic Logic ====
+// Load topics from words module
 async function fetchTopics() {
     try {
         const controller = new AbortController();
@@ -102,6 +105,7 @@ async function fetchTopics() {
     renderPlayers();
 }
 
+// Handle topic card selection
 async function selectTopic(topic_id) {
     const topic_element = document.getElementById(topic_id);
     if (!topic_element) return;
@@ -120,6 +124,7 @@ async function selectTopic(topic_id) {
 }
 
 // ==== Player Management ====
+// Draw player tiles in UI
 function renderPlayers() {
     player_container.innerHTML = "";
     const players = getPlayers();
@@ -143,11 +148,13 @@ function renderPlayers() {
     player_container.appendChild(fragment);
 }
 
+// Update name input field text
 function updateNameValue(name = "Player", auto = false) {
     const players = getPlayers();
     player_name_input.value = auto ? `Player ${players.length + 1}` : name;
 }
 
+// Add new player to game
 async function addPlayer() {
     const name = player_name_input.value.trim();
     let players = getPlayers();
@@ -164,6 +171,7 @@ async function addPlayer() {
     renderPlayers();
 }
 
+// Remove player from lobby list
 function removePlayer(index) {
     let players = getPlayers();
     players.splice(index, 1);
@@ -173,6 +181,7 @@ function removePlayer(index) {
 }
 
 // ==== Settings ====
+// Finalize settings and launch play
 async function startGame() {
     const players = getPlayers();
     if (players.length < 1) return alert("Not enough players!");
@@ -181,7 +190,7 @@ async function startGame() {
     localStorage.setItem(`innocents`, JSON.stringify([]));
     localStorage.setItem(`unselected_shapeshifters`, JSON.stringify([]));
 
-    // Dynamic state collection loop
+    // Save role settings to localStorage
     ROLE_DATA.forEach(role => {
         const countInput = document.getElementById(`${role}-count`);
         const percentInput = document.getElementById(`${role}-percent`);
@@ -196,6 +205,7 @@ async function startGame() {
         localStorage.setItem(pluralKey, JSON.stringify([]));
     });
 
+    // Save modifier settings to localStorage
     Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
         const percentInput = document.getElementById(`${modKey}-percent`);
         const percent_val = percentInput ? percentInput.value : "0%";
@@ -207,6 +217,7 @@ async function startGame() {
     window.location.href = "../play.html?local=true";
 }
 
+// Toggle settings overlay visibility
 window.openSettings = () => document.getElementById('settings-overlay')?.classList.add('active');
 window.closeSettings = () => document.getElementById('settings-overlay')?.classList.remove('active');
 
@@ -220,6 +231,7 @@ function init() {
     const settingsGroup = document.getElementById('role-settings-container');
     const modifierSettingsGroup = document.getElementById('modifier-settings-container')
     if (settingsGroup) {
+        // Build standard role setting rows
         let settingsHtml = ROLE_DATA.map(roleId => {
             const labelText = roleId.replace('_', ' ').toUpperCase();
             return `
@@ -231,6 +243,7 @@ function init() {
             `;
         }).join('');
 
+        // Build modifier setting rows
         let modifierSettingsHtml = Object.keys(ROLE_MODIFIERS_LOCAL).map(modKey => {
             let labelText = ROLE_MODIFIERS_LOCAL[modKey].label.toUpperCase();
             if (labelText.toLowerCase() == "cheater" || labelText.toLowerCase() == "happy"){labelText = "(???)"}
@@ -246,6 +259,7 @@ function init() {
         settingsGroup.innerHTML = settingsHtml;
         modifierSettingsGroup.innerHTML = modifierSettingsHtml;
 
+        // Load saved counts and percentages
         ROLE_DATA.forEach(roleId => {
             const input = document.getElementById(`${roleId}-count`);
             const percent_input = document.getElementById(`${roleId}-percent`);
@@ -267,6 +281,7 @@ function init() {
             }
         });
 
+        // Load saved modifier chances
         Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
             const percent_input = document.getElementById(`${modKey}-percent`);
             if (percent_input) {
@@ -283,6 +298,7 @@ function init() {
         });
     }
 
+    // Setup input validation for percentages
     document.querySelectorAll('.percent-input').forEach(input => {
         input.onfocus = (e) => e.target.value = e.target.value.replace('%', '');
         
@@ -301,6 +317,7 @@ function init() {
         };
     });
 
+    // Revert roles to defaults
     const resetRoles = () => {
         ROLE_DATA.forEach(roleId => {
             const input = document.getElementById(`${roleId}-count`);
@@ -311,6 +328,7 @@ function init() {
         });
     };
 
+    // Revert modifiers to defaults
     const resetModifiers = () => {
         Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
             const percentInput = document.getElementById(`${modKey}-percent`);

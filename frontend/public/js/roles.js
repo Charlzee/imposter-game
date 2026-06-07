@@ -1,3 +1,4 @@
+// Configuration for all role modifiers
 export const ROLE_MODIFIERS_LOCAL = {
     amnesias: { 
         label: 'Amnesia', class: 'amnesia', 
@@ -198,6 +199,7 @@ export const ROLE_MODIFIERS_LOCAL = {
     }
 };
 
+// Main game role definitions
 export const ROLE_DATA_LOCAL = {
     innocents: {
         label: 'Innocent',
@@ -289,6 +291,7 @@ export const ROLE_DATA_LOCAL = {
     },
 };
 
+// Default configuration for innocent players
 export const INNOCENT_CONFIG = {
     label: 'Innocent',
     class: 'innocent',
@@ -298,7 +301,11 @@ export const INNOCENT_CONFIG = {
     showWord: true
 };
 
+// List of standard role IDs
 export const BASE_ROLE_IDS = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector', 'king'];
 
+// Helper to strip plural suffixes
 export const getBaseRoleId = (configKey) => configKey.replace(/s$/, '').replace('guardian_angel', 'guardian_angel');
+
+// Helper to create plural keys
 export const getPluralKey = (role) => role.endsWith('s') ? role : (role === 'guardian_angel' ? 'guardian_angels' : `${role}s`);
