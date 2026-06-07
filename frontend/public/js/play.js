@@ -179,8 +179,12 @@ function displayRole(playerIndex) {
 
     const allRoleClasses = [...Object.values(ROLE_DATA_LOCAL).map(r => r.class), ...Object.values(ROLE_MODIFIERS_LOCAL).map(m => m.class), 'innocent', 'hidden'];
 
-    const activeRoleKeys = Object.keys(ROLE_DATA_LOCAL);
-    const baseRoleKey = activeRoleKeys.find(key => getStorageJson(key).includes(playerName));
+    const activeRoleKeys = Object.keys(ROLE_DATA_LOCAL).filter(k => k !== 'shapeshifters');
+    let baseRoleKey = activeRoleKeys.find(key => getStorageJson(key).includes(playerName));
+    const isUnselected = getStorageJson('unselected_shapeshifters').includes(playerName);
+    if (!baseRoleKey && getStorageJson('shapeshifters').includes(playerName) && isUnselected) {
+        baseRoleKey = 'shapeshifters';
+    }
 
     const activeModifiers = Object.keys(ROLE_MODIFIERS_LOCAL).filter(modKey => getStorageJson(modKey).includes(playerName));
 
@@ -200,9 +204,9 @@ function displayRole(playerIndex) {
         
         document.getElementById('modifiers-wrapper')?.remove();
 
-        roleTitle.textContent = `Player ${playerIndex} role:`;
+        roleTitle.innerHTML = `Player ${playerIndex} role:`;
         
-        roleStatus.textContent = configUi.displayLabel || configUi.label;
+        roleStatus.innerHTML = configUi.displayLabel || configUi.label;
         roleStatus.classList.add(configUi.class);
 
         const activeColor = configUi.textColor || 'white';
@@ -217,7 +221,7 @@ function displayRole(playerIndex) {
             roleDisplay.style.backgroundSize = '';
         }
 
-        roleTip.textContent = configUi.tip;
+        roleTip.innerHTML = configUi.tip;
 
         if (document.getElementById("shapeshifter-role-selection")) document.getElementById("shapeshifter-role-selection").remove();
 
@@ -230,7 +234,7 @@ function displayRole(playerIndex) {
 
         let content = displayTheWord ? selectedWord : '';
 
-        // === PUBLIC ROLES REVEAL ===
+        // === ROLES REVEAL ===
         Object.keys(ROLE_DATA_LOCAL).forEach(roleKey => {
             const roleCfg = ROLE_DATA_LOCAL[roleKey];
             if (roleCfg.revealRoleToInnocents) {
@@ -240,6 +244,22 @@ function displayRole(playerIndex) {
                         content += (content ? '\n\n' : '') + `THE ${roleCfg.label.toUpperCase()} IS: ${pName}`;
                     }
                 });
+            }
+        });
+
+        // === PLUS INNOCENT REVEAL ===
+        const plusPlayers = getStorageJson('plus');
+        plusPlayers.forEach(pName => {
+            const roleKeys = Object.keys(ROLE_DATA_LOCAL).filter(k => k !== 'shapeshifters');
+            let pRoleKey = roleKeys.find(rk => getStorageJson(rk).includes(pName));
+            if (!pRoleKey && getStorageJson('shapeshifters').includes(pName) && getStorageJson('unselected_shapeshifters').includes(pName)) {
+                pRoleKey = 'shapeshifters';
+            }
+
+            const isActuallyInnocent = (!pRoleKey || pRoleKey === 'innocents') && !getStorageJson('shapeshifters').includes(pName);
+
+            if (isActuallyInnocent && playerName !== pName && (!baseRoleKey || baseRoleKey === 'innocents')) {
+                content += (content ? '\n\n' : '') + `CONFIRMED INNOCENT [Plus Ability]: ${pName}`;
             }
         });
 
@@ -270,7 +290,7 @@ function displayRole(playerIndex) {
             }
         });
 
-        wordDisplay.textContent = content;
+        wordDisplay.innerHTML = content;
 
         let modsWrapper = null;
         if (activeModifiers.length > 0) {
@@ -306,7 +326,7 @@ function displayRole(playerIndex) {
 
             const modTitle = document.createElement('h4');
             modTitle.className = 'titan-one-regular';
-            modTitle.textContent = `Modifier: ${modConfig.label}`;
+            modTitle.innerHTML = `Modifier: ${modConfig.label}`;
             modTitle.style.color = modConfig.textColor;
             modTitle.style.fontSize = '1.5rem';
             modTitle.style.margin = '0 0 10px 0';
@@ -322,6 +342,27 @@ function displayRole(playerIndex) {
                 tipText += `[${getRandomLetterOrNumber()}]`;
             }
 
+            if (modConfig.isPlus) {
+                const wasShapeshifter = getStorageJson('shapeshifters').includes(playerName);
+                const playerRole = wasShapeshifter ? 'shapeshifters' : (baseRoleKey || 'innocents');
+                tipText += '\n\n<span style="text-decoration: underline;">PLUS ABILITY:</span>\n';
+                roleStatus.innerHTML += `<span style="color: #29D1FF; font-weight: bold; font-size: 150%;"> +</span>`
+
+                if (playerRole === "innocents") {
+                    tipText += `[All other innocents know you are innocent]`
+                } else if (playerRole === "imposters") {
+                    tipText += `[Your final vote count will be 1 less (temporary ability for now)]`
+                } else if (playerRole === "shapeshifters") {
+                    if (getStorageJson('unselected_shapeshifters').includes(playerName)) {
+                        tipText += `[You can select 1 extra role modifier to have]`
+                    } else {
+                        tipText += `[Used to select extra modifier]`
+                    }
+                } else {
+                    tipText += `[NONE]`
+                }
+            }
+
             if (modConfig.hasTarget) {
                 const targets = getStorageJson(`${getBaseRoleId(modKey)}Targets`, {});
                 const targetName = targets[playerName];
@@ -330,7 +371,7 @@ function displayRole(playerIndex) {
                 }
             }
 
-            modTip.textContent = tipText;
+            modTip.innerHTML = tipText;
             const activeSubColor = modConfig.subTextColor || '#fff';
             modTip.style.color = activeSubColor;
             modTip.style.textShadow = '0 1px 3px #00000066';
@@ -387,8 +428,10 @@ function displayRole(playerIndex) {
         selectableRoles.forEach(roleKey => {
             const roleCfg = ROLE_DATA_LOCAL[roleKey];
             const roleBtn = document.createElement('div');
+            const isPlus = activeModifiers.some(m => ROLE_MODIFIERS_LOCAL[m].isPlus);
+            
             roleBtn.className = 'player-view-role';
-            roleBtn.textContent = roleCfg.label;
+            roleBtn.innerHTML = roleCfg.label;
             roleBtn.style.background = roleCfg.grad;
 
             roleBtn.onclick = () => {
@@ -417,13 +460,55 @@ function displayRole(playerIndex) {
                 const currentUnselected = getStorageJson("unselected_shapeshifters").filter(p => p !== playerName);
                 localStorage.setItem("unselected_shapeshifters", JSON.stringify(currentUnselected));
 
-                updateUi(roleCfg); 
-                selectionList.remove();
+                if (isPlus) {
+                    // Transitions to Modifier Selection for plus ability
+                    selectionList.innerHTML = '<h3 class="titan-one-regular" style="color: #29D1FF; width: 100%; text-align: center; margin-bottom: 15px; font-weight: bold;">SELECT EXTRA MODIFIER</h3>';
 
-                if (roleCfg.hasClue) {
-                    const wordDisplay = document.getElementById('word');
-                    const playerToShow = getInspectorClue();
-                    wordDisplay.textContent = wordDisplay.textContent + `\n\nONE NON-IMPOSTER:\n${playerToShow}`;
+                    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+                        const modCfg = ROLE_MODIFIERS_LOCAL[modKey];
+                        // Skip plus
+                        if (modCfg.isPlus || modKey === 'amnesias' || modKey === 'happy' || modKey === 'cheater') return;
+                        
+                        const modBtn = document.createElement('div');
+                        modBtn.className = 'player-view-role';
+                        modBtn.innerHTML = modCfg.label;
+                        modBtn.style.background = modCfg.grad;
+                        
+                        modBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            const modStorage = getStorageJson(modKey);
+                            if (!modStorage.includes(playerName)) {
+                                modStorage.push(playerName);
+                                localStorage.setItem(modKey, JSON.stringify(modStorage));
+                            }
+                            
+                            // Setup target logic if the selected modifier requires it
+                            if (modCfg.hasTarget) {
+                                const targetKey = `${getBaseRoleId(modKey)}Targets`;
+                                const targets = getStorageJson(targetKey, {});
+                                if (!targets[playerName]) {
+                                    const allP = getStorageJson('current_players');
+                                    const myIdx = allP.findIndex(p => p.player_name === playerName);
+                                    let tIdx;
+                                    do { tIdx = Math.floor(Math.random() * allP.length); } while (tIdx === myIdx && allP.length > 1);
+                                    targets[playerName] = allP[tIdx].player_name;
+                                    localStorage.setItem(targetKey, JSON.stringify(targets));
+                                }
+                            }
+
+                            selectionList.remove();
+                            displayRole(playerIndex); // Refresh card with new modifier
+                        };
+                        selectionList.appendChild(modBtn);
+                    });
+                } else {
+                    updateUi(roleCfg); 
+                    selectionList.remove();
+                    if (roleCfg.hasClue) {
+                        const wordDisplay = document.getElementById('word');
+                        const playerToShow = getInspectorClue();
+                        wordDisplay.innerHTML = wordDisplay.innerHTML + `\n\nONE NON-IMPOSTER:\n${playerToShow}`;
+                    }
                 }
             };
             selectionList.appendChild(roleBtn);
@@ -432,7 +517,7 @@ function displayRole(playerIndex) {
         roleDisplay.insertBefore(selectionList, document.getElementById("role-tip"));
     } else if (config.hasClue){
         const playerToShow = getInspectorClue();
-        wordDisplay.textContent += `\n\nONE NON-IMPOSTER:\n${playerToShow}`;
+        wordDisplay.innerHTML += `\n\nONE NON-IMPOSTER:\n${playerToShow}`;
     }
 }
 
@@ -448,11 +533,11 @@ function hideRole(playerIndex) {
     document.querySelectorAll('.modifier-container').forEach(el => el.remove());
 
     roleStatus.className = 'hidden';
-    roleStatus.textContent = '???';
-    document.getElementById('role-tip').textContent = 'Turn the device away from other players.';
+    roleStatus.innerHTML = '???';
+    document.getElementById('role-tip').innerHTML = 'Turn the device away from other players.';
     document.getElementById('role-tip').style.fontSize = '2em';
-    document.getElementById('role-title').textContent = `Player ${playerIndex} role:`;
-    wordDisplay.textContent = "Click 'Next' to reveal!";
+    document.getElementById('role-title').innerHTML = `Player ${playerIndex} role:`;
+    wordDisplay.innerHTML = "Click 'Next' to reveal!";
     roleDisplay.style.backgroundImage = 'radial-gradient(circle, #FFFF00 0%, #808000 100%)';
 }
 
@@ -477,7 +562,7 @@ function viewRoles() {
 
     const wordInfo = document.createElement('div');
     wordInfo.id = 'word-display';
-    wordInfo.textContent = `Word: ${selectedWord}`;
+    wordInfo.innerHTML = `Word: ${selectedWord}`;
     main.insertBefore(wordInfo, document.getElementById('view-roles'));
 
     players.forEach(p => {
@@ -517,7 +602,7 @@ function viewRoles() {
 
         // Player Name
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = name;
+        nameSpan.innerHTML = name;
         nameSpan.style.fontSize = '1.2rem';
         nameSpan.style.fontWeight = 'bold';
         nameSpan.style.color = 'white';
@@ -535,7 +620,7 @@ function viewRoles() {
 
         const createBadge = (label, config) => {
             const badge = document.createElement('div');
-            badge.textContent = label.toUpperCase();
+            badge.innerHTML = label.toUpperCase();
             badge.style.background = config.grad;
             badge.style.color = config.textColor || 'white';
             badge.style.padding = '6px 14px';
@@ -582,7 +667,7 @@ function viewRoles() {
 
         if (roleExtra) {
             const extraEl = document.createElement('div');
-            extraEl.textContent = roleExtra.trim();
+            extraEl.innerHTML = roleExtra.trim();
             extraEl.style.fontSize = '0.85rem';
             extraEl.style.opacity = '0.7';
             extraEl.style.textAlign = 'center';
@@ -602,23 +687,23 @@ async function startGame(updateStats = true) {
     let time = maxTime;
     const timerDisplay = document.createElement('div');
     timerDisplay.id = 'timer-display';
-    timerDisplay.textContent = `Time Remaining: ${time}s`;
+    timerDisplay.innerHTML = `Time Remaining: ${time}s`;
     timerDisplay.style.fontSize = '1.5rem';
     main.insertBefore(timerDisplay, document.getElementById('back-button'));
 
     const viewRolesBtn = document.createElement('button');
     viewRolesBtn.id = 'view-roles';
     viewRolesBtn.className = 'titan-one-regular';
-    viewRolesBtn.textContent = "View Roles";
+    viewRolesBtn.innerHTML = "View Roles";
     viewRolesBtn.onclick = viewRoles;
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
 
-    document.getElementById('big-text').textContent = 'DISCUSS';
+    document.getElementById('big-text').innerHTML = 'DISCUSS';
     gameTimer = setInterval(() => {
         time--;
-        timerDisplay.textContent = `Time Remaining: ${time}s`;
+        timerDisplay.innerHTML = `Time Remaining: ${time}s`;
         if (time <= 0) {
-            timerDisplay.textContent = "Time's up!";
+            timerDisplay.innerHTML = "Time's up!";
             clearInterval(gameTimer);
         }
     }, 1000);

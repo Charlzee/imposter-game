@@ -477,3 +477,38 @@ Tip: "You must tell everyone to 'Inhale' and 'Exhale' before you are allowed to 
 
 71. The Fortune-Teller
 Tip: "You must start every clue with the phrase: 'I see in my crystal ball...'"
+
+76. The Follower
+Logic: hasTarget = true, showWord = true.
+Description: You are an Innocent. You must vote for exactly the same person your target votes for.
+
+77. The Hypochondriac
+Logic: showWord = true.
+Description: You must describe the secret word only by explaining how it could possibly be dangerous or make someone sick.
+
+78. The Amnesiac
+Logic: showWord = true, showTheme = false.
+Description: You know the secret word, but your "Theme" is hidden. You have to figure out the category from others' clues.
+
+79. The Vigilante
+Logic: hasClue = true, showWord = true.
+Description: You know one person who is definitely Innocent. If that specific person is voted out, you lose the game immediately.
+
+80. The Sidekick
+Logic: hasTarget = true, showWord = false.
+Description: You don't know the word. Your target is the Imposter. You win if the Imposter wins.
+
+72. The Interrupter
+Tip: "You must interrupt at least two different players during the discussion to give your clues."
+
+73. The Deep Thinker
+Tip: "You must hum loudly for 3 seconds while looking at the ceiling before you are allowed to speak."
+
+74. The One-Worder
+Tip: "You can only speak in sentences that are exactly one word long (e.g., 'Pizza. Hot. Tasty.')."
+
+75. The Spoiler
+Tip: "You must start every single sentence you speak with the phrase 'SPOILER ALERT:'."
+
+76. The Translator
+Tip: "You must describe the word as if you are translating for an alien who has never seen anything on Earth before."

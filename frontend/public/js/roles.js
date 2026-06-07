@@ -196,7 +196,19 @@ export const ROLE_MODIFIERS_LOCAL = {
         overrideWordVisibility: false,
         appendRandomLetter: true,
         chance: 0.05
-    }
+    },
+    plus: {
+        label: 'PLUS',
+        class: 'plus',
+        tip: 'Your role has been UPGRADED! Your role has gained extra abilities: ',
+        grad: 'linear-gradient(135deg, #B9F2FF 0%, #29D1FF 100%)',
+        textColor: '#FFFFFF',
+        subTextColor: '#AFD9FF',
+        showWord: true,
+        overrideWordVisibility: false,
+        isPlus: true,
+        chance: 0.05
+    },
 };
 
 // Main game role definitions
