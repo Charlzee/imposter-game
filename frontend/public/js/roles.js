@@ -212,7 +212,7 @@ export const ROLE_MODIFIERS_LOCAL = {
     femboy: {
         label: 'Femboy',
         class: 'femboy',
-        tip: 'You cannot vote this person<br>make sure to be a good boy :3 : ',
+        tip: 'You cannot vote this person<br><br>Make sure to be a good boy :3 : ',
         grad: 'linear-gradient(135deg, #B9F2FF 0%, #29D1FF 100%)',
         textColor: '#FFFFFF',
         subTextColor: '#AFD9FF',
