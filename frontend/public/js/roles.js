@@ -209,6 +209,18 @@ export const ROLE_MODIFIERS_LOCAL = {
         isPlus: true,
         chance: 0.05
     },
+    femboy: {
+        label: 'Femboy',
+        class: 'femboy',
+        tip: 'You cannot vote this person, make sure to be a good boy :3 : ',
+        grad: 'linear-gradient(135deg, #B9F2FF 0%, #29D1FF 100%)',
+        textColor: '#FFFFFF',
+        subTextColor: '#AFD9FF',
+        showWord: true,
+        overrideWordVisibility: false,
+        hasTarget: true,
+        chance: 0.05
+    },
 };
 
 // Main game role definitions
