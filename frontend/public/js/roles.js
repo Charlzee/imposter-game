@@ -221,6 +221,17 @@ export const ROLE_MODIFIERS_LOCAL = {
         hasTarget: true,
         chance: 0.05
     },
+    slowmo: {
+        label: 'Slow-Mo',
+        class: 'slowmo',
+        tip: 'You must speak and act in slow motion.',
+        grad: 'linear-gradient(135deg, #949494, #828282, #717171, #606060, #4f4f4f)',
+        textColor: '#888888',
+        subTextColor: '#AAAAAA',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
 };
 
 // Main game role definitions
