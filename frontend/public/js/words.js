@@ -30,26 +30,34 @@ async function fetchBackendWords(signal) {
             timeoutError.isTimeout = true;
             throw timeoutError;
         }
-
-        console.warn('Backend words fetch failed, using local words:', error);
+        
+        window.lastFetchFailed = true;
+        console.warn('Backend words fetch failed:', error);
         return null;
     }
 }
 
 // Primary entry point for word retrieval
-async function getWords(signal, forceLocal=false) {
+async function getWords(signal, forceLocal=false, forceCached=false) {
     if (forceLocal){
         return localWords;
     }
 
-    try {
-        const backendWords = await fetchBackendWords(signal);
-        if (backendWords) {
-            return backendWords;
-        }
-    } catch (error) {
-        if (error.isTimeout) {
-            window.lastFetchTimedOut = true;
+    // Reset flags for the current attempt
+    window.lastFetchTimedOut = false;
+    window.wordsLoadedFromCache = false;
+    window.lastFetchFailed = false;
+
+    if (!forceCached) {
+        try {
+            const backendWords = await fetchBackendWords(signal);
+            if (backendWords && Array.isArray(backendWords) && backendWords.length > 0) {
+                return backendWords;
+            }
+        } catch (error) {
+            if (error.isTimeout) {
+                window.lastFetchTimedOut = true;
+            }
         }
     }
 

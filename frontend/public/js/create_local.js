@@ -34,10 +34,7 @@ async function fetchTopics() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 7000);
 
-        let topics = null; 
-        window.lastFetchTimedOut = false;
-        window.wordsLoadedFromCache = false;
-
+        let topics;
         try {
             topics = await getWords(controller.signal);
             clearTimeout(timeoutId);
@@ -50,26 +47,27 @@ async function fetchTopics() {
 
         if (Array.isArray(topics)) {
             topic_container.innerHTML = "";
+            const errorBox = document.getElementById("error-box");
 
-            if (window.lastFetchTimedOut) {
+            if (window.lastFetchTimedOut && errorBox) {
                 console.warn("Request timed out");
                 const banner = document.createElement("div");
                 banner.className = "error-msg";
                 banner.innerHTML = `
                     <span>Connection Timed Out</span>
-                    <span style="text-decoration: underline; text-underline-offset: 3px;">Using Local Words Instead</span>
+                    <span style="text-decoration: underline; text-underline-offset: 3px;">Falling back to stored data</span>
                 `;
-                document.getElementById("error-box").appendChild(banner);
+                errorBox.appendChild(banner);
             }
 
-            if (window.wordsLoadedFromCache) {
+            if (window.wordsLoadedFromCache && errorBox) {
                 const cacheBanner = document.createElement("div");
                 cacheBanner.className = "error-msg";
                 cacheBanner.innerHTML = `
                     <span>Using Offline Cache</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px;">Loaded from last successful sync</span>
                 `;
-                document.getElementById("error-box").appendChild(cacheBanner);
+                errorBox.appendChild(cacheBanner);
             }
 
             const fragment = document.createDocumentFragment();
