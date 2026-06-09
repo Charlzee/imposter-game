@@ -7,7 +7,7 @@
     height: 90dvh;
 }
 
-#left-container, #right-container {
+#left-container, #center-container, #right-container {
     width: 48%;
     border: 2px solid rgb(85, 35, 141);
     border-radius: 10px;
@@ -31,7 +31,7 @@
     background: none;
 }
 
-.topic, .player-tile, #player-add-button, #settings-button, #close-settings-btn, #reset-roles-btn, #reset-modifiers-btn {
+.topic, .player-tile, #player-add-button, #settings-button, #close-settings-btn, .reset-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -208,12 +208,12 @@
     color: lightgray;
 }
 
-.topic:hover, .player-tile:hover, #settings-button:hover, #player-add-button:hover, .start-button:hover, #close-settings-btn:hover, #reset-roles-btn:hover, #reset-modifiers-btn:hover{
+.topic:hover, .player-tile:hover, #settings-button:hover, #player-add-button:hover, .start-button:hover, #close-settings-btn:hover, .reset-btn:hover:hover{
     transform: scale(1.05);
     filter: brightness(1.1);
 }
 
-.topic:active, .player-tile:active, #settings-button:active, #player-add-button:active, .start-button:active, #close-settings-btn:active, #reset-roles-btn:active, #reset-modifiers-btn:active {
+.topic:active, .player-tile:active, #settings-button:active, #player-add-button:active, .start-button:active, #close-settings-btn:active, .reset-btn:active:active {
     transform: scale(0.95);
     filter: brightness(0.8);
     transition: transform 0.05s;
@@ -294,7 +294,7 @@
     display: flex;
 }
 
-#close-settings-btn, #reset-roles-btn, #reset-modifiers-btn {
+#close-settings-btn, .reset-btn {
     width: fit-content;
     height: fit-content;
     align-self: center;

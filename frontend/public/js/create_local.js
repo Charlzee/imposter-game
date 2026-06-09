@@ -1,5 +1,5 @@
 import getWords from './words.js';
-import { ROLE_MODIFIERS_LOCAL, BASE_ROLE_IDS } from './roles.js';
+import { ROLE_MODIFIERS, BASE_ROLE_IDS, RANDOM_EVENTS } from './roles.js';
 
 // === CONFIG ===
 const ROLE_DATA = BASE_ROLE_IDS;
@@ -180,6 +180,36 @@ function removePlayer(index) {
     renderPlayers();
 }
 
+// ==== Settings Saving Logic ====
+function saveAllSettings() {
+    // Save role settings
+    ROLE_DATA.forEach(role => {
+        const countInput = document.getElementById(`${role}-count`);
+        const percentInput = document.getElementById(`${role}-percent`);
+        if (countInput) localStorage.setItem(`${role}_count`, countInput.value);
+        if (percentInput) localStorage.setItem(`${role}_percent`, percentInput.value);
+    });
+
+    // Save modifier settings
+    Object.keys(ROLE_MODIFIERS).forEach(modKey => {
+        const percentInput = document.getElementById(`${modKey}-percent`);
+        if (percentInput) localStorage.setItem(`${modKey}_percent`, percentInput.value);
+    });
+
+    // Save event settings
+    Object.keys(RANDOM_EVENTS).forEach(eventKey => {
+        const percentInput = document.getElementById(`event-${eventKey}-percent`);
+        if (percentInput) localStorage.setItem(`event_${eventKey}_percent`, percentInput.value);
+    });
+
+    // Save checkboxes
+    const modCheck = document.getElementById("role-modifiers-enabled");
+    if (modCheck) localStorage.setItem("role_modifers_enabled", modCheck.checked);
+
+    const eventCheck = document.getElementById("random-events-enabled");
+    if (eventCheck) localStorage.setItem("random_events_enabled", eventCheck.checked);
+}
+
 // ==== Settings ====
 // Finalize settings and launch play
 async function startGame() {
@@ -190,30 +220,17 @@ async function startGame() {
     localStorage.setItem(`innocents`, JSON.stringify([]));
     localStorage.setItem(`unselected_shapeshifters`, JSON.stringify([]));
 
-    // Save role settings to localStorage
+    saveAllSettings();
+
+    // Initialize plural keys for the round
     ROLE_DATA.forEach(role => {
-        const countInput = document.getElementById(`${role}-count`);
-        const percentInput = document.getElementById(`${role}-percent`);
-
-        const val = countInput ? (parseInt(countInput.value) || 0) : 0;
-        const percent_val = percentInput ? percentInput.value : "100%";
-
-        localStorage.setItem(`${role}_count`, val);
-        localStorage.setItem(`${role}_percent`, percent_val);
-
         const pluralKey = role.endsWith('s') ? role : (role === 'guardian_angel' ? 'guardian_angels' : `${role}s`);
         localStorage.setItem(pluralKey, JSON.stringify([]));
     });
-
-    // Save modifier settings to localStorage
-    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
-        const percentInput = document.getElementById(`${modKey}-percent`);
-        const percent_val = percentInput ? percentInput.value : "0%";
-        localStorage.setItem(`${modKey}_percent`, percent_val);
+    Object.keys(ROLE_MODIFIERS).forEach(modKey => {
         localStorage.setItem(modKey, JSON.stringify([]));
     });
 
-    localStorage.setItem("role_modifers_enabled", document.getElementById("role-modifiers-enabled").checked);
     window.location.href = "../play.html?local=true";
 }
 
@@ -230,8 +247,9 @@ function init() {
 
     const settingsGroup = document.getElementById('role-settings-container');
     const modifierSettingsGroup = document.getElementById('modifier-settings-container')
+    const eventSettingsGroup = document.getElementById('event-settings-container');
+
     if (settingsGroup) {
-        // Build standard role setting rows
         let settingsHtml = ROLE_DATA.map(roleId => {
             const labelText = roleId.replace('_', ' ').toUpperCase();
             return `
@@ -244,8 +262,8 @@ function init() {
         }).join('');
 
         // Build modifier setting rows
-        let modifierSettingsHtml = Object.keys(ROLE_MODIFIERS_LOCAL).map(modKey => {
-            let labelText = ROLE_MODIFIERS_LOCAL[modKey].label.toUpperCase();
+        let modifierSettingsHtml = Object.keys(ROLE_MODIFIERS).map(modKey => {
+            let labelText = ROLE_MODIFIERS[modKey].label.toUpperCase();
             if (labelText.toLowerCase() == "cheater" || labelText.toLowerCase() == "happy"){labelText = "(???)"}
             return `
                 <div class="role-row">
@@ -256,8 +274,23 @@ function init() {
             `;
         }).join('');
 
+        // Build event setting rows
+        let eventSettingsHtml = Object.keys(RANDOM_EVENTS).map(eventKey => {
+            let labelText = (RANDOM_EVENTS[eventKey].label || eventKey).toUpperCase();
+            return `
+                <div class="role-row">
+                    <p class="titan-one-regular count">${labelText} CHANCE</p>
+                    <input class="titan-one-regular amount-input setting-input" style="visibility: hidden;">
+                    <input class="titan-one-regular percent-input setting-input" id="event-${eventKey}-percent" type="text" inputmode="numeric">
+                </div>
+            `;
+        }).join('');
+
         settingsGroup.innerHTML = settingsHtml;
         modifierSettingsGroup.innerHTML = modifierSettingsHtml;
+        if (eventSettingsGroup) {
+            eventSettingsGroup.innerHTML = eventSettingsHtml;
+        }
 
         // Load saved counts and percentages
         ROLE_DATA.forEach(roleId => {
@@ -282,11 +315,27 @@ function init() {
         });
 
         // Load saved modifier chances
-        Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+        Object.keys(ROLE_MODIFIERS).forEach(modKey => {
             const percent_input = document.getElementById(`${modKey}-percent`);
             if (percent_input) {
                 const saved = localStorage.getItem(`${modKey}_percent`);
-                const defaultChance = ROLE_MODIFIERS_LOCAL[modKey].chance || 0.05;
+                const defaultChance = ROLE_MODIFIERS[modKey].chance || 0.05;
+                const displayChance = parseFloat((defaultChance * 100).toFixed(4));
+                if (saved !== null) {
+                    const cleanValue = parseFloat(parseFloat(saved.replace('%', '')).toFixed(4));
+                    percent_input.value = cleanValue + "%";
+                } else {
+                    percent_input.value = displayChance + "%";
+                }
+            }
+        });
+
+        // Load saved event chances
+        Object.keys(RANDOM_EVENTS).forEach(eventKey => {
+            const percent_input = document.getElementById(`event-${eventKey}-percent`);
+            if (percent_input) {
+                const saved = localStorage.getItem(`event_${eventKey}_percent`);
+                const defaultChance = RANDOM_EVENTS[eventKey].chance || 0.05;
                 const displayChance = parseFloat((defaultChance * 100).toFixed(4));
                 if (saved !== null) {
                     const cleanValue = parseFloat(parseFloat(saved.replace('%', '')).toFixed(4));
@@ -314,8 +363,16 @@ function init() {
                 val = parseFloat(parseFloat(val).toFixed(4));
             }
             e.target.value = (val === "" || isNaN(val) ? "0" : val) + "%";
+            saveAllSettings();
         };
     });
+
+    // Attach auto-save listeners to all setting inputs
+    document.querySelectorAll('.setting-input').forEach(input => {
+        input.addEventListener('input', saveAllSettings);
+    });
+    document.getElementById("role-modifiers-enabled")?.addEventListener('change', saveAllSettings);
+    document.getElementById("random-events-enabled")?.addEventListener('change', saveAllSettings);
 
     // Revert roles to defaults
     const resetRoles = () => {
@@ -326,18 +383,33 @@ function init() {
             if (input) input.value = defaultCount;
             if (percentInput) percentInput.value = "100%";
         });
+        saveAllSettings();
     };
 
     // Revert modifiers to defaults
     const resetModifiers = () => {
-        Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+        Object.keys(ROLE_MODIFIERS).forEach(modKey => {
             const percentInput = document.getElementById(`${modKey}-percent`);
             if (percentInput) {
-                const defaultChance = ROLE_MODIFIERS_LOCAL[modKey].chance || 0.05;
+                const defaultChance = ROLE_MODIFIERS[modKey].chance || 0.05;
                 const displayChance = parseFloat((defaultChance * 100).toFixed(4));
                 percentInput.value = displayChance + "%";
             }
         });
+        saveAllSettings();
+    };
+
+    // Revert events to defaults
+    const resetEvents = () => {
+        Object.keys(RANDOM_EVENTS).forEach(eventKey => {
+            const percentInput = document.getElementById(`event-${eventKey}-percent`);
+            if (percentInput) {
+                const defaultChance = RANDOM_EVENTS[eventKey].chance || 0.05;
+                const displayChance = parseFloat((defaultChance * 100).toFixed(4));
+                percentInput.value = displayChance + "%";
+            }
+        });
+        saveAllSettings();
     };
 
     // Global Setup
@@ -347,14 +419,21 @@ function init() {
     document.getElementById('close-settings-btn')?.addEventListener('click', window.closeSettings);
     document.getElementById('reset-roles-btn')?.addEventListener('click', resetRoles);
     document.getElementById('reset-modifiers-btn')?.addEventListener('click', resetModifiers);
+    document.getElementById('reset-events-btn')?.addEventListener('click', resetEvents);
 
     fetchTopics();
     localStorage.setItem('game_started', 'false');
     updateNameValue(null, true);
 
-    const randomEventsEl = document.getElementById("role-modifiers-enabled");
-    if (randomEventsEl) {
+    const roleModifiersEl = document.getElementById("role-modifiers-enabled");
+    if (roleModifiersEl) {
         const saved = localStorage.getItem("role_modifers_enabled");
+        roleModifiersEl.checked = saved !== null ? saved === "true" : true;
+    }
+
+    const randomEventsEl = document.getElementById("random-events-enabled");
+    if (randomEventsEl) {
+        const saved = localStorage.getItem("random_events_enabled");
         randomEventsEl.checked = saved !== null ? saved === "true" : true;
     }
 }

@@ -1,5 +1,7 @@
+import { getRandomPlayer, getRandomPlayerIndex } from "./global.js";
+
 // Configuration for all role modifiers
-export const ROLE_MODIFIERS_LOCAL = {
+export const ROLE_MODIFIERS = {
     amnesias: { 
         label: 'Amnesia', class: 'amnesia', 
         tip: 'You forgot your role :c\nTry to remember (guess) your role!', 
@@ -232,10 +234,63 @@ export const ROLE_MODIFIERS_LOCAL = {
         overrideWordVisibility: false,
         chance: 0.05
     },
+    neglected: {
+        label: 'Neglected',
+        class: 'neglected',
+        tip: 'You cannot mention this player in any way, only vote for them: ',
+        grad: 'linear-gradient(135deg, #FF9933, #FFCC66, #FFFF99)',
+        textColor: '#FFFFFF',
+        subTextColor: '#ffec46',
+        showWord: true,
+        hasTarget: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
 };
 
+// Random events
+export const RANDOM_EVENTS = {
+    // ROLE RANDOM EVENTS:
+    all_imposter: {
+        label: "Everyone is imposter except one",
+        chance: 0.01,
+        displayEventOnShowRoles: true,
+        skipDefaultAssignment: true,
+        onTrigger: ({ players, setRole }) => {
+            players.forEach((_, idx) => setRole(idx, 'imposters'));
+            setRole(getRandomPlayerIndex(players), 'innocents')
+        }
+    },
+    all_shapeshifter: {
+        label: "Everyone is shapeshifter",
+        chance: 0.01,
+        displayEventOnShowRoles: true,
+        skipDefaultAssignment: true,
+        onTrigger: ({ players, setRole }) => {
+            players.forEach((_, idx) => setRole(idx, 'shapeshifters'));
+        }
+    },
+
+    // MODIFIER RANDOM EVENTS:
+    all_mime: {
+        label: "Everyone is mime",
+        chance: 0.01,
+        onTrigger: ({ players, addModifier }) => {
+            players.forEach((_, idx) => addModifier(idx, 'mimes'));
+        }
+    },
+    big_furries: {
+        label: "Big Furries",
+        chance: 0.01,
+        onTrigger: ({ players, addModifier }) => {
+            players.forEach((_, idx) => addModifier(idx, 'furry'));
+            players.forEach((_, idx) => addModifier(idx, 'big'));
+        }
+    },
+}
+
 // Main game role definitions
-export const ROLE_DATA_LOCAL = {
+export const ROLE_DATA = {
     innocents: {
         label: 'Innocent',
         class: 'innocent',
@@ -336,8 +391,9 @@ export const INNOCENT_CONFIG = {
     showWord: true
 };
 
-// List of standard role IDs
 export const BASE_ROLE_IDS = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector', 'king'];
+
+// Helper Functions
 
 // Helper to strip plural suffixes
 export const getBaseRoleId = (configKey) => configKey.replace(/s$/, '').replace('guardian_angel', 'guardian_angel');

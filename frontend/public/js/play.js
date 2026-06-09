@@ -1,7 +1,7 @@
 // Import game logic and constants
 import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase, getRandomLetter, getRandomLetterOrNumber } from '../js/global.js';
-import { ROLE_MODIFIERS_LOCAL, ROLE_DATA_LOCAL, INNOCENT_CONFIG, getBaseRoleId } from './roles.js';
+import { ROLE_MODIFIERS, ROLE_DATA, INNOCENT_CONFIG, getBaseRoleId, RANDOM_EVENTS } from './roles.js';
 
 // === DEBUG ===
 const FORCE_ALL_MODIFIERS = false;
@@ -67,79 +67,83 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     const players = JSON.parse(playersJson || '[]');
     if (!players.length) return;
 
-    const assessableRoleKeys = Object.keys(ROLE_DATA_LOCAL);
+    const assessableRoleKeys = Object.keys(ROLE_DATA);
+    const activeEvents = [];
+    if (localStorage.getItem("random_events_enabled") === "true") {
+        Object.keys(RANDOM_EVENTS).forEach(k => {
+            const saved = localStorage.getItem(`event_${k}_percent`);
+            const chance = saved ? parseFloat(saved) / 100 : (RANDOM_EVENTS[k].chance || 0.05);
+            if (Math.random() < chance) activeEvents.push(k);
+        });
+    }
+    localStorage.setItem('active_random_events', JSON.stringify(activeEvents));
+
+    const assignedRolesData = {};
+    Object.keys(ROLE_DATA).forEach(k => assignedRolesData[k] = []);
+    const modifierLists = {};
+    Object.keys(ROLE_MODIFIERS).forEach(k => modifierLists[k] = []);
+
+    const helpers = {
+        setRole: (playerIdx, roleKey) => {
+            const player = players[playerIdx];
+            if (!player) return;
+            Object.keys(assignedRolesData).forEach(k => {
+                assignedRolesData[k] = assignedRolesData[k].filter(n => n !== player.player_name);
+            });
+            if (assignedRolesData[roleKey]) assignedRolesData[roleKey].push(player.player_name);
+        },
+        addModifier: (playerIdx, modKey) => {
+            const player = players[playerIdx];
+            if (player && modifierLists[modKey] && !modifierLists[modKey].includes(player.player_name)) {
+                modifierLists[modKey].push(player.player_name);
+            }
+        }
+    };
+
+    const runDefaultRoleAssignment = () => {
+        const occupiedIndices = new Set();
+        Object.keys(ROLE_DATA).forEach(roleKey => {
+            const baseId = getBaseRoleId(roleKey);
+            const count = parseInt(roleCounts[baseId]) || 0;
+            const chance = parseFloat((localStorage.getItem(`${baseId}_percent`) || "100%").replace('%', '')) / 100;
+            for (let i = 0; i < count; i++) {
+                if (occupiedIndices.size >= players.length) break;
+                if (Math.random() < chance) {
+                    let idx; do { idx = Math.floor(Math.random() * players.length); } while (occupiedIndices.has(idx));
+                    occupiedIndices.add(idx);
+                    assignedRolesData[roleKey].push(players[idx].player_name);
+                }
+            }
+        });
+    };
+
+    const runDefaultModifierAssignment = () => {
+        if (localStorage.getItem("role_modifers_enabled") === "true" || FORCE_ALL_MODIFIERS) {
+            players.forEach((p, idx) => {
+                Object.keys(ROLE_MODIFIERS).forEach(modKey => {
+                    if (modKey === 'amnesias' && (assignedRolesData.shapeshifters || []).includes(p.player_name)) return;
+                    const saved = localStorage.getItem(`${modKey}_percent`);
+                    const chance = FORCE_ALL_MODIFIERS ? 1 : (saved ? parseFloat(saved) / 100 : ROLE_MODIFIERS[modKey].chance);
+                    if (Math.random() < chance) helpers.addModifier(idx, modKey);
+                });
+            });
+        }
+    };
+
+    if (!activeEvents.some(k => RANDOM_EVENTS[k]?.skipDefaultAssignment)) runDefaultRoleAssignment();
+
+    activeEvents.forEach(eventKey => {
+        const event = RANDOM_EVENTS[eventKey];
+        if (event?.onTrigger) event.onTrigger({ players, assignedRolesData, modifierLists, ...helpers });
+    });
+
+    runDefaultModifierAssignment();
 
     localStorage.removeItem('inspectorClues');
     localStorage.removeItem('innocents');
-    assessableRoleKeys.forEach(roleKey => {
-        if (ROLE_DATA_LOCAL[roleKey].hasTarget) {
-            localStorage.removeItem(`${getBaseRoleId(roleKey)}Targets`);
-        }
-    });
-    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
-        if (ROLE_MODIFIERS_LOCAL[modKey].hasTarget) {
-            localStorage.removeItem(`${getBaseRoleId(modKey)}Targets`);
-        }
-    });
+    Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
+    Object.keys(ROLE_MODIFIERS).forEach(k => { if (ROLE_MODIFIERS[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
 
-    const occupiedIndices = new Set();
-    const assignedRolesData = {};
-
-    assessableRoleKeys.forEach(roleKey => {
-        const baseId = getBaseRoleId(roleKey);
-        assignedRolesData[roleKey] = [];
-
-        const count = parseInt(roleCounts[baseId]) || 0;
-        const rawPercent = localStorage.getItem(`${baseId}_percent`) || "100%";
-        const spawnChance = parseFloat(rawPercent.replace('%', '')) / 100;
-
-        for (let i = 0; i < count; i++) {
-            if (occupiedIndices.size >= players.length) break;
-            if (Math.random() < spawnChance) {
-                let idx;
-                do { 
-                    idx = Math.floor(Math.random() * players.length); 
-                } while (occupiedIndices.has(idx));
-                
-                occupiedIndices.add(idx);
-                assignedRolesData[roleKey].push(players[idx].player_name);
-            }
-        }
-        localStorage.setItem(roleKey, JSON.stringify(assignedRolesData[roleKey]));
-    });
-
-    const modifierLists = {};
-    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
-        modifierLists[modKey] = [];
-    });
-
-    if (localStorage.getItem("role_modifers_enabled") === "true" || FORCE_ALL_MODIFIERS) {
-        players.forEach(player => {
-            const name = player.player_name;
-
-            Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
-                const modConfig = ROLE_MODIFIERS_LOCAL[modKey];
-                
-                if (modKey === 'amnesias') {
-                    const shapeshifters = assignedRolesData.shapeshifters || [];
-                    if (shapeshifters.includes(name)) return;
-                }
-
-                const savedPercent = localStorage.getItem(`${modKey}_percent`);
-                const calculatedChance = FORCE_ALL_MODIFIERS ? 1 : (savedPercent ? parseFloat(savedPercent) / 100 : modConfig.chance);
-
-                if (Math.random() < calculatedChance) {
-                    modifierLists[modKey].push(name);
-                }
-            });
-        });
-    }
-
-    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
-        localStorage.setItem(modKey, JSON.stringify(modifierLists[modKey]));
-    });
-
-    // Assign random targets to specific roles
     const assignTargets = (roleArray, storageKey) => {
         const targets = {};
         roleArray.forEach(name => {
@@ -154,14 +158,13 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     };
 
     assessableRoleKeys.forEach(roleKey => {
-        if (ROLE_DATA_LOCAL[roleKey].hasTarget) {
-            assignTargets(assignedRolesData[roleKey], `${getBaseRoleId(roleKey)}Targets`);
-        }
+        localStorage.setItem(roleKey, JSON.stringify(assignedRolesData[roleKey]));
+        if (ROLE_DATA[roleKey].hasTarget) assignTargets(assignedRolesData[roleKey], `${getBaseRoleId(roleKey)}Targets`);
     });
-    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
-        if (ROLE_MODIFIERS_LOCAL[modKey].hasTarget) {
-            assignTargets(modifierLists[modKey], `${getBaseRoleId(modKey)}Targets`);
-        }
+
+    Object.keys(ROLE_MODIFIERS).forEach(modKey => {
+        localStorage.setItem(modKey, JSON.stringify(modifierLists[modKey]));
+        if (ROLE_MODIFIERS[modKey].hasTarget) assignTargets(modifierLists[modKey], `${getBaseRoleId(modKey)}Targets`);
     });
     
     localStorage.setItem("unselected_shapeshifters", JSON.stringify(assignedRolesData.shapeshifters || []));
@@ -177,28 +180,26 @@ function displayRole(playerIndex) {
     const roleTip = document.getElementById('role-tip');
     const wordDisplay = document.getElementById('word');
 
-    const allRoleClasses = [...Object.values(ROLE_DATA_LOCAL).map(r => r.class), ...Object.values(ROLE_MODIFIERS_LOCAL).map(m => m.class), 'innocent', 'hidden'];
+    const allRoleClasses = [...Object.values(ROLE_DATA).map(r => r.class), ...Object.values(ROLE_MODIFIERS).map(m => m.class), 'innocent', 'hidden'];
 
-    const activeRoleKeys = Object.keys(ROLE_DATA_LOCAL).filter(k => k !== 'shapeshifters');
+    const activeRoleKeys = Object.keys(ROLE_DATA).filter(k => k !== 'shapeshifters');
     let baseRoleKey = activeRoleKeys.find(key => getStorageJson(key).includes(playerName));
     const isUnselected = getStorageJson('unselected_shapeshifters').includes(playerName);
     if (!baseRoleKey && getStorageJson('shapeshifters').includes(playerName) && isUnselected) {
         baseRoleKey = 'shapeshifters';
     }
 
-    const activeModifiers = Object.keys(ROLE_MODIFIERS_LOCAL).filter(modKey => getStorageJson(modKey).includes(playerName));
+    const activeModifiers = Object.keys(ROLE_MODIFIERS).filter(modKey => getStorageJson(modKey).includes(playerName));
 
-    const config = ROLE_DATA_LOCAL[baseRoleKey] || INNOCENT_CONFIG;
+    const config = ROLE_DATA[baseRoleKey] || INNOCENT_CONFIG;
 
     let activeUiConfig = config;
 
-    // === MODIFIER UI OVERRIDE ===
-    const overridingModifierKey = activeModifiers.find(modKey => ROLE_MODIFIERS_LOCAL[modKey].overrideRoleDisplay);
+    const overridingModifierKey = activeModifiers.find(modKey => ROLE_MODIFIERS[modKey].overrideRoleDisplay);
     if (overridingModifierKey) {
-        activeUiConfig = ROLE_MODIFIERS_LOCAL[overridingModifierKey];
+        activeUiConfig = ROLE_MODIFIERS[overridingModifierKey];
     }
 
-    // Helper function to build UI
     function updateUi(configUi, forcedRoleClass = null) {
         roleStatus.classList.remove(...allRoleClasses);
         
@@ -227,16 +228,16 @@ function displayRole(playerIndex) {
 
         let displayTheWord = configUi.showWord;
         activeModifiers.forEach(modKey => {
-            if (ROLE_MODIFIERS_LOCAL[modKey].overrideWordVisibility) {
-                displayTheWord = ROLE_MODIFIERS_LOCAL[modKey].showWord;
+            if (ROLE_MODIFIERS[modKey].overrideWordVisibility) {
+                displayTheWord = ROLE_MODIFIERS[modKey].showWord;
             }
         });
 
         let content = displayTheWord ? selectedWord : '';
 
         // === ROLES REVEAL ===
-        Object.keys(ROLE_DATA_LOCAL).forEach(roleKey => {
-            const roleCfg = ROLE_DATA_LOCAL[roleKey];
+        Object.keys(ROLE_DATA).forEach(roleKey => {
+            const roleCfg = ROLE_DATA[roleKey];
             if (roleCfg.revealRoleToInnocents) {
                 const publicPlayers = getStorageJson(roleKey);
                 publicPlayers.forEach(pName => {
@@ -250,7 +251,7 @@ function displayRole(playerIndex) {
         // === PLUS INNOCENT REVEAL ===
         const plusPlayers = getStorageJson('plus');
         plusPlayers.forEach(pName => {
-            const roleKeys = Object.keys(ROLE_DATA_LOCAL).filter(k => k !== 'shapeshifters');
+            const roleKeys = Object.keys(ROLE_DATA).filter(k => k !== 'shapeshifters');
             let pRoleKey = roleKeys.find(rk => getStorageJson(rk).includes(pName));
             if (!pRoleKey && getStorageJson('shapeshifters').includes(pName) && getStorageJson('unselected_shapeshifters').includes(pName)) {
                 pRoleKey = 'shapeshifters';
@@ -266,7 +267,7 @@ function displayRole(playerIndex) {
         // === THEME VISIBILITY ===
         let displayTheTheme = configUi.showTheme || config.showTheme;
         activeModifiers.forEach(modKey => {
-            if (ROLE_MODIFIERS_LOCAL[modKey].showTheme) {
+            if (ROLE_MODIFIERS[modKey].showTheme) {
                 displayTheTheme = true;
             }
         });
@@ -280,8 +281,8 @@ function displayRole(playerIndex) {
             }
         }
 
-        Object.keys(ROLE_DATA_LOCAL).forEach(key => {
-            const config = ROLE_DATA_LOCAL[key];
+        Object.keys(ROLE_DATA).forEach(key => {
+            const config = ROLE_DATA[key];
             if (config.hasTarget) {
                 const targets = getStorageJson(`${getBaseRoleId(key)}Targets`, {});
                 if (targets[playerName]) {
@@ -307,7 +308,7 @@ function displayRole(playerIndex) {
         }
 
         activeModifiers.forEach(modKey => {
-            const modConfig = ROLE_MODIFIERS_LOCAL[modKey];
+            const modConfig = ROLE_MODIFIERS[modKey];
             
             const modContainer = document.createElement('div');
             modContainer.className = 'modifier-container';
@@ -387,9 +388,8 @@ function displayRole(playerIndex) {
         });
     }
 
-    // Generate clues for the Inspector role
     function getInspectorClue() {
-        const BlacklistedImposterRoles = Object.keys(ROLE_DATA_LOCAL).filter(k => ROLE_DATA_LOCAL[k].showWord === false);
+        const BlacklistedImposterRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].showWord === false);
         const allPlayers = getStorageJson('current_players');
         
         const combinedImposters = [];
@@ -414,21 +414,19 @@ function displayRole(playerIndex) {
         return "No matching players found";
     }
 
-    // Initialize the role card display
     updateUi(activeUiConfig);
 
-    // Handle Shapeshifter role selection menu
     if (config.isShapeshifter) {
         const selectionList = document.createElement('div');
         selectionList.id = 'roles-list'; 
         selectionList.style.marginTop = '30px';
 
-        const selectableRoles = Object.keys(ROLE_DATA_LOCAL).filter(k => ROLE_DATA_LOCAL[k].selectable);
+        const selectableRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].selectable);
 
         selectableRoles.forEach(roleKey => {
-            const roleCfg = ROLE_DATA_LOCAL[roleKey];
+            const roleCfg = ROLE_DATA[roleKey];
             const roleBtn = document.createElement('div');
-            const isPlus = activeModifiers.some(m => ROLE_MODIFIERS_LOCAL[m].isPlus);
+            const isPlus = activeModifiers.some(m => ROLE_MODIFIERS[m].isPlus);
             
             roleBtn.className = 'player-view-role';
             roleBtn.innerHTML = roleCfg.label;
@@ -443,7 +441,7 @@ function displayRole(playerIndex) {
                         localStorage.setItem(roleConfigKey, JSON.stringify(existingList));
                     }
 
-                    if (ROLE_DATA_LOCAL[roleConfigKey]?.hasTarget) {
+                    if (ROLE_DATA[roleConfigKey]?.hasTarget) {
                         const targetKey = `${getBaseRoleId(roleConfigKey)}Targets`;
                         const targets = getStorageJson(targetKey, {});
                         if (!targets[playerName]) {
@@ -464,8 +462,8 @@ function displayRole(playerIndex) {
                     // Transitions to Modifier Selection for plus ability
                     selectionList.innerHTML = '<h3 class="titan-one-regular" style="color: #29D1FF; width: 100%; text-align: center; margin-bottom: 15px; font-weight: bold;">SELECT EXTRA MODIFIER</h3>';
 
-                    Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
-                        const modCfg = ROLE_MODIFIERS_LOCAL[modKey];
+                    Object.keys(ROLE_MODIFIERS).forEach(modKey => {
+                        const modCfg = ROLE_MODIFIERS[modKey];
                         // Skip plus
                         if (modCfg.isPlus || modKey === 'amnesias' || modKey === 'happy' || modKey === 'cheater') return;
                         
@@ -546,10 +544,41 @@ function viewRoles() {
     if (viewingRoles) {
         document.getElementById('roles-list')?.remove();
         document.getElementById('word-display')?.remove();
+        document.getElementById('event-display')?.remove();
         viewingRoles = false;
         return;
     }
     viewingRoles = true;
+
+    const activeEvents = JSON.parse(localStorage.getItem('active_random_events') || '[]');
+    const hiddenEvents = activeEvents.filter(k => RANDOM_EVENTS[k]?.displayEventOnShowRoles);
+
+    if (hiddenEvents.length > 0) {
+        const eventInfo = document.createElement('div');
+        eventInfo.id = 'event-display';
+        eventInfo.style.display = 'flex';
+        eventInfo.style.justifyContent = 'center';
+        eventInfo.style.gap = '10px';
+        eventInfo.style.marginBottom = '20px';
+
+        hiddenEvents.forEach(k => {
+            const eventCfg = RANDOM_EVENTS[k];
+            const badge = document.createElement('div');
+            badge.className = 'titan-one-regular';
+            badge.innerHTML = (eventCfg?.label || k).toUpperCase();
+            badge.style.background = eventCfg?.grad || 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)';
+            badge.style.color = eventCfg?.textColor || 'white';
+            badge.style.padding = '6px 14px';
+            badge.style.borderRadius = '10px';
+            badge.style.fontSize = '1.1rem';
+            badge.style.fontWeight = 'bold';
+            badge.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
+            badge.style.border = `1px solid ${eventCfg?.textColor || '#FFD700'}`;
+            eventInfo.appendChild(badge);
+        });
+        main.insertBefore(eventInfo, document.getElementById('view-roles'));
+    }
+
     const players = getStorageJson('current_players');
     const listContainer = document.createElement('div');
     listContainer.id = 'roles-list';
@@ -570,7 +599,7 @@ function viewRoles() {
         el.className = 'player-view-role';
         const name = p.player_name;
         
-        const activeRoleKeys = Object.keys(ROLE_DATA_LOCAL).filter(k => k !== 'shapeshifters');
+        const activeRoleKeys = Object.keys(ROLE_DATA).filter(k => k !== 'shapeshifters');
         let foundKey = activeRoleKeys.find(key => getStorageJson(key).includes(name));
         
         const isshapeshifter = getStorageJson('shapeshifters').includes(name);
@@ -580,7 +609,7 @@ function viewRoles() {
             foundKey = 'shapeshifters';
         }
 
-        const roleConfig = (foundKey && ROLE_DATA_LOCAL[foundKey]) ? ROLE_DATA_LOCAL[foundKey] : INNOCENT_CONFIG;
+        const roleConfig = (foundKey && ROLE_DATA[foundKey]) ? ROLE_DATA[foundKey] : INNOCENT_CONFIG;
 
         // Main player row container
         el.style.background = 'rgba(255, 255, 255, 0.05)';
@@ -635,13 +664,13 @@ function viewRoles() {
         };
 
         // Add Role Badge
-        const roleName = foundKey ? ROLE_DATA_LOCAL[foundKey].label : 'Innocent';
+        const roleName = foundKey ? ROLE_DATA[foundKey].label : 'Innocent';
         badgeWrapper.appendChild(createBadge(roleName, roleConfig));
 
         // Add Modifier Badges
-        Object.keys(ROLE_MODIFIERS_LOCAL).forEach(modKey => {
+        Object.keys(ROLE_MODIFIERS).forEach(modKey => {
             if (getStorageJson(modKey).includes(name)) {
-                badgeWrapper.appendChild(createBadge(ROLE_MODIFIERS_LOCAL[modKey].label, ROLE_MODIFIERS_LOCAL[modKey]));
+                badgeWrapper.appendChild(createBadge(ROLE_MODIFIERS[modKey].label, ROLE_MODIFIERS[modKey]));
             }
         });
 
@@ -653,8 +682,8 @@ function viewRoles() {
             roleExtra += ' (Shapeshifter)';
         }
         
-        Object.keys(ROLE_DATA_LOCAL).forEach(key => {
-            if (ROLE_DATA_LOCAL[key].hasTarget) {
+        Object.keys(ROLE_DATA).forEach(key => {
+            if (ROLE_DATA[key].hasTarget) {
                 const target = getStorageJson(`${getBaseRoleId(key)}Targets`, {})[name];
                 if (target) roleExtra += ` [TARGET: ${target}]`;
             }
@@ -699,6 +728,38 @@ async function startGame(updateStats = true) {
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
 
     document.getElementById('big-text').innerHTML = 'DISCUSS';
+
+    // Display active global events
+    const activeEvents = JSON.parse(localStorage.getItem('active_random_events') || '[]');
+    // Only show events if it doesnt have display on show roles
+    const visibleEvents = activeEvents.filter(k => !RANDOM_EVENTS[k]?.displayEventOnShowRoles);
+
+    if (visibleEvents.length > 0) {
+        const eventBanner = document.createElement('div');
+        eventBanner.id = 'active-events-banner';
+        eventBanner.style.display = 'flex';
+        eventBanner.style.justifyContent = 'center';
+        eventBanner.style.gap = '10px';
+        eventBanner.style.marginBottom = '20px';
+
+        visibleEvents.forEach(k => {
+            const eventCfg = RANDOM_EVENTS[k];
+            const badge = document.createElement('div');
+            badge.className = 'titan-one-regular';
+            badge.innerHTML = (eventCfg?.label || k).toUpperCase();
+            badge.style.background = eventCfg?.grad || 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)';
+            badge.style.color = eventCfg?.textColor || 'white';
+            badge.style.padding = '6px 14px';
+            badge.style.borderRadius = '10px';
+            badge.style.fontSize = '1.1rem';
+            badge.style.fontWeight = 'bold';
+            badge.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
+            badge.style.border = `1px solid ${eventCfg?.textColor || '#FFD700'}`;
+            eventBanner.appendChild(badge);
+        });
+        main.insertBefore(eventBanner, timerDisplay);
+    }
+
     gameTimer = setInterval(() => {
         time--;
         timerDisplay.innerHTML = `Time Remaining: ${time}s`;
@@ -743,7 +804,7 @@ async function init() {
     }
 
     const dynamicCounts = {};
-    Object.keys(ROLE_DATA_LOCAL).forEach(key => {
+    Object.keys(ROLE_DATA).forEach(key => {
         const baseId = getBaseRoleId(key);
         dynamicCounts[baseId] = localStorage.getItem(`${baseId}_count`);
     });

@@ -7,6 +7,16 @@ export function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
+export function getRandomPlayerIndex(players) {
+    if (!players || players.length === 0) return -1;
+    return getRandomInt(players.length);
+}
+
+export function getRandomPlayer(players) {
+    if (!players || players.length === 0) return null;
+    return players[getRandomInt(players.length)];
+}
+
 export function toTitleCase(str) {
     return str.replace(
         /\w\S*/g,
