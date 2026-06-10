@@ -246,6 +246,18 @@ export const ROLE_MODIFIERS = {
         overrideWordVisibility: false,
         chance: 0.05
     },
+    glazer: {
+        label: 'Glazer',
+        class: 'glazer',
+        tip: 'Glaze this person, exaggerating their words to be really good: ',
+        grad: 'linear-gradient(135deg, #fff561, #ffeb60, #ffe261, #ffd962, #ffd063);',
+        textColor: '#FFFFFF',
+        subTextColor: '#ffec46',
+        showWord: true,
+        hasTarget: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
 };
 
 // Random events
