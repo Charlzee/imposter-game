@@ -299,6 +299,13 @@ export const RANDOM_EVENTS = {
             players.forEach((_, idx) => addModifier(idx, 'big'));
         }
     },
+    glazed: {
+        label: "Glazed",
+        chance: 0.01,
+        onTrigger: ({ players, addModifier }) => {
+            players.forEach((_, idx) => addModifier(idx, 'glazer'));
+        }
+    },
 }
 
 // Main game role definitions
