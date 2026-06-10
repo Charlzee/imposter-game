@@ -250,7 +250,7 @@ export const ROLE_MODIFIERS = {
         label: 'Glazer',
         class: 'glazer',
         tip: 'Glaze this person, exaggerating their words to be really good: ',
-        grad: 'linear-gradient(135deg, #fff561, #ffeb60, #ffe261, #ffd962, #ffd063);',
+        grad: 'linear-gradient(135deg, #fff561, #ffeb60, #ffe261, #ffd962, #ffd063)',
         textColor: '#FFFFFF',
         subTextColor: '#ffec46',
         showWord: true,
