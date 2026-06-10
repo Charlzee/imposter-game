@@ -258,6 +258,17 @@ export const ROLE_MODIFIERS = {
         overrideWordVisibility: false,
         chance: 0.05
     },
+    smash: {
+        label: 'Smash or Pass',
+        class: 'smash',
+        tip: 'You need to say Smash or Pass before everything you say',
+        grad: 'linear-gradient(135deg, #0048ff, #0094ff, #00c2ff, #00e5bb, #00ff4e)',
+        textColor: '#FFFFFF',
+        subTextColor: '#00B1FF',
+        showWord: true,
+        overrideWordVisibility: false,
+        chance: 0.05
+    },
 };
 
 // Random events
