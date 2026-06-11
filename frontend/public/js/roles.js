@@ -430,7 +430,7 @@ export const INNOCENT_CONFIG = {
     showWord: true
 };
 
-export const BASE_ROLE_IDS = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector', 'king'];
+export const BASE_ROLE_IDS = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector', 'king', 'jailor'];
 
 // Helper Functions
 
