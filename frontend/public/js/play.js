@@ -205,6 +205,17 @@ function displayRole(playerIndex) {
         
         document.getElementById('modifiers-wrapper')?.remove();
 
+        // Display roleType above the role name
+        if (!overridingModifierKey){
+            let roleTypeEl = document.getElementById('role-type');
+            if (!roleTypeEl) {
+                roleTypeEl = document.createElement('div');
+                roleTypeEl.id = 'role-type';
+                roleStatus.parentNode.insertBefore(roleTypeEl, roleStatus);
+            }
+            roleTypeEl.innerHTML = configUi.roleType ? `TYPE: ${configUi.roleType}` : '';
+        }
+
         roleTitle.innerHTML = `Player ${playerIndex} role:`;
         
         roleStatus.innerHTML = configUi.displayLabel || configUi.label;
@@ -297,13 +308,6 @@ function displayRole(playerIndex) {
         if (activeModifiers.length > 0) {
             modsWrapper = document.createElement('div');
             modsWrapper.id = 'modifiers-wrapper';
-            modsWrapper.style.display = 'flex';
-            modsWrapper.style.flexWrap = 'wrap';
-            modsWrapper.style.justifyContent = 'center';
-            modsWrapper.style.gap = '15px';
-            modsWrapper.style.width = '100%';
-            modsWrapper.style.marginTop = '20px';
-            modsWrapper.style.marginBottom = '20px';
             roleDisplay.insertBefore(modsWrapper, document.getElementById("word-area-wrapper") || wordDisplay);
         }
 
@@ -312,11 +316,6 @@ function displayRole(playerIndex) {
             
             const modContainer = document.createElement('div');
             modContainer.className = 'modifier-container';
-            modContainer.style.flex = '0 1 auto';
-            modContainer.style.minWidth = '250px';
-            modContainer.style.maxWidth = '400px';
-            modContainer.style.padding = '15px';
-            modContainer.style.borderRadius = '10px';
             
             modContainer.style.backgroundImage = (modConfig.image && !modConfig.overrideRoleDisplay) ? `url(${modConfig.image})` : modConfig.grad;
             if (modConfig.image && !modConfig.overrideRoleDisplay) {
@@ -327,14 +326,13 @@ function displayRole(playerIndex) {
 
             const modTitle = document.createElement('h4');
             modTitle.className = 'titan-one-regular';
+            modTitle.id = 'mod-title'
             modTitle.innerHTML = `Modifier: ${modConfig.label}`;
             modTitle.style.color = modConfig.textColor;
-            modTitle.style.fontSize = '1.5rem';
-            modTitle.style.margin = '0 0 10px 0';
-            modTitle.style.textShadow = '0 2px 4px #00000080';
 
             const modTip = document.createElement('p');
-            
+            modTip.id = 'mod-tip'
+
             let tipText = modConfig.tip;
             if (modConfig.appendRandomLetter) {
                 tipText += `[${getRandomLetter()}]`;
@@ -375,11 +373,6 @@ function displayRole(playerIndex) {
             modTip.innerHTML = tipText;
             const activeSubColor = modConfig.subTextColor || '#fff';
             modTip.style.color = activeSubColor;
-            modTip.style.textShadow = '0 1px 3px #00000066';
-            
-            modTip.style.margin = '0';
-            modTip.style.fontSize = '1.1rem';
-            modTip.style.whiteSpace = 'pre-line';
 
             modContainer.appendChild(modTitle);
             modContainer.appendChild(modTip);
@@ -525,6 +518,9 @@ function hideRole(playerIndex) {
     const roleStatus = document.getElementById('role-status');
     const wordDisplay = document.getElementById('word');
 
+    const roleTypeEl = document.getElementById('role-type');
+    if (roleTypeEl) roleTypeEl.innerHTML = '';
+
     roleStatus.style.color = '';
     roleStatus.style.textShadow = '';
     
@@ -556,23 +552,14 @@ function viewRoles() {
     if (hiddenEvents.length > 0) {
         const eventInfo = document.createElement('div');
         eventInfo.id = 'event-display';
-        eventInfo.style.display = 'flex';
-        eventInfo.style.justifyContent = 'center';
-        eventInfo.style.gap = '10px';
-        eventInfo.style.marginBottom = '20px';
 
         hiddenEvents.forEach(k => {
             const eventCfg = RANDOM_EVENTS[k];
             const badge = document.createElement('div');
-            badge.className = 'titan-one-regular';
+            badge.className = 'random-event-badge titan-one-regular';
             badge.innerHTML = (eventCfg?.label || k).toUpperCase();
             badge.style.background = eventCfg?.grad || 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)';
             badge.style.color = eventCfg?.textColor || 'white';
-            badge.style.padding = '6px 14px';
-            badge.style.borderRadius = '10px';
-            badge.style.fontSize = '1.1rem';
-            badge.style.fontWeight = 'bold';
-            badge.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
             badge.style.border = `1px solid ${eventCfg?.textColor || '#FFD700'}`;
             eventInfo.appendChild(badge);
         });
@@ -582,12 +569,6 @@ function viewRoles() {
     const players = getStorageJson('current_players');
     const listContainer = document.createElement('div');
     listContainer.id = 'roles-list';
-    listContainer.style.width = '100%';
-    listContainer.style.display = 'flex';
-    listContainer.style.flexWrap = 'wrap';
-    listContainer.style.justifyContent = 'center';
-    listContainer.style.gap = '15px';
-    listContainer.style.marginTop = '20px';
 
     const wordInfo = document.createElement('div');
     wordInfo.id = 'word-display';
@@ -611,55 +592,31 @@ function viewRoles() {
 
         const roleConfig = (foundKey && ROLE_DATA[foundKey]) ? ROLE_DATA[foundKey] : INNOCENT_CONFIG;
 
-        // Main player row container
-        el.style.background = 'rgba(255, 255, 255, 0.05)';
-        el.style.marginBottom = '15px';
-        el.style.padding = '15px';
-        el.style.borderRadius = '15px';
-        el.style.border = '1px solid rgba(255, 255, 255, 0.1)';
-        el.style.display = 'flex';
-        el.style.flexDirection = 'column';
-        el.style.alignItems = 'center';
-        el.style.height = 'auto';
-        el.style.minHeight = 'fit-content';
-        el.style.width = 'fit-content';
-        el.style.minWidth = '220px';
-        el.style.margin = '0'; 
-        el.style.boxSizing = 'border-box';
-        el.style.wordBreak = 'break-word';
-        el.style.gap = '10px';
-
         // Player Name
         const nameSpan = document.createElement('span');
         nameSpan.innerHTML = name;
-        nameSpan.style.fontSize = '1.2rem';
-        nameSpan.style.fontWeight = 'bold';
-        nameSpan.style.color = 'white';
-        nameSpan.style.textAlign = 'center';
-        nameSpan.style.width = '100%';
+        nameSpan.className = 'player-name'
         el.appendChild(nameSpan);
+
+        // Add roleType text in summary
+        if (roleConfig.roleType) {
+            const alignSpan = document.createElement('span');
+            alignSpan.innerHTML = `${roleConfig.roleType.toUpperCase()}`;
+            alignSpan.className = 'role-type-summary'
+            el.appendChild(alignSpan);
+        }
 
         // Wrapper for badges
         const badgeWrapper = document.createElement('div');
-        badgeWrapper.style.display = 'flex';
-        badgeWrapper.style.flexWrap = 'wrap';
-        badgeWrapper.style.justifyContent = 'center';
-        badgeWrapper.style.gap = '8px';
-        badgeWrapper.style.width = '100%';
+        badgeWrapper.className = "badge-wrapper"
 
         const createBadge = (label, config) => {
             const badge = document.createElement('div');
             badge.innerHTML = label.toUpperCase();
             badge.style.background = config.grad;
             badge.style.color = config.textColor || 'white';
-            badge.style.padding = '6px 14px';
-            badge.style.borderRadius = '10px';
-            badge.style.fontSize = '1.1rem';
-            badge.style.fontWeight = 'bold';
-            badge.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
             badge.style.border = `1px solid ${config.textColor === 'white' ? 'rgba(255,255,255,0.3)' : config.textColor}`;
-            badge.style.wordBreak = 'break-word';
-            badge.className = 'titan-one-regular'
+            badge.className = 'badge titan-one-regular'
             return badge;
         };
 
@@ -697,11 +654,7 @@ function viewRoles() {
         if (roleExtra) {
             const extraEl = document.createElement('div');
             extraEl.innerHTML = roleExtra.trim();
-            extraEl.style.fontSize = '0.85rem';
-            extraEl.style.opacity = '0.7';
-            extraEl.style.textAlign = 'center';
-            extraEl.style.width = '100%';
-            extraEl.style.overflowWrap = 'break-word';
+            extraEl.className = "role-extra"
             el.appendChild(extraEl);
         }
 
@@ -745,14 +698,10 @@ async function startGame(updateStats = true) {
         visibleEvents.forEach(k => {
             const eventCfg = RANDOM_EVENTS[k];
             const badge = document.createElement('div');
-            badge.className = 'titan-one-regular';
+            badge.className = 'badge-events titan-one-regular';
             badge.innerHTML = (eventCfg?.label || k).toUpperCase();
             badge.style.background = eventCfg?.grad || 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)';
             badge.style.color = eventCfg?.textColor || 'white';
-            badge.style.padding = '6px 14px';
-            badge.style.borderRadius = '10px';
-            badge.style.fontSize = '1.1rem';
-            badge.style.fontWeight = 'bold';
             badge.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
             badge.style.border = `1px solid ${eventCfg?.textColor || '#FFD700'}`;
             eventBanner.appendChild(badge);

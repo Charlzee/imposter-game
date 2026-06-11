@@ -32,7 +32,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#D4FFB2',
         subTextColor: '#86E63C',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
     teacher: {
@@ -42,7 +43,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#C8D2FF',
         subTextColor: '#A096FF',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
     cheater: {
@@ -52,7 +54,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFFF00',
         subTextColor: '#FFFF96',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'neutral',
         chance: 0.001
     },
     happy: {
@@ -62,7 +65,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFFF00',
         subTextColor: '#FFFF96',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'neutral',
         chance: 0.0001
     },
     lucky: {
@@ -72,7 +76,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#AAFF00',
         subTextColor: '#37FF41',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.035
     },
     unlucky: {
@@ -82,7 +87,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#5EA000',
         subTextColor: '#37C841',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.035
     },
     terrorist: {
@@ -92,7 +98,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFD7CC',
         subTextColor: '#FF3737',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'neutral',
         chance: 0.035
     },
     scholar: {
@@ -102,7 +109,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#BB99FF',
         subTextColor: '#DCC8FF',
         showWord: true,
-        showTheme: true,
+        showTheme: true, 
+        roleType: 'innocent',
         overrideWordVisibility: true,
         chance: 0.025
     },
@@ -113,7 +121,8 @@ export const ROLE_MODIFIERS = {
         textColor: 'peru',
         subTextColor: 'darkorange',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
     monkey: {
@@ -123,7 +132,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFDBAC',
         subTextColor: '#D2B48C',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         appendRandomLetterOrNumber: true,
         chance: 0.05
     },
@@ -134,7 +144,8 @@ export const ROLE_MODIFIERS = {
         textColor: 'white',
         subTextColor: 'red',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
     refugee: {
@@ -144,7 +155,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#6DFBBB',
         subTextColor: 'aliceblue',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
     narccisist: {
@@ -154,7 +166,8 @@ export const ROLE_MODIFIERS = {
         textColor: 'white',
         subTextColor: 'orange',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.04
     },
     furry: {
@@ -164,7 +177,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFE0F0',
         subTextColor: 'white',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
     big: {
@@ -174,7 +188,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#00C828',
         subTextColor: 'white',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
     annoying: {
@@ -184,7 +199,8 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #DFFF00 0%, #98AF00 100%)',
         textColor: '#9AB62B',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         hasTarget: true,
         chance: 0.05
     },
@@ -195,7 +211,8 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #A1FFA6 0%, #0FFF07 100%)',
         textColor: '#68FF7C',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         appendRandomLetter: true,
         chance: 0.05
     },
@@ -206,7 +223,8 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #B9F2FF 0%, #29D1FF 100%)',
         textColor: '#FFFFFF',
         subTextColor: '#AFD9FF',
-        showWord: true,
+        showWord: true, 
+        roleType: 'innocent',
         overrideWordVisibility: false,
         isPlus: true,
         chance: 0.05
@@ -218,7 +236,8 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #B9F2FF 0%, #29D1FF 100%)',
         textColor: '#FFFFFF',
         subTextColor: '#AFD9FF',
-        showWord: true,
+        showWord: true, 
+        roleType: 'innocent',
         overrideWordVisibility: false,
         hasTarget: true,
         chance: 0.05
@@ -231,7 +250,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#888888',
         subTextColor: '#AAAAAA',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
     neglected: {
@@ -242,6 +262,7 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFFFFF',
         subTextColor: '#ffec46',
         showWord: true,
+        roleType: 'innocent',
         hasTarget: true,
         overrideWordVisibility: false,
         chance: 0.05
@@ -254,6 +275,7 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFFFFF',
         subTextColor: '#ffec46',
         showWord: true,
+        roleType: 'innocent',
         hasTarget: true,
         overrideWordVisibility: false,
         chance: 0.05
@@ -266,7 +288,8 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFFFFF',
         subTextColor: '#00B1FF',
         showWord: true,
-        overrideWordVisibility: false,
+        overrideWordVisibility: false, 
+        roleType: 'innocent',
         chance: 0.05
     },
 };
@@ -327,7 +350,8 @@ export const ROLE_DATA = {
         tip: 'Find the imposter!',
         grad: 'linear-gradient(135deg, #00FF00 0%, #008000 100%)',
         textColor: 'white',
-        showWord: true,
+        showWord: true, 
+        roleType: 'innocent',
         selectable: true
     },
     imposters: {
@@ -336,7 +360,8 @@ export const ROLE_DATA = {
         tip: 'Dont get caught!',
         grad: 'linear-gradient(135deg, #FF0000 0%, #800000 100%)',
         textColor: 'white',
-        showWord: false,
+        showWord: false, 
+        roleType: 'imposter',
         selectable: true
     },
     jesters: {
@@ -345,7 +370,8 @@ export const ROLE_DATA = {
         tip: 'Try to get voted out!',
         grad: 'linear-gradient(135deg, #FF00FF 0%, #800080 100%)',
         textColor: 'white',
-        showWord: true,
+        showWord: true, 
+        roleType: 'neutral',
         selectable: true
     },
     hitmans: {
@@ -354,7 +380,8 @@ export const ROLE_DATA = {
         tip: 'Try to vote out your target!',
         grad: 'linear-gradient(135deg, #5454FF 0%, #2A2A80 100%)',
         textColor: 'white',
-        showWord: true,
+        showWord: true, 
+        roleType: 'neutral',
         hasTarget: true,
         selectable: true
     },
@@ -367,7 +394,8 @@ export const ROLE_DATA = {
         //grad: 'radial-gradient(circle, #FFA500 0%, #805300 100%)',
         grad: 'linear-gradient(to bottom, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)',
         textColor: '#fcb0ff',
-        showWord: false,
+        showWord: false, 
+        roleType: 'neutral',
         isShapeshifter: true
     },
     guardian_angels: {
@@ -376,7 +404,8 @@ export const ROLE_DATA = {
         tip: 'Try to protect your target!',
         grad: 'linear-gradient(135deg, #C7FFF9 0%, #64807D 100%)',
         textColor: 'white',
-        showWord: true,
+        showWord: true, 
+        roleType: 'innocent',
         hasTarget: true,
         selectable: true
     },
@@ -386,7 +415,8 @@ export const ROLE_DATA = {
         tip: 'If you get even 1 vote, you lose!',
         grad: 'linear-gradient(135deg, #C8C8C8 0%, #646464 100%)',
         textColor: 'white',
-        showWord: true,
+        showWord: true, 
+        roleType: 'innocent',
         selectable: true
     },
     inspectors: {
@@ -395,7 +425,8 @@ export const ROLE_DATA = {
         tip: 'Use your clue to find the imposter and aura farm',
         grad: 'linear-gradient(135deg, #EBB72A 0%, #765C15 100%)',
         textColor: 'white',
-        showWord: true,
+        showWord: true, 
+        roleType: 'innocent',
         hasClue: true,
         selectable: true
     },
@@ -405,7 +436,8 @@ export const ROLE_DATA = {
         tip: 'You are the king. All the Innocents know that you are the King, you win if the imposter doesn\'t vote you.',
         grad: 'linear-gradient(135deg, #FFFF00 0%, #AFAF00 100%)',
         textColor: '#FFFFAA',
-        showWord: true,
+        showWord: true, 
+        roleType: 'innocent',
         revealRoleToInnocents: true,
         selectable: false
     },
@@ -415,7 +447,8 @@ export const ROLE_DATA = {
         tip: 'You are an innocent. You can \'jail\' someone, making them say 3 words.',
         grad: 'linear-gradient(135deg, #009a0a, #008b14, #007d1a, #006e1c, #00601d)',
         textColor: '#2EA150',
-        showWord: true,
+        showWord: true, 
+        roleType: 'innocent',
         selectable: true
     },
 };
@@ -427,7 +460,8 @@ export const INNOCENT_CONFIG = {
     tip: 'Find the imposter!',
     grad: 'linear-gradient(135deg, #00FF00 0%, #008000 100%)',
     textColor: 'lime',
-    showWord: true
+    showWord: true, 
+    roleType: 'innocent'
 };
 
 export const BASE_ROLE_IDS = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector', 'king', 'jailor'];
