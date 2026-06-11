@@ -409,6 +409,15 @@ export const ROLE_DATA = {
         revealRoleToInnocents: true,
         selectable: false
     },
+    jailor: {
+        label: 'Jailor',
+        class: 'jailor',
+        tip: 'You are an innocent. You can \'jail\' someone, making them say 3 words.',
+        grad: 'linear-gradient(135deg, #009a0a, #008b14, #007d1a, #006e1c, #00601d)',
+        textColor: '#2EA150',
+        showWord: true,
+        selectable: true
+    },
 };
 
 // Default configuration for innocent players
