@@ -159,6 +159,7 @@
 /* --- Player & Role Elements --- */
 .player-view-role {
     min-height: 140px;
+    min-width: 140px;
     padding: 12px;
     background: linear-gradient(
         135deg,
@@ -252,10 +253,8 @@
     font-weight: bold;
     margin-bottom: 2px;
     text-shadow: 5px 5px 3px #00000080;
-    background: linear-gradient(135deg, #020024 0%, #090979 35%, #00d4ff 100%);
-    border: 5px solid black;
-    width: 10rem;
-    height: 5rem;
+    width: 90%;
+    height: auto;
     border-radius: 7px;
 
     color: white; 
@@ -319,7 +318,7 @@
     margin: 15px 0;
 }
 
-.shapeshifter-role-selection button {
+.shapeshifter-role-selection {
     padding: 10px 20px;
     font-size: 1.2rem;
     cursor: pointer;
