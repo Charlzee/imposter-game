@@ -227,7 +227,8 @@ export const ROLE_MODIFIERS = {
         roleType: 'innocent',
         overrideWordVisibility: false,
         isPlus: true,
-        chance: 0.05
+        chance: 0.05,
+        selectionListColor: 'rgba(41, 209, 255, 0.4)'
     },
     femboy: {
         label: 'Femboy',
@@ -395,8 +396,10 @@ export const ROLE_DATA = {
         grad: 'linear-gradient(to bottom, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)',
         textColor: '#fcb0ff',
         showWord: false, 
+        immuneToAmnesia: true,
         roleType: 'neutral',
-        isShapeshifter: true
+        isShapeshifter: true,
+        selectionListColor: 'radial-gradient(ellipse, #667eea 0%, #764ba2 100%)'
     },
     guardian_angels: {
         label: 'Guardian Angel',
@@ -444,13 +447,33 @@ export const ROLE_DATA = {
     jailor: {
         label: 'Jailor',
         class: 'jailor',
-        tip: 'You are an innocent. You can \'jail\' someone, making them say 3 words.',
+        tip: 'You can \'jail\' someone, making them say 3 words.',
         grad: 'linear-gradient(135deg, #009a0a, #008b14, #007d1a, #006e1c, #00601d)',
         textColor: '#2EA150',
         showWord: true, 
         roleType: 'innocent',
-        selectable: true
+        selectable: true,
+        immuneToAmnesia: true,
+        selectPlayer: true,
+        revealSelectedPlayer: true,
+        revealText: "JAILED",
+        selectionListColor: 'rgba(0, 96, 29, 0.6)'
     },
+    tactician: {
+        label: 'Tactician',
+        class: 'tactician',
+        tip: 'You are able to make someone say their word first.',
+        grad: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)',
+        textColor: '#bcff21',
+        showWord: true, 
+        roleType: 'innocent',
+        selectable: true,
+        immuneToAmnesia: true,
+        selectPlayer: true,
+        revealSelectedPlayer: true,
+        revealText: "FORCED TO GO FIRST",
+        selectionListColor: 'rgba(150, 230, 161, 0.4)'
+    }
 };
 
 // Default configuration for innocent players
@@ -464,8 +487,6 @@ export const INNOCENT_CONFIG = {
     roleType: 'innocent'
 };
 
-export const BASE_ROLE_IDS = ['imposter', 'jester', 'hitman', 'shapeshifter', 'guardian_angel', 'alpha', 'inspector', 'king', 'jailor'];
-
 // Helper Functions
 
 // Helper to strip plural suffixes
@@ -473,3 +494,8 @@ export const getBaseRoleId = (configKey) => configKey.replace(/s$/, '').replace(
 
 // Helper to create plural keys
 export const getPluralKey = (role) => role.endsWith('s') ? role : (role === 'guardian_angel' ? 'guardian_angels' : `${role}s`);
+
+// Helper to create base role ids
+export const BASE_ROLE_IDS = Object.keys(ROLE_DATA)
+    .filter(key => key !== 'innocents')
+    .map(key => getBaseRoleId(key));

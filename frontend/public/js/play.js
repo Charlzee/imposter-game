@@ -121,7 +121,11 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         if (localStorage.getItem("role_modifers_enabled") === "true" || FORCE_ALL_MODIFIERS) {
             players.forEach((p, idx) => {
                 Object.keys(ROLE_MODIFIERS).forEach(modKey => {
-                    if (modKey === 'amnesias' && (assignedRolesData.shapeshifters || []).includes(p.player_name)) return;
+                    if (modKey === 'amnesias') {
+                        const roleKey = Object.keys(assignedRolesData).find(rk => (assignedRolesData[rk] || []).includes(p.player_name));
+                        if (ROLE_DATA[roleKey]?.immuneToAmnesia) return;
+                    }
+
                     const saved = localStorage.getItem(`${modKey}_percent`);
                     const chance = FORCE_ALL_MODIFIERS ? 1 : (saved ? parseFloat(saved) / 100 : ROLE_MODIFIERS[modKey].chance);
                     if (Math.random() < chance) helpers.addModifier(idx, modKey);
@@ -143,6 +147,8 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     localStorage.removeItem('innocents');
     Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
     Object.keys(ROLE_MODIFIERS).forEach(k => { if (ROLE_MODIFIERS[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
+    Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].selectPlayer) localStorage.removeItem(`${getBaseRoleId(k)}SelectedTargets`); });
+
 
     const assignTargets = (roleArray, storageKey) => {
         const targets = {};
@@ -204,6 +210,7 @@ function displayRole(playerIndex) {
         roleStatus.classList.remove(...allRoleClasses);
         
         document.getElementById('modifiers-wrapper')?.remove();
+        document.getElementById('roles-list')?.remove();
 
         // Display roleType above the role name
         if (!overridingModifierKey){
@@ -234,8 +241,6 @@ function displayRole(playerIndex) {
         }
 
         roleTip.innerHTML = configUi.tip;
-
-        if (document.getElementById("shapeshifter-role-selection")) document.getElementById("shapeshifter-role-selection").remove();
 
         let displayTheWord = configUi.showWord;
         activeModifiers.forEach(modKey => {
@@ -303,6 +308,37 @@ function displayRole(playerIndex) {
         });
 
         wordDisplay.innerHTML = content;
+
+        // === CUSTOM PLAYER SELECTION ===
+        if (config.selectPlayer) {
+            const storageKey = `${getBaseRoleId(baseRoleKey)}SelectedTargets`;
+            const targets = getStorageJson(storageKey, {});
+            if (!targets[playerName]) {
+                const selectionList = document.createElement('div');
+                selectionList.id = 'roles-list';
+                if (config.selectionListColor) selectionList.style.background = config.selectionListColor;
+                const promptText = config.revealText ? `SELECT SOMEONE TO MAKE THEM ${config.revealText}` : 'SELECT A PLAYER';
+                selectionList.innerHTML = `<h3 class="titan-one-regular" style="color: ${config.textColor || '#fff'}; width: 100%; text-align: center; margin-bottom: 10px; text-shadow: 0 1px 3px #00000066;">${promptText}</h3>`;
+
+                const players = getStorageJson('current_players');
+                players.forEach(p => {
+                    if (p.player_name === playerName) return;
+                    const btn = document.createElement('div');
+                    btn.className = 'player-view-role';
+                    btn.innerHTML = p.player_name;
+                    btn.style.background = config.grad;
+                    btn.onclick = () => {
+                        targets[playerName] = p.player_name;
+                        localStorage.setItem(storageKey, JSON.stringify(targets));
+                        displayRole(playerIndex); // Refresh card
+                    };
+                    selectionList.appendChild(btn);
+                });
+                roleDisplay.insertBefore(selectionList, document.getElementById("role-tip"));
+            } else {
+                wordDisplay.innerHTML += `\n\nSELECTED PLAYER: ${targets[playerName]}`;
+            }
+        }
 
         let modsWrapper = null;
         if (activeModifiers.length > 0) {
@@ -412,6 +448,7 @@ function displayRole(playerIndex) {
     if (config.isShapeshifter) {
         const selectionList = document.createElement('div');
         selectionList.id = 'roles-list'; 
+        if (config.selectionListColor) selectionList.style.background = config.selectionListColor;
         selectionList.style.marginTop = '30px';
 
         const selectableRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].selectable);
@@ -454,6 +491,11 @@ function displayRole(playerIndex) {
                 if (isPlus) {
                     // Transitions to Modifier Selection for plus ability
                     selectionList.innerHTML = '<h3 class="titan-one-regular" style="color: #29D1FF; width: 100%; text-align: center; margin-bottom: 15px; font-weight: bold;">SELECT EXTRA MODIFIER</h3>';
+                    
+                    const plusCfg = ROLE_MODIFIERS['plus'];
+                    if (plusCfg && plusCfg.selectionListColor) {
+                        selectionList.style.background = plusCfg.selectionListColor;
+                    }
 
                     Object.keys(ROLE_MODIFIERS).forEach(modKey => {
                         const modCfg = ROLE_MODIFIERS[modKey];
@@ -493,13 +535,7 @@ function displayRole(playerIndex) {
                         selectionList.appendChild(modBtn);
                     });
                 } else {
-                    updateUi(roleCfg); 
-                    selectionList.remove();
-                    if (roleCfg.hasClue) {
-                        const wordDisplay = document.getElementById('word');
-                        const playerToShow = getInspectorClue();
-                        wordDisplay.innerHTML = wordDisplay.innerHTML + `\n\nONE NON-IMPOSTER:\n${playerToShow}`;
-                    }
+                    displayRole(playerIndex);
                 }
             };
             selectionList.appendChild(roleBtn);
@@ -525,6 +561,7 @@ function hideRole(playerIndex) {
     roleStatus.style.textShadow = '';
     
     document.querySelectorAll('.modifier-container').forEach(el => el.remove());
+    document.getElementById('roles-list')?.remove();
 
     roleStatus.className = 'hidden';
     roleStatus.innerHTML = '???';
@@ -709,6 +746,65 @@ async function startGame(updateStats = true) {
         main.insertBefore(eventBanner, timerDisplay);
     }
 
+    // Display Role Reveal Popups
+    const reveals = [];
+    Object.keys(ROLE_DATA).forEach(roleKey => {
+        const roleCfg = ROLE_DATA[roleKey];
+        if (roleCfg.revealSelectedPlayer) {
+            const targets = getStorageJson(`${getBaseRoleId(roleKey)}SelectedTargets`, {});
+            const names = [...new Set(Object.values(targets))];
+            if (names.length > 0) {
+                reveals.push({
+                    label: roleCfg.revealText || 'SELECTED',
+                    names: names.join(', '),
+                    grad: roleCfg.grad,
+                    textColor: roleCfg.textColor
+                });
+            }
+        }
+    });
+
+    if (reveals.length > 0) {
+        const overlay = document.createElement('div');
+        overlay.id = 'reveal-overlay';
+        document.body.appendChild(overlay);
+
+        const revealContainer = document.createElement('div');
+        revealContainer.id = 'reveal-container';
+        document.body.appendChild(revealContainer);
+
+        reveals.forEach(data => {
+            const roleBox = document.createElement('div');
+            roleBox.classList.add('role-box');
+            roleBox.style.background = data.grad || 'linear-gradient(135deg, #009a79, #001e60)';
+            roleBox.style.border = `4px solid ${data.textColor || '#2ea19b'}`;
+
+            roleBox.innerHTML = `
+                <h1 class="titan-one-regular" style="font-size: 1.8rem; margin: 0 0 10px 0; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">${data.label}</h1>
+                <div class="titan-one-regular" style="font-size: 1.4rem;">${data.names}</div>
+            `;
+            revealContainer.appendChild(roleBox);
+        });
+
+        // Trigger fade in
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            revealContainer.style.opacity = '1';
+        });
+
+        // Trigger exit animation
+        setTimeout(() => {
+            revealContainer.style.transition = 'opacity 1s ease';
+            overlay.style.transition = 'opacity 1s ease';
+            revealContainer.style.opacity = '0';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                revealContainer.remove();
+                overlay.remove();
+            }, 1000);
+        }, 5000);
+    }
+
     gameTimer = setInterval(() => {
         time--;
         timerDisplay.innerHTML = `Time Remaining: ${time}s`;
@@ -768,11 +864,18 @@ async function init() {
 document.getElementById('ready-button').addEventListener('click', () => {
     const players = getStorageJson('current_players');
     const name = players[currentIndex - 1]?.player_name;
-    const isUnselectedshapeshifter = getStorageJson('unselected_shapeshifters').includes(name);
+    
+    const isUnselected = getStorageJson('unselected_shapeshifters').includes(name);
+    const baseRoleKey = Object.keys(ROLE_DATA).find(key => getStorageJson(key).includes(name)) || (isUnselected ? 'shapeshifters' : null);
+    const config = ROLE_DATA[baseRoleKey] || INNOCENT_CONFIG;
 
-    if (isUnselectedshapeshifter && !document.getElementById('role-status').classList.contains('hidden')) {
-        alert("Please select a role first!");
-        return;
+    if (!document.getElementById('role-status').classList.contains('hidden')) {
+        if (isUnselected) {
+            return alert("Please select a role first!");
+        }
+        if (config.selectPlayer && !getStorageJson(`${getBaseRoleId(baseRoleKey)}SelectedTargets`, {})[name]) {
+            return alert(`Please select a target first!`);
+        }
     }
 
     if (sessionStorage.getItem('current_player_is_ready') !== 'true') {

@@ -4,6 +4,10 @@ import words2 from './english_language.json' with { type: 'json' };
 
 let localWords = [...words1, ...words2];
 
+// === DEBUG ===
+const DEBUG_FORCE_LOCAL = false;
+const DEBUG_FORCE_CACHED = false;
+
 // Fetch word list from backend API
 async function fetchBackendWords(signal) {
     try {
@@ -39,7 +43,7 @@ async function fetchBackendWords(signal) {
 
 // Primary entry point for word retrieval
 async function getWords(signal, forceLocal=false, forceCached=false) {
-    if (forceLocal){
+    if (forceLocal || DEBUG_FORCE_LOCAL){
         return localWords;
     }
 
@@ -48,7 +52,7 @@ async function getWords(signal, forceLocal=false, forceCached=false) {
     window.wordsLoadedFromCache = false;
     window.lastFetchFailed = false;
 
-    if (!forceCached) {
+    if (!forceCached && !DEBUG_FORCE_CACHED) {
         try {
             const backendWords = await fetchBackendWords(signal);
             if (backendWords && Array.isArray(backendWords) && backendWords.length > 0) {
