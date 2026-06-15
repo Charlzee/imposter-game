@@ -6,7 +6,7 @@ let localWords = [...words1, ...words2];
 
 // === DEBUG ===
 const DEBUG_FORCE_LOCAL = false;
-const DEBUG_FORCE_CACHED = false;
+const DEBUG_FORCE_CACHED = true;
 
 // Fetch word list from backend API
 async function fetchBackendWords(signal) {
