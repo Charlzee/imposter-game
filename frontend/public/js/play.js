@@ -802,7 +802,7 @@ async function startGame(updateStats = true) {
                 revealContainer.remove();
                 overlay.remove();
             }, 1000);
-        }, 5000);
+        }, 15000);
     }
 
     gameTimer = setInterval(() => {
