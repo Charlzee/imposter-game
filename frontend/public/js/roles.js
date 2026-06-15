@@ -473,6 +473,21 @@ export const ROLE_DATA = {
         revealSelectedPlayer: true,
         revealText: "FORCED TO GO FIRST",
         selectionListColor: 'rgba(150, 230, 161, 0.4)'
+    },
+    ninja: {
+        label: 'Ninja',
+        class: 'ninja',
+        tip: 'You are able to kill someone.',
+        grad: 'linear-gradient(135deg, #b10000, #b4221c, #b43631, #b34744, #b05656)',
+        textColor: '#ff0000',
+        showWord: true, 
+        roleType: 'imposter',
+        selectable: true,
+        immuneToAmnesia: false,
+        selectPlayer: true,
+        revealSelectedPlayer: true,
+        revealText: "KILLED",
+        selectionListColor: 'rgba(255, 100, 100, 0.4)'
     }
 };
 
