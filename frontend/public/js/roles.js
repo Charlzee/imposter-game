@@ -480,7 +480,7 @@ export const ROLE_DATA = {
         tip: 'You are able to kill someone.\nThis makes them unable to speak, vote, etc.',
         grad: 'linear-gradient(135deg, #b10000, #b4221c, #b43631, #b34744, #b05656)',
         textColor: '#ff0000',
-        showWord: true, 
+        showWord: false, 
         roleType: 'imposter',
         selectable: true,
         immuneToAmnesia: false,
