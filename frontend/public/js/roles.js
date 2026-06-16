@@ -457,7 +457,7 @@ export const ROLE_DATA = {
         selectPlayer: true,
         revealSelectedPlayer: true,
         revealText: "JAILED",
-        selectionListColor: 'rgba(0, 96, 29, 0.6)'
+        selectionListColor: 'rgba(0, 96, 29, 0.7)'
     },
     tactician: {
         label: 'Tactician',
@@ -472,7 +472,7 @@ export const ROLE_DATA = {
         selectPlayer: true,
         revealSelectedPlayer: true,
         revealText: "FORCED TO GO FIRST",
-        selectionListColor: 'rgba(150, 230, 161, 0.4)'
+        selectionListColor: 'rgba(150, 230, 161, 0.7)'
     },
     ninja: {
         label: 'Ninja',
@@ -483,11 +483,26 @@ export const ROLE_DATA = {
         showWord: false, 
         roleType: 'imposter',
         selectable: true,
-        immuneToAmnesia: false,
+        immuneToAmnesia: true,
         selectPlayer: true,
         revealSelectedPlayer: true,
         revealText: "KILLED",
-        selectionListColor: 'rgba(255, 100, 100, 0.4)'
+        selectionListColor: 'rgba(255, 100, 100, 0.7)'
+    },
+    arsonist: {
+        label: 'Arsonist',
+        class: 'arsonist',
+        tip: 'You are able to set someone on fire.',
+        grad: 'linear-gradient(135deg, #d96537, #e35d2c, #ec5320, #f64712, #ff3700)',
+        textColor: '#FF4800',
+        showWord: false, 
+        roleType: 'imposter',
+        selectable: true,
+        immuneToAmnesia: true,
+        selectPlayer: true,
+        revealSelectedPlayer: true,
+        revealText: "ON FIRE",
+        selectionListColor: 'rgba(255, 130, 100, 0.7)'
     }
 };
 
