@@ -518,7 +518,23 @@ export const ROLE_DATA = {
         showsOtherWords: true,
         roleType: 'imposter',
         selectable: true
-    }
+    },
+    medusa: {
+        label: 'Medusa',
+        class: 'medusa',
+        tip: 'Select a target, that target cannot move, make gestures or even vote. Turned to stone :)',
+        grad: 'linear-gradient(135deg, #8b0000, #a02000, #b23a00, #c45500, #d66f00)',
+        textColor: '#FFD700',
+        showWord: false, 
+        roleType: 'imposter',
+        selectable: true,
+        immuneToAmnesia: true,
+        selectPlayer: true,
+        canSelectSelf: true,
+        revealSelectedPlayer: true,
+        revealText: "TURNED TO STONE",
+        selectionListColor: 'rgba(180, 80, 50, 0.7)'
+    },
 };
 
 // Default configuration for innocent players
