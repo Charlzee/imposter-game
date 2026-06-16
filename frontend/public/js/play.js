@@ -361,7 +361,7 @@ function displayRole(playerIndex) {
 
                 const players = getStorageJson('current_players');
                 players.forEach(p => {
-                    if (p.player_name === playerName) return;
+                    if (p.player_name === playerName && !config.canSelectSelf) return;
                     const btn = document.createElement('div');
                     btn.className = 'player-view-role';
                     btn.innerHTML = p.player_name;

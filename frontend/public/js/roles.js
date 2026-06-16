@@ -455,6 +455,7 @@ export const ROLE_DATA = {
         selectable: true,
         immuneToAmnesia: true,
         selectPlayer: true,
+        canSelectSelf: true,
         revealSelectedPlayer: true,
         revealText: "JAILED",
         selectionListColor: 'rgba(0, 96, 29, 0.7)'
@@ -470,6 +471,7 @@ export const ROLE_DATA = {
         selectable: true,
         immuneToAmnesia: true,
         selectPlayer: true,
+        canSelectSelf: true,
         revealSelectedPlayer: true,
         revealText: "FORCED TO GO FIRST",
         selectionListColor: 'rgba(150, 230, 161, 0.7)'
@@ -485,6 +487,7 @@ export const ROLE_DATA = {
         selectable: true,
         immuneToAmnesia: true,
         selectPlayer: true,
+        canSelectSelf: false,
         revealSelectedPlayer: true,
         revealText: "KILLED",
         selectionListColor: 'rgba(255, 100, 100, 0.7)'
@@ -500,6 +503,7 @@ export const ROLE_DATA = {
         selectable: true,
         immuneToAmnesia: true,
         selectPlayer: true,
+        canSelectSelf: true,
         revealSelectedPlayer: true,
         revealText: "ON FIRE",
         selectionListColor: 'rgba(255, 130, 100, 0.7)'
