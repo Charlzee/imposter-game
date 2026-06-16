@@ -503,6 +503,17 @@ export const ROLE_DATA = {
         revealSelectedPlayer: true,
         revealText: "ON FIRE",
         selectionListColor: 'rgba(255, 130, 100, 0.7)'
+    },
+    scout: {
+        label: 'Scout',
+        class: 'scout',
+        tip: 'You see 5 potential words. One is correct!',
+        grad: 'linear-gradient(135deg, #ff3e50 0%, #ffa100 100%)',
+        textColor: '#FFA600',
+        showWord: false,
+        showsOtherWords: true,
+        roleType: 'imposter',
+        selectable: true
     }
 };
 

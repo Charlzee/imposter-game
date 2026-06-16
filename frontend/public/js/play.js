@@ -279,7 +279,16 @@ function displayRole(playerIndex) {
             }
         });
 
-        let content = displayTheWord ? selectedWord : '';
+        let content = '';
+        if (configUi.showsOtherWords && words && words.length > 0) {
+            const otherWords = words.filter(w => w !== selectedWord);
+            const shuffledOthers = [...otherWords].sort(() => 0.5 - Math.random());
+            const selection = [selectedWord, ...shuffledOthers.slice(0, 4)];
+            const finalDisplay = selection.sort(() => 0.5 - Math.random());
+            content = `ONE OF THESE IS THE WORD:\n- ${finalDisplay.join('\n- ')}`;
+        } else {
+            content = displayTheWord ? selectedWord : '';
+        }
 
         // === ROLES REVEAL ===
         Object.keys(ROLE_DATA).forEach(roleKey => {
