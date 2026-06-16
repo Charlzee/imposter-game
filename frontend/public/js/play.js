@@ -101,8 +101,14 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     };
 
     const runDefaultRoleAssignment = () => {
+        const subImposterRoles = Object.keys(ROLE_DATA).filter(k => 
+            ROLE_DATA[k].roleType === 'imposter' && k !== 'imposters'
+        );
+
         const occupiedIndices = new Set();
         Object.keys(ROLE_DATA).forEach(roleKey => {
+            if (subImposterRoles.includes(roleKey)) return;
+
             const baseId = getBaseRoleId(roleKey);
             const count = parseInt(roleCounts[baseId]) || 0;
             const chance = parseFloat((localStorage.getItem(`${baseId}_percent`) || "100%").replace('%', '')) / 100;
@@ -134,12 +140,36 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         }
     };
 
+    const upgradeImposters = () => {
+        const subImposterRoles = Object.keys(ROLE_DATA).filter(k => 
+            ROLE_DATA[k].roleType === 'imposter' && k !== 'imposters'
+        );
+        const baseImposterNames = [...assignedRolesData['imposters']];
+        assignedRolesData['imposters'] = [];
+
+        baseImposterNames.forEach(name => {
+            let roleToAssign = 'imposters';
+            for (const subKey of subImposterRoles) {
+                const subBaseId = getBaseRoleId(subKey);
+                const subChanceStr = localStorage.getItem(`${subBaseId}_percent`) || "0%";
+                const subChance = parseFloat(subChanceStr.replace('%', '')) / 100;
+                if (Math.random() < subChance) {
+                    roleToAssign = subKey;
+                    break;
+                }
+            }
+            assignedRolesData[roleToAssign].push(name);
+        });
+    };
+
     if (!activeEvents.some(k => RANDOM_EVENTS[k]?.skipDefaultAssignment)) runDefaultRoleAssignment();
 
     activeEvents.forEach(eventKey => {
         const event = RANDOM_EVENTS[eventKey];
         if (event?.onTrigger) event.onTrigger({ players, assignedRolesData, modifierLists, ...helpers });
     });
+
+    upgradeImposters();
 
     runDefaultModifierAssignment();
 

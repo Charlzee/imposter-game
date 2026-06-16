@@ -1,5 +1,5 @@
 import getWords from './words.js';
-import { ROLE_MODIFIERS, BASE_ROLE_IDS, RANDOM_EVENTS } from './roles.js';
+import { ROLE_MODIFIERS, BASE_ROLE_IDS, RANDOM_EVENTS, ROLE_DATA as ROLE_DEFS, getBaseRoleId } from './roles.js';
 
 // === CONFIG ===
 const ROLE_DATA = BASE_ROLE_IDS;
@@ -248,16 +248,33 @@ function init() {
     const eventSettingsGroup = document.getElementById('event-settings-container');
 
     if (settingsGroup) {
-        let settingsHtml = ROLE_DATA.map(roleId => {
-            const labelText = roleId.replace('_', ' ').toUpperCase();
-            return `
-                <div class="role-row">
-                    <p class="titan-one-regular count">${labelText} AMOUNT</p>
-                    <input class="titan-one-regular amount-input setting-input" id="${roleId}-count" type="text" inputmode="numeric">
-                    <input class="titan-one-regular percent-input setting-input" id="${roleId}-percent" type="text" inputmode="numeric" value="100%">
-                </div>
-            `;
-        }).join('');
+        const categories = { imposter: [], neutral: [], innocent: [] };
+
+        ROLE_DATA.forEach(roleId => {
+            const roleKey = Object.keys(ROLE_DEFS).find(k => getBaseRoleId(k) === roleId);
+            const type = ROLE_DEFS[roleKey]?.roleType || 'innocent';
+            if (categories[type]) categories[type].push(roleId);
+        });
+
+        let settingsHtml = '';
+        Object.entries(categories).forEach(([type, roles]) => {
+            if (roles.length === 0) return;
+            settingsHtml += `<h3 class="titan-one-regular category-header" style="color: #fff; margin: 20px 0 10px 0; text-align: center; width: 100%; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 5px;">${type.toUpperCase()} ROLES</h3>`;
+            settingsHtml += roles.map(roleId => {
+                const roleKey = Object.keys(ROLE_DEFS).find(k => getBaseRoleId(k) === roleId);
+                const isSubImposter = ROLE_DEFS[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
+                
+                const labelText = roleId.replace('_', ' ').toUpperCase();
+                const labelType = isSubImposter ? 'CHANCE' : 'AMOUNT';
+                return `
+                    <div class="role-row">
+                        <p class="titan-one-regular count">${labelText} ${labelType}</p>
+                        <input class="titan-one-regular amount-input setting-input" id="${roleId}-count" type="text" inputmode="numeric" ${isSubImposter ? 'style="visibility: hidden;"' : ''}>
+                        <input class="titan-one-regular percent-input setting-input" id="${roleId}-percent" type="text" inputmode="numeric" value="100%">
+                    </div>
+                `;
+            }).join('');
+        });
 
         // Build modifier setting rows
         let modifierSettingsHtml = Object.keys(ROLE_MODIFIERS).map(modKey => {
@@ -292,14 +309,17 @@ function init() {
 
         // Load saved counts and percentages
         ROLE_DATA.forEach(roleId => {
+            const roleKey = Object.keys(ROLE_DEFS).find(k => getBaseRoleId(k) === roleId);
+            const isSubImposter = ROLE_DEFS[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
+
             const input = document.getElementById(`${roleId}-count`);
             const percent_input = document.getElementById(`${roleId}-percent`);
             
             if (input && percent_input) {
                 const saved = localStorage.getItem(`${roleId}_count`);
                 const percent_saved = localStorage.getItem(`${roleId}_percent`);
-
                 const defaultCount = (roleId === 'imposter') ? 1 : 0;
+                const defaultPercent = isSubImposter ? "10%" : "100%";
 
                 input.value = (saved !== null) ? saved : defaultCount;
                 
@@ -307,7 +327,7 @@ function init() {
                     const cleanValue = parseFloat(parseFloat(percent_saved.replace('%', '')).toFixed(4));
                     percent_input.value = cleanValue + "%";
                 } else {
-                    percent_input.value = "100%";
+                    percent_input.value = defaultPercent;
                 }
             }
         });
@@ -375,11 +395,14 @@ function init() {
     // Revert roles to defaults
     const resetRoles = () => {
         ROLE_DATA.forEach(roleId => {
+            const roleKey = Object.keys(ROLE_DEFS).find(k => getBaseRoleId(k) === roleId);
+            const isSubImposter = ROLE_DEFS[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
+
             const input = document.getElementById(`${roleId}-count`);
             const percentInput = document.getElementById(`${roleId}-percent`);
             const defaultCount = (roleId === 'imposter') ? 1 : 0;
             if (input) input.value = defaultCount;
-            if (percentInput) percentInput.value = "100%";
+            if (percentInput) percentInput.value = isSubImposter ? "10%" : "100%";
         });
         saveAllSettings();
     };
