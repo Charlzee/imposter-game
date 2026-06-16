@@ -318,7 +318,7 @@ function displayRole(playerIndex) {
                 selectionList.id = 'roles-list';
                 if (config.selectionListColor) selectionList.style.background = config.selectionListColor;
                 const promptText = config.revealText ? `SELECT SOMEONE TO MAKE THEM \"${config.revealText}\"` : 'SELECT A PLAYER';
-                selectionList.innerHTML = `<h3 class="titan-one-regular" style="color: ${config.textColor || '#fff'}; width: 100%; text-align: center; margin-bottom: 10px; text-shadow: 0 1px 3px #00000066;">${promptText}</h3>`;
+                selectionList.innerHTML = `<h3 class="titan-one-regular" style="color: ${config.textColor || '#fff'}; width: 100%; text-align: center; margin-bottom: 10px; text-shadow: 5px 5px 3px #00000066;">${promptText}</h3>`;
 
                 const players = getStorageJson('current_players');
                 players.forEach(p => {
