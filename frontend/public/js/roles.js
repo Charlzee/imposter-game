@@ -493,7 +493,7 @@ export const ROLE_DATA = {
         label: 'Arsonist',
         class: 'arsonist',
         tip: 'You are able to set someone on fire.',
-        grad: 'linear-gradient(135deg, #d96537, #e35d2c, #ec5320, #f64712, #ff3700)',
+        grad: 'linear-gradient(135deg, #cc0000, #d91400, #e52100, #f22d00, #ff3700)',
         textColor: '#FF4800',
         showWord: false, 
         roleType: 'imposter',
