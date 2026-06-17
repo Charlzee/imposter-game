@@ -585,6 +585,32 @@ function displayRole(playerIndex) {
         const playerToShow = getInspectorClue();
         wordDisplay.innerHTML += `\n\nONE NON-IMPOSTER:\n${playerToShow}`;
     }
+
+    if (config.isGambler) { // Gamble logic
+        const gambleContainer = document.createElement('div');
+        gambleContainer.id = 'gamble-container';
+
+        const gambleBtn = document.createElement('button');
+        const gambleHistory = document.createElement('div');
+        gambleBtn.id = 'gamble-btn';
+        gambleBtn.className = 'titan-one-regular';
+        gambleBtn.innerHTML = 'Gamble';
+        gambleContainer.appendChild(gambleBtn);
+        gambleContainer.appendChild(gambleHistory);
+        roleDisplay.insertBefore(gambleContainer, document.getElementById("role-tip"));
+
+        const test = document.createElement('div')
+        test.innerHTML = 'this isnt finished yet';
+        gambleContainer.appendChild(test)
+
+        const gambleActions = config.gambleActions || [];
+        const currentDeathChance = 0;
+        gambleBtn.onclick = () => {
+            const action = gambleActions[Math.floor(Math.random() * gambleActions.length)];
+            gambleHistory.innerHTML += `You got: ${action.name}<br>`;
+            currentDeathChance += 0.05;
+        }
+    }
 }
 
 // Reset UI between player turns

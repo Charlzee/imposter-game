@@ -545,11 +545,13 @@ export const ROLE_DATA = {
         isGambler: true,
         gambleActions: [
             {
-                'name': 'Test'
+                'name': 'Meow :3',
+                'action': ({  }) => {
+                    return
+                }
             }
         ],
-        showsOtherWords: true,
-        roleType: 'neutral',
+        roleType: 'innocent',
         selectable: true
     },
 };
