@@ -546,10 +546,10 @@ export const ROLE_DATA = {
         gambleActions: [
             {
                 'name': 'Meow :3',
-                'action': ({  }) => {
-                    return
+                action: (playerName, addModifierFunc) => {
+                    addModifierFunc(playerName, 'furry');
                 }
-            }
+            },
         ],
         roleType: 'innocent',
         selectable: true

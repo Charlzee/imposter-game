@@ -17,6 +17,17 @@ const roleDisplay = document.getElementById('role-display');
 // Retrieve JSON data from localStorage
 const getStorageJson = (key, fallback = []) => JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
 
+// Helper to add a modifier to a specific player in localStorage
+const addModifierToPlayer = (playerName, modKey) => {
+    const currentModifiers = getStorageJson(modKey);
+    if (!currentModifiers.includes(playerName)) {
+        currentModifiers.push(playerName);
+        localStorage.setItem(modKey, JSON.stringify(currentModifiers));
+        console.log(`Player ${playerName} received modifier: ${modKey}`);
+    }
+};
+
+
 // Load word topics and select one
 async function fetchData() {
     const fallbackTopic = { id: "local_default", words: ["Error Loading Words"] };
@@ -598,17 +609,22 @@ function displayRole(playerIndex) {
         gambleContainer.appendChild(gambleBtn);
         gambleContainer.appendChild(gambleHistory);
         roleDisplay.insertBefore(gambleContainer, document.getElementById("role-tip"));
-
-        const test = document.createElement('div')
-        test.innerHTML = 'this isnt finished yet';
-        gambleContainer.appendChild(test)
-
+        
         const gambleActions = config.gambleActions || [];
-        const currentDeathChance = 0;
+        // currentDeathChance is a local variable. If it needs to persist, it should be stored in localStorage.
+        // For this request, we'll remove its increment as it won't have a lasting effect.
+        // const currentDeathChance = 0; 
         gambleBtn.onclick = () => {
+            if (gambleActions.length === 0) {
+                gambleHistory.innerHTML += `No gamble actions defined!<br>`;
+                return;
+            }
             const action = gambleActions[Math.floor(Math.random() * gambleActions.length)];
             gambleHistory.innerHTML += `You got: ${action.name}<br>`;
-            currentDeathChance += 0.05;
+            if (action.action) {
+                action.action(playerName, addModifierToPlayer);
+            }
+            displayRole(playerIndex); // Refresh card to show new modifier
         }
     }
 }
