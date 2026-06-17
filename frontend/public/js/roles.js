@@ -546,10 +546,32 @@ export const ROLE_DATA = {
         gambleActions: [
             {
                 'name': 'Meow :3',
-                action: (playerName, addModifierFunc) => {
-                    addModifierFunc(playerName, 'furry');
+                action: ({ playerIndex, addModifier }) => {
+                    addModifier(playerIndex, 'furry');
                 }
             },
+            {
+                'name': 'Keep going bro, you will get there one day',
+                action: ({}) => {return 0}
+            },
+            {
+                'name': 'You have been given a random modifier, mwuahahaha',
+                action: ({ playerIndex, addModifier }) => {
+                    const bad = ['cheater', 'happy'];
+
+                    const availableKeys = Object.keys(ROLE_MODIFIERS).filter(
+                        key => !bad.includes(key)
+                    );
+
+                    if (availableKeys.length > 0) {
+                        const randomKey = availableKeys[Math.floor(Math.random() * availableKeys.length)];
+                        addModifier(playerIndex, randomKey);
+                        console.log(`GAVE PLAYER ${playerIndex+1} ${randomKey}`);
+                    } else {
+                        console.warn("No available keys found after filtering.");
+                    }
+                }
+            }
         ],
         roleType: 'innocent',
         selectable: true

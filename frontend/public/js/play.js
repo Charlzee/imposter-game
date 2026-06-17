@@ -17,16 +17,6 @@ const roleDisplay = document.getElementById('role-display');
 // Retrieve JSON data from localStorage
 const getStorageJson = (key, fallback = []) => JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
 
-// Helper to add a modifier to a specific player in localStorage
-const addModifierToPlayer = (playerName, modKey) => {
-    const currentModifiers = getStorageJson(modKey);
-    if (!currentModifiers.includes(playerName)) {
-        currentModifiers.push(playerName);
-        localStorage.setItem(modKey, JSON.stringify(currentModifiers));
-        console.log(`Player ${playerName} received modifier: ${modKey}`);
-    }
-};
-
 
 // Load word topics and select one
 async function fetchData() {
@@ -598,22 +588,31 @@ function displayRole(playerIndex) {
     }
 
     if (config.isGambler) { // Gamble logic
-        const gambleContainer = document.createElement('div');
-        gambleContainer.id = 'gamble-container';
+        let gambleContainer = document.getElementById('gamble-container');
+        let gambleBtn;
+        let gambleHistory;
 
-        const gambleBtn = document.createElement('button');
-        const gambleHistory = document.createElement('div');
-        gambleBtn.id = 'gamble-btn';
-        gambleBtn.className = 'titan-one-regular';
-        gambleBtn.innerHTML = 'Gamble';
-        gambleContainer.appendChild(gambleBtn);
-        gambleContainer.appendChild(gambleHistory);
-        roleDisplay.insertBefore(gambleContainer, document.getElementById("role-tip"));
-        
+        if (!gambleContainer) {
+            gambleContainer = document.createElement('div');
+            gambleContainer.id = 'gamble-container';
+
+            gambleBtn = document.createElement('button');
+            gambleBtn.id = 'gamble-btn';
+            gambleBtn.className = 'titan-one-regular';
+            gambleBtn.innerHTML = 'Gamble';
+
+            gambleHistory = document.createElement('div');
+            gambleHistory.id = 'gamble-history';
+
+            gambleContainer.appendChild(gambleBtn);
+            gambleContainer.appendChild(gambleHistory);
+            roleDisplay.insertBefore(gambleContainer, document.getElementById("role-tip"));
+        } else {
+            gambleBtn = document.getElementById('gamble-btn');
+            gambleHistory = document.querySelector('#gamble-container div');
+        }
+
         const gambleActions = config.gambleActions || [];
-        // currentDeathChance is a local variable. If it needs to persist, it should be stored in localStorage.
-        // For this request, we'll remove its increment as it won't have a lasting effect.
-        // const currentDeathChance = 0; 
         gambleBtn.onclick = () => {
             if (gambleActions.length === 0) {
                 gambleHistory.innerHTML += `No gamble actions defined!<br>`;
@@ -622,9 +621,40 @@ function displayRole(playerIndex) {
             const action = gambleActions[Math.floor(Math.random() * gambleActions.length)];
             gambleHistory.innerHTML += `You got: ${action.name}<br>`;
             if (action.action) {
-                action.action(playerName, addModifierToPlayer);
+                const liveHelpers = {
+                    players,
+                    playerIndex: playerIndex - 1, // 0-based index for logic
+                    setRole: (idx, roleKey) => {
+                        const name = players[idx]?.player_name;
+                        if (!name) return;
+                        // Remove player from all existing role lists
+                        Object.keys(ROLE_DATA).forEach(rk => {
+                            const list = getStorageJson(rk).filter(n => n !== name);
+                            localStorage.setItem(rk, JSON.stringify(list));
+                        });
+                        // Clean up shapeshifter tracking if they were one
+                        const unselected = getStorageJson('unselected_shapeshifters').filter(n => n !== name);
+                        localStorage.setItem('unselected_shapeshifters', JSON.stringify(unselected));
+                        // Add to new role list
+                        const targetList = getStorageJson(roleKey);
+                        if (!targetList.includes(name)) {
+                            targetList.push(name);
+                            localStorage.setItem(roleKey, JSON.stringify(targetList));
+                        }
+                    },
+                    addModifier: (idx, modKey) => {
+                        const name = players[idx]?.player_name;
+                        if (!name) return;
+                        const list = getStorageJson(modKey);
+                        if (!list.includes(name)) {
+                            list.push(name);
+                            localStorage.setItem(modKey, JSON.stringify(list));
+                        }
+                    }
+                };
+                action.action(liveHelpers);
             }
-            displayRole(playerIndex); // Refresh card to show new modifier
+            displayRole(playerIndex);
         }
     }
 }
@@ -643,6 +673,7 @@ function hideRole(playerIndex) {
     
     document.querySelectorAll('.modifier-container').forEach(el => el.remove());
     document.getElementById('roles-list')?.remove();
+    document.getElementById('gamble-container')?.remove();
 
     roleStatus.className = 'hidden';
     roleStatus.innerHTML = '???';
