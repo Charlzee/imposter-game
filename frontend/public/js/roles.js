@@ -535,6 +535,23 @@ export const ROLE_DATA = {
         revealText: "TURNED TO STONE",
         selectionListColor: 'rgba(180, 80, 50, 0.7)'
     },
+    gambler: {
+        label: 'Gambler',
+        class: 'gambler',
+        tip: 'You can gamble',
+        grad: 'linear-gradient(135deg, #ff3e50 0%, #ffa100 100%)',
+        textColor: '#FFA600',
+        showWord: false,
+        isGambler: true,
+        gambleActions: [
+            {
+                'name': 'Test'
+            }
+        ],
+        showsOtherWords: true,
+        roleType: 'neutral',
+        selectable: true
+    },
 };
 
 // Default configuration for innocent players
