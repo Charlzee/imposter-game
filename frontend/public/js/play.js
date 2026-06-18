@@ -68,6 +68,8 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     const players = JSON.parse(playersJson || '[]');
     if (!players.length) return;
 
+    console.log(localStorage)
+
     const assessableRoleKeys = Object.keys(ROLE_DATA);
     const activeEvents = [];
     if (localStorage.getItem("random_events_enabled") === "true") {
@@ -426,13 +428,15 @@ function displayRole(playerIndex) {
                 if (playerRole === "innocents") {
                     tipText += `[All other innocents know you are innocent]`
                 } else if (playerRole === "imposters") {
-                    tipText += `[Your final vote count will be 1 less (temporary ability for now)]`
+                    tipText += `[Your final vote count will be 1 less]`
                 } else if (playerRole === "shapeshifters") {
                     if (getStorageJson('unselected_shapeshifters').includes(playerName)) {
                         tipText += `[You can select 1 extra role modifier to have]`
                     } else {
                         tipText += `[Used to select extra modifier]`
                     }
+                } else if (playerRole === "divine_art") {
+                    tipText += `[You can redirect any votes cast onto you]`
                 } else {
                     tipText += `[NONE]`
                 }

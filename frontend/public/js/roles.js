@@ -581,7 +581,7 @@ export const ROLE_DATA = {
         class: 'divine_art',
         tip: 'Any votes cast against you dont count.',
         grad: 'linear-gradient(to right bottom, #ddd800, #e3e236, #e9ec53, #f0f56c, #f7ff83)',
-        textColor: '#9C9900',
+        textColor: '#FFFDAA',
         showWord: true,
         roleType: 'innocent',
         selectable: true
