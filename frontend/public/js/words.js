@@ -4,6 +4,50 @@ import words2 from './english_language.json' with { type: 'json' };
 
 let localWords = [...words1, ...words2];
 
+// --- IndexedDB Helpers for Large Data Caching ---
+const DB_NAME = 'ImposterGameDB';
+const STORE_NAME = 'word_cache';
+
+const getDB = () => new Promise((resolve) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => request.result.createObjectStore(STORE_NAME);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => resolve(null);
+});
+
+async function setCache(data) {
+    const db = await getDB();
+    if (!db) return;
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).put(data, 'backend_words');
+}
+
+async function getCache() {
+    const db = await getDB();
+    if (!db) return null;
+    return new Promise((resolve) => {
+        const req = db.transaction(STORE_NAME).objectStore(STORE_NAME).get('backend_words');
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => resolve(null);
+    });
+}
+
+// Helper to generate the "ALL DOCS" category from fetched tabs
+// This prevents storing redundant data in localStorage
+function processBackendData(data) {
+    if (!data || data.length === 0) return data;
+    
+    const allWords = [...new Set(data.flatMap(topic => topic.words))];
+    const globalCategory = {
+        "id": "docs_all_global",
+        "display_name": "ALL DOCS WORDS",
+        "difficulty_imposter": '∞',
+        "words": allWords
+    };
+    
+    return [globalCategory, ...data];
+}
+
 // Fetch word list from backend API
 async function fetchBackendWords(signal) {
     try {
@@ -20,16 +64,10 @@ async function fetchBackendWords(signal) {
 
         // Cache successful response to localStorage
         try {
-            const stringifiedData = JSON.stringify(data);
-            localStorage.setItem('cached_backend_words', stringifiedData);
-            console.log(`Successfully saved backend words to local storage. Cached ${data.length} topics.`);
+            await setCache(data);
+            console.log(`Successfully cached ${data.length} topics to IndexedDB.`);
         } catch (e) {
-            console.warn(`Failed to save backend words to local storage: ${e.name}`);
-            if (e.name === 'QuotaExceededError') {
-                console.error('Local storage quota exceeded. Cannot save words.');
-            } else {
-                console.error('Unknown error saving to local storage:', e.message);
-            }
+            console.warn(`Failed to cache words: ${e.message}`);
         }
         return data;
     } catch (error) {
@@ -67,7 +105,7 @@ async function getWords(signal, forceLocal=false, forceCached=false) {
         try {
             const backendWords = await fetchBackendWords(signal);
             if (backendWords && Array.isArray(backendWords) && backendWords.length > 0) {
-                return backendWords;
+                return [...localWords, ...processBackendData(backendWords)];
             }
         } catch (error) {
             if (error.isTimeout) {
@@ -79,14 +117,13 @@ async function getWords(signal, forceLocal=false, forceCached=false) {
 
     // Load words from offline cache
     try {
-        console.log("Checking local cache...");
-        const cached = localStorage.getItem('cached_backend_words');
-        if (cached) {
-            const parsedData = JSON.parse(cached);
-            if (Array.isArray(parsedData) && parsedData.length > 0) {
+        console.log("Checking IndexedDB cache...");
+        const cachedData = await getCache();
+        if (cachedData) {
+            if (Array.isArray(cachedData) && cachedData.length > 0) {
                 window.wordsLoadedFromCache = true;
-                console.log('Successfully loaded words from local storage cache.');
-                return parsedData;
+                console.log('Successfully loaded words from IndexedDB cache.');
+                return [...localWords, ...processBackendData(cachedData)];
             } else {
                 console.warn('Cached data is not a valid array or is empty. Falling back.');
             }

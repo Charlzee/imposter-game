@@ -88,7 +88,7 @@ app.get("/words", async (c) => {
     const now = Date.now();
 
     if (cachedWords && (now - lastFetchTime < CACHE_TTL)) {
-        return c.json([...localWords, ...cachedWords]);
+        return c.json(cachedWords);
     }
 
     try {
@@ -108,27 +108,12 @@ app.get("/words", async (c) => {
             "difficulty_imposter": '???',
             "words": tab.words
         }));
-
-        const allWordsList = tabsData.flatMap(tab => tab.words);
-        
-        const uniqueAllWords = [...new Set(allWordsList)];
-
-        const globalCategory = {
-            "id": "docs_all_global",
-            "display_name": "ALL DOCS WORDS",
-            "difficulty_imposter": '∞',
-            "words": uniqueAllWords
-        };
-
-        const finalDocsData = [globalCategory, ...formattedTabs];
-
-        cachedWords = finalDocsData;
+        cachedWords = formattedTabs;
         lastFetchTime = now;
-
-        return c.json([...localWords, ...finalDocsData]);
+        return c.json(formattedTabs);
     } catch (err) {
         console.error("Fetch Error:", err.message);
-        return c.json(localWords);
+        return c.json([]);
     }
 });
 
