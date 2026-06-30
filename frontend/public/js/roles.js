@@ -603,6 +603,31 @@ export const ROLE_DATA = {
         selectionText: "SELECT SOMEONE TO GIVE YOUR WILL TO",
         alsoKillsSelf: true
     },
+    epstien: {
+        label: 'Epstien',
+        class: 'epstien',
+        tip: 'Select a player to enter your island. That person will receive a random buff/nerf. Your vote will be locked on to that person but you may act like you are voting for somebody else. You win if your victim doesn’t vote for you.',
+        grad: 'linear-gradient(to right bottom, #ddd800, #e3e236, #e9ec53, #f0f56c, #f7ff83)',
+        textColor: '#FFFDAA',
+        showWord: false,
+        roleType: 'neutral',
+        selectable: true,
+        selectPlayer: true,
+        canSelectSelf: false,
+        revealSelectedPlayer: true,
+        revealText: "<player> HAS GONE TO EPSTIEN ISLAND",
+        selectionListColor: 'rgba(180, 80, 50, 0.7)',
+        selectionText: "SELECT A VICTIM TO ENTER YOUR ISLAND",
+        selectionRevealEffects: [
+            {
+                'name': 'death1',
+                action: ({ playerIndex }) => {
+                    const text = `${playerIndex} HAS BEEN DIDDLED TO DEATH`
+                    
+                }
+            }
+        ]
+    },
 };
 
 // Default configuration for innocent players
