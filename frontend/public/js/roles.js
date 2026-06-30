@@ -613,7 +613,7 @@ export const ROLE_DATA = {
         roleType: 'neutral',
         selectable: true,
         selectPlayer: true,
-        canSelectSelf: true,
+        canSelectSelf: false,
         revealSelectedPlayer: true,
         revealText: "EPSTEIN HAS BROUGHT HIS VICTIM TO HIS ISLAND",
         selectionListColor: 'rgba(200, 200, 200, 0.7)',
