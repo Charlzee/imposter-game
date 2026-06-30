@@ -613,18 +613,13 @@ export const ROLE_DATA = {
         roleType: 'neutral',
         selectable: true,
         selectPlayer: true,
-        canSelectSelf: false,
+        canSelectSelf: true,
         revealSelectedPlayer: true,
         revealText: "<player> HAS GONE TO EPSTIEN ISLAND",
         selectionListColor: 'rgba(180, 80, 50, 0.7)',
         selectionText: "SELECT A VICTIM TO ENTER YOUR ISLAND",
         selectionRevealEffects: [
-            {
-                'name': 'death1',
-                action: ({ playerIndex }) => {
-                    const text = `${playerIndex} HAS BEEN DIDDLED TO DEATH`
-                    
-                }
+            { 
             }
         ]
     },

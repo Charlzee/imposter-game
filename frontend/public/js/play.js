@@ -891,6 +891,26 @@ async function startGame(updateStats = true) {
                             textColor: ninjaConfig.textColor
                         });
                     }
+
+                    if (roleCfg.selectionRevealEffects) {
+                        const effects = roleCfg.selectionRevealEffects;
+                        const rand = Math.random();
+                        let cumulativeChance = 0;
+                        let chosenEffect = null;
+
+                        for (const effect of effects) {
+                            cumulativeChance += effect.chance;
+                            if (rand < cumulativeChance) {
+                                chosenEffect = effect;
+                                break;
+                            }
+                        }
+
+                        if (chosenEffect) {
+                            const newLabel = chosenEffect.text.replace('<player>', targetPlayer.toUpperCase());
+                            reveals.push({ label: newLabel, names: targetPlayer, grad: roleCfg.grad, textColor: roleCfg.textColor });
+                        }
+                    }
                 }
             });
         }
