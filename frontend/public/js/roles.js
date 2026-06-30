@@ -620,19 +620,11 @@ export const ROLE_DATA = {
         selectionText: "SELECT A VICTIM TO ENTER YOUR ISLAND",
         selectionRevealEffects: [
             {
-                'text': '<player> WAS FORCED TO HAVE A "SLEEPOVER"',
-                'chance': 0.4
-            },
-            {
-                'text': '<player> WAS GIVEN A "SPECIAL" MASSAGE',
-                'chance': 0.4
-            },
-            {
-                'text': '<player> DID NOT SURVIVE THE FLIGHT',
+                'text': '<player> was diddled to death. RIP'
                 'chance': 0.1
             },
             {
-                'text': '<player> WAS FOUND HANGING IN THEIR CELL',
+                'text': '<player> befriended him therefore his vote for them will not count.'
                 'chance': 0.1
             }
         ]
