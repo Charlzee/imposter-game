@@ -586,6 +586,21 @@ export const ROLE_DATA = {
         roleType: 'innocent',
         selectable: true
     },
+    gold_roger: {
+        label: 'Gol D. Roger',
+        class: 'gold_roger',
+        tip: 'Choose someone to give your vote to.\nYou will die but they will grt your vote.',
+        grad: 'linear-gradient(to right bottom, #ddd800, #e3e236, #e9ec53, #f0f56c, #f7ff83)',
+        textColor: '#FFFDAA',
+        showWord: false,
+        roleType: 'neutral',
+        selectable: true,
+        selectPlayer: true,
+        canSelectSelf: false,
+        revealSelectedPlayer: true,
+        revealText: "VOTE GIVEN TO",
+        selectionListColor: 'rgba(180, 80, 50, 0.7)'
+    },
 };
 
 // Default configuration for innocent players
