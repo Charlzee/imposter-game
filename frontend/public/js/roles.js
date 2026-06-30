@@ -589,7 +589,7 @@ export const ROLE_DATA = {
     gold_roger: {
         label: 'Gol D. Roger',
         class: 'gold_roger',
-        tip: 'Choose someone to give your vote to.\nYou will die but they will grt your vote.',
+        tip: 'Choose someone to give your vote to.\nYou will die but they will get your vote.',
         grad: 'linear-gradient(to right bottom, #ddd800, #e3e236, #e9ec53, #f0f56c, #f7ff83)',
         textColor: '#FFFDAA',
         showWord: false,
@@ -598,8 +598,10 @@ export const ROLE_DATA = {
         selectPlayer: true,
         canSelectSelf: false,
         revealSelectedPlayer: true,
-        revealText: "VOTE GIVEN TO",
-        selectionListColor: 'rgba(180, 80, 50, 0.7)'
+        revealText: "<player> HAS GIVEN THEIR WILL TO",
+        selectionListColor: 'rgba(180, 80, 50, 0.7)',
+        selectionText: "SELECT SOMEONE TO GIVE YOUR WILL TO",
+        alsoKillsSelf: true
     },
 };
 

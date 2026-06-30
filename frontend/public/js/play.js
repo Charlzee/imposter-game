@@ -359,7 +359,7 @@ function displayRole(playerIndex) {
                 const selectionList = document.createElement('div');
                 selectionList.id = 'roles-list';
                 if (config.selectionListColor) selectionList.style.background = config.selectionListColor;
-                const promptText = config.revealText ? `SELECT SOMEONE TO MAKE THEM \"${config.revealText}\"` : 'SELECT A PLAYER';
+                const promptText = config.selectionText || (config.revealText ? `SELECT SOMEONE TO MAKE THEM \"${config.revealText}\"` : 'SELECT A PLAYER');
                 selectionList.innerHTML = `<h3 class="titan-one-regular" style="color: ${config.textColor || '#fff'}; width: 100%; text-align: center; margin-bottom: 10px; text-shadow: 5px 5px 3px rgba(0,0,0,0.5);">${promptText}</h3>`;
 
                 const players = getStorageJson('current_players');
@@ -868,15 +868,31 @@ async function startGame(updateStats = true) {
         const roleCfg = ROLE_DATA[roleKey];
         if (roleCfg.revealSelectedPlayer) {
             const targets = getStorageJson(`${getBaseRoleId(roleKey)}SelectedTargets`, {});
-            const names = [...new Set(Object.values(targets))];
-            if (names.length > 0) {
-                reveals.push({
-                    label: roleCfg.revealText || 'SELECTED',
-                    names: names.join(', '),
-                    grad: roleCfg.grad,
-                    textColor: roleCfg.textColor
-                });
-            }
+            Object.entries(targets).forEach(([sourcePlayer, targetPlayer]) => {
+                if (targetPlayer) {
+                    let labelText = roleCfg.revealText || 'SELECTED';
+                    if (labelText.includes('<player>')) {
+                        labelText = labelText.replace('<player>', sourcePlayer.toUpperCase());
+                    }
+
+                    reveals.push({
+                        label: labelText,
+                        names: targetPlayer,
+                        grad: roleCfg.grad,
+                        textColor: roleCfg.textColor
+                    });
+
+                    if (roleCfg.alsoKillsSelf) {
+                        const ninjaConfig = ROLE_DATA['ninja'];
+                        reveals.push({
+                            label: ninjaConfig.revealText,
+                            names: sourcePlayer,
+                            grad: ninjaConfig.grad,
+                            textColor: ninjaConfig.textColor
+                        });
+                    }
+                }
+            });
         }
     });
 
@@ -889,10 +905,10 @@ async function startGame(updateStats = true) {
         revealContainer.id = 'reveal-container';
         document.body.appendChild(revealContainer);
 
-        reveals.forEach(data => {
+        [...new Map(reveals.map(item => [item.label, item])).values()].forEach(data => {
             const roleBox = document.createElement('div');
             roleBox.classList.add('role-box');
-            roleBox.style.background = data.grad || 'linear-gradient(135deg, #009a79, #001e60)';
+            roleBox.style.background = data.grad || 'linear-gradient(135deg, #009a79, #001e60)'; // Fallback gradient
             roleBox.style.border = `4px solid ${data.textColor || '#2ea19b'}`;
 
             roleBox.innerHTML = `
