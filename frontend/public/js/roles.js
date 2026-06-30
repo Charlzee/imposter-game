@@ -619,7 +619,9 @@ export const ROLE_DATA = {
         selectionListColor: 'rgba(180, 80, 50, 0.7)',
         selectionText: "SELECT A VICTIM TO ENTER YOUR ISLAND",
         selectionRevealEffects: [
-            { 
+            {
+                'text': "[User] has entered the EPSTEIN island. They were diddled to death. RIP"
+                'chance': 0.3
             }
         ]
     },
