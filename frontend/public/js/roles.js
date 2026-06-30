@@ -626,6 +626,10 @@ export const ROLE_DATA = {
             {
                 'text': '\n<player> befriended him therefore his vote for them will not count.',
                 'chance': 0.5
+            },
+            {
+                'text': '\nThey encountered that [RandomOtherUser] fell victim to Epstein and brutally diedseswssdd..',
+                'chance': 0.0
             }
         ]
     },
