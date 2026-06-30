@@ -882,16 +882,6 @@ async function startGame(updateStats = true) {
                         textColor: roleCfg.textColor
                     });
 
-                    if (roleCfg.alsoKillsSelf) {
-                        const ninjaConfig = ROLE_DATA['ninja'];
-                        reveals.push({
-                            label: ninjaConfig.revealText,
-                            names: sourcePlayer,
-                            grad: ninjaConfig.grad,
-                            textColor: ninjaConfig.textColor
-                        });
-                    }
-
                     if (roleCfg.selectionRevealEffects) {
                         const effects = roleCfg.selectionRevealEffects;
                         const rand = Math.random();
@@ -907,9 +897,21 @@ async function startGame(updateStats = true) {
                         }
 
                         if (chosenEffect) {
-                            const newLabel = chosenEffect.text.replace('<player>', targetPlayer.toUpperCase());
-                            reveals.push({ label: newLabel, names: targetPlayer, grad: roleCfg.grad, textColor: roleCfg.textColor });
+                            const lastReveal = reveals[reveals.length - 1];
+                            if (lastReveal) {
+                                lastReveal.names = chosenEffect.text.replace('<player>', targetPlayer.toUpperCase());
+                            }
                         }
+                    }
+
+                    if (roleCfg.alsoKillsSelf) {
+                        const ninjaConfig = ROLE_DATA['ninja'];
+                        reveals.push({
+                            label: ninjaConfig.revealText,
+                            names: sourcePlayer,
+                            grad: ninjaConfig.grad,
+                            textColor: ninjaConfig.textColor
+                        });
                     }
                 }
             });
