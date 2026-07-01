@@ -180,6 +180,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     localStorage.removeItem('innocents');
     Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
     localStorage.removeItem('justificationWords');
+    localStorage.removeItem('original_venom');
     Object.keys(ROLE_MODIFIERS).forEach(k => { if (ROLE_MODIFIERS[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
     Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].selectPlayer) localStorage.removeItem(`${getBaseRoleId(k)}SelectedTargets`); });
 
@@ -201,6 +202,10 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         localStorage.setItem(roleKey, JSON.stringify(assignedRolesData[roleKey]));
         if (ROLE_DATA[roleKey].hasTarget) assignTargets(assignedRolesData[roleKey], `${getBaseRoleId(roleKey)}Targets`);
     });
+
+    if (assignedRolesData['venom'] && assignedRolesData['venom'].length > 0) {
+        localStorage.setItem('original_venom', JSON.stringify(assignedRolesData['venom']));
+    }
 
     Object.keys(ROLE_MODIFIERS).forEach(modKey => {
         localStorage.setItem(modKey, JSON.stringify(modifierLists[modKey]));
@@ -433,7 +438,7 @@ function displayRole(playerIndex) {
             const modTitle = document.createElement('h4');
             modTitle.className = 'titan-one-regular';
             modTitle.id = 'mod-title'
-            modTitle.innerHTML = `${modConfig.label}`;
+            modTitle.innerHTML = modConfig.label;
             modTitle.style.color = modConfig.textColor;
 
             const modTip = document.createElement('p');
@@ -517,8 +522,40 @@ function displayRole(playerIndex) {
 
     updateUi(activeUiConfig);
     
-    if (config.isVenom) {
-        return
+    if (config.isVenom && baseRoleKey === 'venom') {
+        const venomTargets = getStorageJson('venomSelectedTargets', {});
+        const myTarget = venomTargets[playerName];
+
+        if (myTarget) {
+            // Kill the target
+            const ninjaKills = getStorageJson('ninjaSelectedTargets', {});
+            ninjaKills[`kill_${myTarget}`] = myTarget;
+            localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
+
+            // Find target's role
+            const allRoleKeys = Object.keys(ROLE_DATA);
+            let targetRoleKey = allRoleKeys.find(key => getStorageJson(key).includes(myTarget));
+            if (!targetRoleKey) {
+                targetRoleKey = 'innocents'; // Default to innocent if no special role
+            }
+
+            // Transfer role to player
+            if (targetRoleKey !== 'innocents') {
+                const targetRoleList = getStorageJson(targetRoleKey);
+                if (!targetRoleList.includes(playerName)) {
+                    targetRoleList.push(playerName);
+                    localStorage.setItem(targetRoleKey, JSON.stringify(targetRoleList));
+                }
+            }
+
+            // Remove Venom role from player
+            const venomPlayers = getStorageJson('venom').filter(p => p !== playerName);
+            localStorage.setItem('venom', JSON.stringify(venomPlayers));
+
+            // Refresh the UI to show the new role
+            setTimeout(() => displayRole(playerIndex), 50);
+            return;
+        }
     }
     
     if (config.isShapeshifter) {
@@ -761,6 +798,7 @@ function viewRoles() {
     main.insertBefore(wordInfo, document.getElementById('view-roles'));
 
     players.forEach(p => {
+        const killedPlayers = Object.values(getStorageJson('ninjaSelectedTargets', {}));
         const el = document.createElement('div');
         el.className = 'player-view-role';
         const name = p.player_name;
@@ -782,6 +820,13 @@ function viewRoles() {
         nameSpan.innerHTML = name;
         nameSpan.className = 'player-name'
         el.appendChild(nameSpan);
+
+        if (killedPlayers.includes(name)) {
+            const killedSpan = document.createElement('span');
+            killedSpan.innerHTML = '(KILLED)';
+            killedSpan.className = 'player-killed-status';
+            el.appendChild(killedSpan);
+        }
 
         // Add roleType text in summary
         if (roleConfig.roleType) {
@@ -820,8 +865,14 @@ function viewRoles() {
 
         let roleExtra = '';
         
+        const wasVenom = getStorageJson('original_venom').includes(name);
+        const isStillVenom = getStorageJson('venom').includes(name);
+
         if (isshapeshifter && !isUnselected) {
             roleExtra += ' (Shapeshifter)';
+        }
+        if (wasVenom && !isStillVenom) {
+            roleExtra += ' (Venom)';
         }
         
         Object.keys(ROLE_DATA).forEach(key => {
@@ -990,6 +1041,26 @@ async function startGame(updateStats = true) {
     });
     localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
 
+    // Move all "KILLED" reveals into one box
+    const consolidatedReveals = [];
+    const killedPlayers = new Set();
+    const ninjaConfig = ROLE_DATA['ninja'];
+
+    reveals.forEach(reveal => {
+        if (reveal.label === ninjaConfig.revealText) {
+            // Split names in case a reveal contains multiple
+            const playersInReveal = reveal.names.split(',').map(n => n.trim());
+            playersInReveal.forEach(p => killedPlayers.add(p));
+        } else {
+            consolidatedReveals.push(reveal);
+        }
+    });
+
+    if (killedPlayers.size > 0) {
+        const names = Array.from(killedPlayers).join(', ');
+        consolidatedReveals.unshift({ label: ninjaConfig.revealText, names, grad: ninjaConfig.grad, textColor: ninjaConfig.textColor });
+    }
+
     if (reveals.length > 0) {
         const overlay = document.createElement('div');
         overlay.id = 'reveal-overlay';
@@ -999,7 +1070,32 @@ async function startGame(updateStats = true) {
         revealContainer.id = 'reveal-container';
         document.body.appendChild(revealContainer);
 
-        reveals.forEach(data => {
+        let revealTimeout;
+
+        const closeRevealPopup = () => {
+            if (revealTimeout) clearTimeout(revealTimeout);
+            const container = document.getElementById('reveal-container');
+            const ov = document.getElementById('reveal-overlay');
+            if (container && ov) {
+                container.style.transition = 'opacity 0.5s ease';
+                ov.style.transition = 'opacity 0.5s ease';
+                container.style.opacity = '0';
+                ov.style.opacity = '0';
+                setTimeout(() => {
+                    container.remove();
+                    ov.remove();
+                }, 500);
+            }
+        };
+
+        const closeBtn = document.createElement('button');
+        closeBtn.id = 'close-reveal-btn';
+        closeBtn.className = 'titan-one-regular';
+        closeBtn.innerHTML = 'CLOSE';
+        closeBtn.onclick = closeRevealPopup;
+        revealContainer.appendChild(closeBtn);
+
+        consolidatedReveals.forEach(data => {
             const roleBox = document.createElement('div');
             roleBox.classList.add('role-box');
             roleBox.style.background = data.grad || 'linear-gradient(135deg, #009a79, #001e60)'; // Fallback gradient
@@ -1019,16 +1115,7 @@ async function startGame(updateStats = true) {
         });
 
         // Trigger exit animation
-        setTimeout(() => {
-            revealContainer.style.transition = 'opacity 1s ease';
-            overlay.style.transition = 'opacity 1s ease';
-            revealContainer.style.opacity = '0';
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                revealContainer.remove();
-                overlay.remove();
-            }, 1000);
-        }, 15000);
+        revealTimeout = setTimeout(closeRevealPopup, 15000);
     }
 
     gameTimer = setInterval(() => {
