@@ -280,6 +280,15 @@ function displayRole(playerIndex) {
             if (ROLE_MODIFIERS[modKey].overrideWordVisibility) {
                 displayTheWord = ROLE_MODIFIERS[modKey].showWord;
             }
+            if (ROLE_MODIFIERS[modKey].getsRandomOtherWord && words && words.length > 1) {
+                const otherWords = words.filter(w => w !== selectedWord);
+                const randomWord = otherWords[Math.floor(Math.random() * otherWords.length)];
+                
+                const justificationWords = getStorageJson('justificationWords', {});
+                justificationWords[playerName] = randomWord;
+                localStorage.setItem('justificationWords', JSON.stringify(justificationWords));
+                displayTheWord = true; // Ensure word area is shown
+            }
         });
 
         let content = '';
@@ -290,7 +299,13 @@ function displayRole(playerIndex) {
             const finalDisplay = selection.sort(() => 0.5 - Math.random());
             content = `ONE OF THESE IS THE WORD:\n- ${finalDisplay.join('\n- ')}`;
         } else {
-            content = displayTheWord ? selectedWord : '';
+            const justificationWords = getStorageJson('justificationWords', {});
+            const justificationWord = justificationWords[playerName];
+            if (justificationWord) {
+                content = `YOUR WORD IS:\n${justificationWord}`;
+            } else {
+                content = displayTheWord ? selectedWord : '';
+            }
         }
 
         // === ROLES REVEAL ===

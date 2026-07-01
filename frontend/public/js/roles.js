@@ -649,12 +649,10 @@ export const ROLE_DATA = {
             },
             {
                 'text': '<player>\'s mouth was stuffed with baby oil. They may not speak for the entire round',
-                'killOtherPlayer': true,
                 'chance': 0.2
             },
             {
                 'text': '<player> encountered Epstein diddling someone and stealing their vote. Epstein gets an extra vote.',
-                'killOtherPlayer': true,
                 'chance': 0.1
             }
         ]
