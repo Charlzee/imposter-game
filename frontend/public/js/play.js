@@ -433,7 +433,7 @@ function displayRole(playerIndex) {
             const modTitle = document.createElement('h4');
             modTitle.className = 'titan-one-regular';
             modTitle.id = 'mod-title'
-            modTitle.innerHTML = `Modifier: ${modConfig.label}`;
+            modTitle.innerHTML = `${modConfig.label}`;
             modTitle.style.color = modConfig.textColor;
 
             const modTip = document.createElement('p');
