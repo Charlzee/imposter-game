@@ -300,9 +300,9 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #bc00ff, #bb68ff, #c298ff, #d0c1f8, #e7e7e7)',
         textColor: '#FFFFFF',
         subTextColor: '#B100FF',
-        showWord: false,
+        showWord: true,
         getsRandomOtherWord: true,
-        overrideWordVisibility: true, 
+        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
