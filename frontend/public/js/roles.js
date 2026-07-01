@@ -665,7 +665,7 @@ export const ROLE_DATA = {
             },
             {
                 'text': 'Epstein has revealed that <player> has a small weiner, embarrassing 😩😩 they must now sit down in shame.',
-                'chance': 0.1
+                'chance': 0.2
             },
             {
                 'text': '<player> has become a dog for Epstein, they must woof/bark after everything that they say.',
