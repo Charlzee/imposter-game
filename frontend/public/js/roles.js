@@ -293,6 +293,19 @@ export const ROLE_MODIFIERS = {
         roleType: 'innocent',
         chance: 0.05
     },
+    justification: {
+        label: 'Justification',
+        class: 'justification',
+        tip: 'Get given a random word and have to say it and justify it if asked',
+        grad: 'linear-gradient(135deg, #bc00ff, #bb68ff, #c298ff, #d0c1f8, #e7e7e7)',
+        textColor: '#FFFFFF',
+        subTextColor: '#B100FF',
+        showWord: false,
+        getsRandomOtherWord: true,
+        overrideWordVisibility: true, 
+        roleType: 'innocent',
+        chance: 0.05
+    },
 };
 
 // Random events
@@ -607,10 +620,10 @@ export const ROLE_DATA = {
     epstein: {
         label: 'Epstein',
         class: 'epstein',
-        tip: 'Select a player to enter your island. That person will receive a random buff/nerf. Your vote will be locked on to that person but you may act like you are voting for somebody else. You win if your victim doesn’t vote for you.',
+        tip: 'Select a player to receive a random buff/nerf. Your vote will be locked on to that person but you are able to pretend to vote someone else.\nYou win if your victim doesn’t vote for you.',
         grad: 'linear-gradient(135deg, #ffffff, #f9f9f9, #f3f3f3, #ededed, #e7e7e7)',
         textColor: '#F0F0F0',
-        showWord: false,
+        showWord: true,
         roleType: 'neutral',
         selectable: true,
         selectPlayer: true,
@@ -637,7 +650,12 @@ export const ROLE_DATA = {
             {
                 'text': '<player>\'s mouth was stuffed with baby oil. They may not speak for the entire round',
                 'killOtherPlayer': true,
-                'chance': 0.3
+                'chance': 0.2
+            },
+            {
+                'text': '<player> encountered Epstein diddling someone and stealing their vote. Epstein gets an extra vote.',
+                'killOtherPlayer': true,
+                'chance': 0.1
             }
         ]
     },
