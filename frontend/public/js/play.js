@@ -302,7 +302,7 @@ function displayRole(playerIndex) {
             const justificationWords = getStorageJson('justificationWords', {});
             const justificationWord = justificationWords[playerName];
             if (justificationWord) {
-                content = `YOUR WORD IS:\n${justificationWord}`;
+                content = `YOUR FAKE WORD IS:\n${justificationWord}`;
             } else {
                 content = displayTheWord ? selectedWord : '';
             }
