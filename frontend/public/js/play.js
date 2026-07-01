@@ -179,6 +179,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     localStorage.removeItem('inspectorClues');
     localStorage.removeItem('innocents');
     Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
+    localStorage.removeItem('justificationWords');
     Object.keys(ROLE_MODIFIERS).forEach(k => { if (ROLE_MODIFIERS[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
     Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].selectPlayer) localStorage.removeItem(`${getBaseRoleId(k)}SelectedTargets`); });
 
@@ -205,6 +206,26 @@ function decidePlayerList(playersJson, roleCounts = {}) {
         localStorage.setItem(modKey, JSON.stringify(modifierLists[modKey]));
         if (ROLE_MODIFIERS[modKey].hasTarget) assignTargets(modifierLists[modKey], `${getBaseRoleId(modKey)}Targets`);
     });
+
+    // pre-assign justification words if needed
+    (async () => {
+        const justificationPlayers = modifierLists['justification'] || [];
+        if (justificationPlayers.length > 0) {
+            try {
+                const response = await fetch('js/english_language.json');
+                const englishData = await response.json();
+                const sourceWords = englishData[0]?.words || words.filter(w => w !== selectedWord);
+                const justificationWords = {};
+                justificationPlayers.forEach(playerName => {
+                    const randomWord = sourceWords[Math.floor(Math.random() * sourceWords.length)];
+                    justificationWords[playerName] = randomWord;
+                });
+                localStorage.setItem('justificationWords', JSON.stringify(justificationWords));
+            } catch (error) {
+                console.error("Failed to load english_language.json for Justification modifier:", error);
+            }
+        }
+    })();
     
     localStorage.setItem("unselected_shapeshifters", JSON.stringify(assignedRolesData.shapeshifters || []));
 }
@@ -280,15 +301,6 @@ function displayRole(playerIndex) {
             if (ROLE_MODIFIERS[modKey].overrideWordVisibility) {
                 displayTheWord = ROLE_MODIFIERS[modKey].showWord;
             }
-            if (ROLE_MODIFIERS[modKey].getsRandomOtherWord && words && words.length > 1) {
-                const otherWords = words.filter(w => w !== selectedWord);
-                const randomWord = otherWords[Math.floor(Math.random() * otherWords.length)];
-                
-                const justificationWords = getStorageJson('justificationWords', {});
-                justificationWords[playerName] = randomWord;
-                localStorage.setItem('justificationWords', JSON.stringify(justificationWords));
-                displayTheWord = true; // Ensure word area is shown
-            }
         });
 
         let content = '';
@@ -303,6 +315,7 @@ function displayRole(playerIndex) {
             const justificationWord = justificationWords[playerName];
             if (justificationWord) {
                 content = `YOUR FAKE WORD IS:\n${justificationWord}`;
+                if (config.showWord) content += `\n\nTHE REAL WORD IS:\n${selectedWord}`;
             } else {
                 content = displayTheWord ? selectedWord : '';
             }
@@ -944,6 +957,11 @@ async function startGame(updateStats = true) {
                                 if (chosenEffect.killPlayer) {
                                     lastReveal.label = ROLE_DATA['ninja'].revealText;
                                     lastReveal.names = targetPlayer;
+                                    lastReveal.grad = ROLE_DATA['ninja'].grad;
+                                    lastReveal.textColor = ROLE_DATA['ninja'].textColor;
+                                    const ninjaKills = getStorageJson('ninjaSelectedTargets', {});
+                                    ninjaKills[`kill_${targetPlayer}`] = targetPlayer;
+                                    localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
                                 }
                             }
                         }
@@ -981,7 +999,7 @@ async function startGame(updateStats = true) {
         revealContainer.id = 'reveal-container';
         document.body.appendChild(revealContainer);
 
-        [...new Map(reveals.map(item => [item.label, item])).values()].forEach(data => {
+        reveals.forEach(data => {
             const roleBox = document.createElement('div');
             roleBox.classList.add('role-box');
             roleBox.style.background = data.grad || 'linear-gradient(135deg, #009a79, #001e60)'; // Fallback gradient

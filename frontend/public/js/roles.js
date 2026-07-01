@@ -664,7 +664,7 @@ export const ROLE_DATA = {
                 'chance': 0.1
             },
             {
-                'text': 'Epstein has revealed that <player> has a small weiner, embarrassing 😩😩 they must now sit down in shame.',
+                'text': 'Epstein has revealed that <player> has a small pp, embarrassing 😩😩 they must now sit down in shame.',
                 'chance': 0.2
             },
             {

@@ -400,9 +400,13 @@ function init() {
 
             const input = document.getElementById(`${roleId}-count`);
             const percentInput = document.getElementById(`${roleId}-percent`);
-            const defaultCount = (roleId === 'imposter') ? 1 : 0;
+            const defaultCount = (roleId === 'imposter') ? 1 : 1; // first 1 is default for imposters, second 1 is default amount for other roles
             if (input) input.value = defaultCount;
-            if (percentInput) percentInput.value = isSubImposter ? "10%" : "100%";
+            
+            if (percentInput) {
+                // base imposter is 100%
+                percentInput.value = (roleId === 'imposter') ? "100%" : (isSubImposter ? "10%" : "10%"); // first 10% is default for sub-imposters, second 10% is default for other roles 
+            }
         });
         saveAllSettings();
     };
