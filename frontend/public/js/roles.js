@@ -685,7 +685,8 @@ export const ROLE_DATA = {
         selectPlayer: true,
         canSelectSelf: false,
         selectionListColor: 'rgba(180, 80, 50, 0.7)',
-        selectionText: "SELECT SOMEONE TO STEAL THEIR ROLE"
+        selectionText: "SELECT SOMEONE TO STEAL THEIR ROLE",
+        isVenom: true
     },
 };
 
