@@ -21,8 +21,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #2c3e50 0%, #000000 100%)',
         textColor: '#ffffff',
         subTextColor: '#E6E6E6',
-        showWord: true,
-        overrideWordVisibility: false,
         chance: 0.05
     },
     dumb: {
@@ -31,8 +29,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #4EA809 0%, #245400 100%)',
         textColor: '#D4FFB2',
         subTextColor: '#86E63C',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -42,8 +38,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #0961A8 0%, #053154 100%)',
         textColor: '#C8D2FF',
         subTextColor: '#A096FF',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -53,8 +47,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, red 0%, orange 20%, yellow 40%, green 60%, blue 80%, violet 100%)',
         textColor: '#FFFF00',
         subTextColor: '#FFFF96',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'neutral',
         chance: 0.001
     },
@@ -64,8 +56,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, red 0%, orange 20%, yellow 40%, green 60%, blue 80%, violet 100%)',
         textColor: '#FFFF00',
         subTextColor: '#FFFF96',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'neutral',
         chance: 0.0001
     },
@@ -75,8 +65,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, lightgreen 0%, green 100%)',
         textColor: '#AAFF00',
         subTextColor: '#37FF41',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.035
     },
@@ -86,8 +74,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, green 0%, darkgreen 100%)',
         textColor: '#5EA000',
         subTextColor: '#37C841',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.035
     },
@@ -97,8 +83,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #EB572A 0%, #762C15 100%)',
         textColor: '#FFD7CC',
         subTextColor: '#FF3737',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'neutral',
         chance: 0.035
     },
@@ -120,8 +104,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #D18973 0%, #69453A 100%)',
         textColor: 'peru',
         subTextColor: 'darkorange',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -131,8 +113,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #4D2B21 0%, #3B1307 100%)',
         textColor: '#FFDBAC',
         subTextColor: '#D2B48C',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         appendRandomLetterOrNumber: true,
         chance: 0.05
@@ -143,8 +123,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, orange 0%, orangered 100%)',
         textColor: 'white',
         subTextColor: 'red',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -154,8 +132,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, lightblue 0%, cyan 100%)',
         textColor: '#6DFBBB',
         subTextColor: 'aliceblue',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -165,8 +141,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #ff0000, #ff3a00, #ff5400, #ff6800, #ff7a00)',
         textColor: 'white',
         subTextColor: 'orange',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.04
     },
@@ -176,8 +150,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #ff2fc0, #f516cd, #e600dd, #d200ed, #b700ff)',
         textColor: '#FFE0F0',
         subTextColor: 'white',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -187,8 +159,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #d2ff2f, #c5ff25, #b7ff1a, #a7ff0e, #96ff00)',
         textColor: '#00C828',
         subTextColor: 'white',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -198,8 +168,6 @@ export const ROLE_MODIFIERS = {
         tip: 'You need to repeat everything your target says right after they do!',
         grad: 'linear-gradient(135deg, #DFFF00 0%, #98AF00 100%)',
         textColor: '#9AB62B',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         hasTarget: true,
         chance: 0.05
@@ -210,8 +178,6 @@ export const ROLE_MODIFIERS = {
         tip: 'Your word/sentence CANNOT contain the letter: ',
         grad: 'linear-gradient(135deg, #A1FFA6 0%, #0FFF07 100%)',
         textColor: '#68FF7C',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         appendRandomLetter: true,
         chance: 0.05
@@ -223,9 +189,7 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #B9F2FF 0%, #29D1FF 100%)',
         textColor: '#FFFFFF',
         subTextColor: '#AFD9FF',
-        showWord: true, 
         roleType: 'innocent',
-        overrideWordVisibility: false,
         isPlus: true,
         chance: 0.05,
         selectionListColor: 'rgba(41, 209, 255, 0.4)'
@@ -237,9 +201,7 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #B9F2FF 0%, #29D1FF 100%)',
         textColor: '#FFFFFF',
         subTextColor: '#AFD9FF',
-        showWord: true, 
         roleType: 'innocent',
-        overrideWordVisibility: false,
         hasTarget: true,
         chance: 0.05
     },
@@ -250,8 +212,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #949494, #828282, #717171, #606060, #4f4f4f)',
         textColor: '#888888',
         subTextColor: '#AAAAAA',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -262,10 +222,8 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #FF9933, #FFCC66, #FFFF99)',
         textColor: '#FFFFFF',
         subTextColor: '#ffec46',
-        showWord: true,
         roleType: 'innocent',
         hasTarget: true,
-        overrideWordVisibility: false,
         chance: 0.05
     },
     glazer: {
@@ -275,10 +233,8 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #fff561, #ffeb60, #ffe261, #ffd962, #ffd063)',
         textColor: '#FFFFFF',
         subTextColor: '#ffec46',
-        showWord: true,
         roleType: 'innocent',
         hasTarget: true,
-        overrideWordVisibility: false,
         chance: 0.05
     },
     smash: {
@@ -288,8 +244,6 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #0048ff, #0094ff, #00c2ff, #00e5bb, #00ff4e)',
         textColor: '#FFFFFF',
         subTextColor: '#00B1FF',
-        showWord: true,
-        overrideWordVisibility: false, 
         roleType: 'innocent',
         chance: 0.05
     },
@@ -300,9 +254,17 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #bc00ff, #bb68ff, #c298ff, #d0c1f8, #e7e7e7)',
         textColor: '#FFFFFF',
         subTextColor: '#B100FF',
-        showWord: true,
         getsRandomOtherWord: true,
-        overrideWordVisibility: false, 
+        roleType: 'innocent',
+        chance: 0.05
+    },
+    lonely: {
+        label: 'I\'m lonely',
+        class: 'lonely',
+        tip: 'You need to head pat anyone named "Charlie" at least once per round and if you don\'t you lose every round ever.',
+        grad: 'linear-gradient(135deg, #1a2a6c, #4a4e69, #9a8c98)',
+        textColor: '#FFFFFF',
+        subTextColor: '#FFFFFF',
         roleType: 'innocent',
         chance: 0.05
     },
