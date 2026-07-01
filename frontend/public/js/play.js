@@ -503,7 +503,11 @@ function displayRole(playerIndex) {
     }
 
     updateUi(activeUiConfig);
-
+    
+    if (config.isVenom) {
+        return
+    }
+    
     if (config.isShapeshifter) {
         const selectionList = document.createElement('div');
         selectionList.id = 'roles-list'; 
