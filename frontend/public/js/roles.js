@@ -640,7 +640,7 @@ export const ROLE_DATA = {
             },
             {
                 'text': '<player> befriended him therefore his vote for them will not count.',
-                'chance': 0.5
+                'chance': 0.1
             },
             {
                 'text': '<player> encountered that <otherPlayer> fell victim to Epstein and brutally died.',
@@ -649,13 +649,43 @@ export const ROLE_DATA = {
             },
             {
                 'text': '<player>\'s mouth was stuffed with baby oil. They may not speak for the entire round',
-                'chance': 0.2
+                'chance': 0.1
             },
             {
                 'text': '<player> encountered Epstein diddling someone and stealing their vote. Epstein gets an extra vote.',
                 'chance': 0.1
-            }
+            },
+            {
+                'text': 'Epstein opens up and reveals that they are trans and has become innocent. Epstein now wins with the innocents.',
+                'chance': 0.1
+            },
+            {
+                'text': 'Epstein is feeling his power and <player> must say their word last',
+                'chance': 0.1
+            },
+            {
+                'text': 'Epstein has revealed that <player> has a small weiner, embarrassing 😩😩 they must now sit down in shame.',
+                'chance': 0.1
+            },
+            {
+                'text': '<player> has become a dog for Epstein, they must woof/bark after everything that they say.',
+                'chance': 0.1
+            },
         ]
+    },
+    venom: {
+        label: 'Venom',
+        class: 'venom',
+        tip: 'Take over somebody, they die and you become their role',
+        grad: 'linear-gradient(135deg, #051937, #231336, #38082d, #45001c, #490000)',
+        textColor: '#986565',
+        showWord: false,
+        roleType: 'neutral',
+        selectable: true,
+        selectPlayer: true,
+        canSelectSelf: false,
+        selectionListColor: 'rgba(180, 80, 50, 0.7)',
+        selectionText: "SELECT SOMEONE TO STEAL THEIR ROLE"
     },
 };
 
