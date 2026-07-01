@@ -900,6 +900,32 @@ async function startGame(updateStats = true) {
                             const lastReveal = reveals[reveals.length - 1];
                             if (lastReveal) {
                                 lastReveal.names = chosenEffect.text.replace('<player>', targetPlayer.toUpperCase());
+
+                                if (lastReveal.names.includes('<otherPlayer>')) {
+                                    const allPlayers = getStorageJson('current_players');
+                                    const otherPlayers = allPlayers.filter(p => p.player_name !== sourcePlayer && p.player_name !== targetPlayer);
+                                    let randomPlayerName = 'NO ONE ELSE';
+                                    if (otherPlayers.length > 0) {
+                                        const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+                                        randomPlayerName = randomPlayer.player_name;
+                                    }
+                                    lastReveal.names = lastReveal.names.replace('<otherPlayer>', randomPlayerName.toUpperCase());
+
+                                    if (chosenEffect.killOtherPlayer && randomPlayerName !== 'NO ONE ELSE') {
+                                        const ninjaConfig = ROLE_DATA['ninja'];
+                                        reveals.push({
+                                            label: ninjaConfig.revealText,
+                                            names: randomPlayerName,
+                                            grad: ninjaConfig.grad,
+                                            textColor: ninjaConfig.textColor
+                                        });
+                                    }
+                                }
+
+                                if (chosenEffect.killPlayer) {
+                                    lastReveal.label = ROLE_DATA['ninja'].revealText;
+                                    lastReveal.names = targetPlayer;
+                                }
                             }
                         }
                     }
@@ -917,6 +943,15 @@ async function startGame(updateStats = true) {
             });
         }
     });
+
+    const ninjaKills = getStorageJson('ninjaSelectedTargets', {});
+    reveals.forEach(reveal => {
+        if (reveal.label === ROLE_DATA['ninja'].revealText) {
+            const victim = reveal.names;
+            ninjaKills[`kill_${victim}`] = victim;
+        }
+    });
+    localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
 
     if (reveals.length > 0) {
         const overlay = document.createElement('div');

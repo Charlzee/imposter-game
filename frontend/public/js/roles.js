@@ -621,16 +621,18 @@ export const ROLE_DATA = {
         selectionText: "SELECT A VICTIM TO ENTER YOUR ISLAND",
         selectionRevealEffects: [
             {
-                'text': '\n<player> was diddled to death. RIP',
-                'chance': 0.5
+                'text': '<player> was diddled to death. RIP',
+                'killPlayer': true,
+                'chance': 0.1
             },
             {
-                'text': '\n<player> befriended him therefore his vote for them will not count.',
-                'chance': 0.5
+                'text': '<player> befriended him therefore his vote for them will not count.',
+                'chance': 0.8
             },
             {
-                'text': '\nThey encountered that [RandomOtherUser] fell victim to Epstein and brutally diedseswssdd..',
-                'chance': 0.0
+                'text': '<player> encountered that <otherPlayer> fell victim to Epstein and brutally died.',
+                'killOtherPlayer': true,
+                'chance': 0.1
             }
         ]
     },
