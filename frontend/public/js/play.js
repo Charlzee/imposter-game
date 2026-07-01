@@ -553,11 +553,11 @@ function displayRole(playerIndex) {
             localStorage.setItem('venom', JSON.stringify(venomPlayers));
 
             // Refresh the UI to show the new role
-            setTimeout(() => displayRole(playerIndex), 50);
+            displayRole(playerIndex)
             return;
         }
     }
-    
+
     if (config.isShapeshifter) {
         const selectionList = document.createElement('div');
         selectionList.id = 'roles-list'; 
