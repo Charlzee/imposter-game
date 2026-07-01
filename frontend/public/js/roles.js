@@ -627,12 +627,17 @@ export const ROLE_DATA = {
             },
             {
                 'text': '<player> befriended him therefore his vote for them will not count.',
-                'chance': 0.8
+                'chance': 0.5
             },
             {
                 'text': '<player> encountered that <otherPlayer> fell victim to Epstein and brutally died.',
                 'killOtherPlayer': true,
                 'chance': 0.1
+            },
+            {
+                'text': '<player>\'s mouth was stuffed with baby oil. They may not speak for the entire round',
+                'killOtherPlayer': true,
+                'chance': 0.3
             }
         ]
     },
