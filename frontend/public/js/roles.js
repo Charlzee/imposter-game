@@ -650,6 +650,17 @@ export const ROLE_DATA = {
         selectionText: "SELECT SOMEONE TO STEAL THEIR ROLE",
         isVenom: true
     },
+    mastermind: {
+        label: 'Mastermind',
+        class: 'mastermind',
+        tip: 'One random innocent has their role switched to "Recruited Imposter" you know who they are but they dont know who you are.',
+        grad: 'linear-gradient(135deg, #d80000, #ce2e27, #c04540, #ae5654, #986565)',
+        textColor: '#FF6565',
+        showWord: false,
+        roleType: 'imposter',
+        selectable: true,
+        doesRecruit: true
+    },
 };
 
 // Default configuration for innocent players
