@@ -661,6 +661,36 @@ export const ROLE_DATA = {
         selectable: true,
         doesRecruit: true
     },
+    witch: {
+        label: 'Witch',
+        class: 'witch',
+        tip: 'Select a player to curse.',
+        grad: 'linear-gradient(135deg, #d80000, #ce2e27, #c04540, #ae5654, #986565)',
+        textColor: '#FF6565',
+        showWord: false,
+        roleType: 'imposter',
+        selectable: true,
+        selectPlayer: true,
+        canSelectSelf: true,
+        revealSelectedPlayer: true,
+        revealText: "A WITCH HAS CURSED SOMEONE",
+        selectionListColor: 'rgba(200, 200, 200, 0.7)',
+        selectionText: "SELECT SOMEONE TO CURSE",
+        selectionRevealEffects: [
+            {
+                'text': '<player> was SILENCED',
+                'chance': 1/3
+            },
+            {
+                'text': '<player> must KEEP JUMPING',
+                'chance': 1/3
+            },
+            {
+                'text': '<player> is now a FURRY',
+                'chance': 1/3
+            },
+        ]
+    },
 };
 
 // Default configuration for innocent players
