@@ -48,14 +48,20 @@ export const ROLE_MODIFIERS = {
         textColor: '#FFFF00',
         subTextColor: '#FFFF96',
         roleType: 'neutral',
-        chance: 0.001
+        chance: 0.001,
+        winCondition: ({ player, allPlayers }) => {
+            // Cheater wins if they are the ONLY winner.
+            // This is a placeholder; the final check needs to happen in tallyVotes after all win conditions are evaluated.
+            return true;
+        }
     },
     happy: {
         label: 'Happy', class: 'happy', 
         tip: 'EVERYONE WINS!!! (Only reveal at the end of the game)', 
         grad: 'linear-gradient(135deg, red 0%, orange 20%, yellow 40%, green 60%, blue 80%, violet 100%)',
         textColor: '#FFFF00',
-        subTextColor: '#FFFF96',
+        subTextColor: '#FFFF96', 
+        winCondition: () => true, // Everyone wins
         roleType: 'neutral',
         chance: 0.0001
     },
@@ -63,10 +69,11 @@ export const ROLE_MODIFIERS = {
         label: 'Lucky', class: 'lucky', 
         tip: 'Your vote counts as 2!', 
         grad: 'linear-gradient(135deg, lightgreen 0%, green 100%)',
-        textColor: '#AAFF00',
+        textColor: '#AAFF00', 
         subTextColor: '#37FF41',
         roleType: 'innocent',
-        chance: 0.035
+        chance: 0.035,
+        extraVotes: 1
     },
     unlucky: {
         label: 'Unlucky', class: 'unlucky', 
@@ -74,8 +81,9 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, green 0%, darkgreen 100%)',
         textColor: '#5EA000',
         subTextColor: '#37C841',
-        roleType: 'innocent',
-        chance: 0.035
+        roleType: 'innocent', 
+        chance: 0.035,
+        extraVotes: -1
     },
     terrorist: {
         label: 'Terrorist', class: 'terrorist', 
@@ -347,7 +355,10 @@ export const ROLE_DATA = {
         grad: 'linear-gradient(135deg, #FF00FF 0%, #800080 100%)',
         textColor: 'white',
         showWord: true, 
-        roleType: 'neutral',
+        roleType: 'neutral', 
+        winCondition: ({ player, playersOut }) => {
+            return playersOut.includes(player.player_name);
+        },
         selectable: true
     },
     hitmans: {
@@ -359,7 +370,10 @@ export const ROLE_DATA = {
         showWord: true, 
         roleType: 'neutral',
         hasTarget: true,
-        selectable: true
+        selectable: true,
+        winCondition: ({ player, playersOut, getStorageJson }) => {
+            return playersOut.includes(getStorageJson('hitmanTargets', {})[player.player_name]);
+        }
     },
     shapeshifters: {
         label: 'Shapeshifter',
@@ -386,17 +400,28 @@ export const ROLE_DATA = {
         showWord: true, 
         roleType: 'innocent',
         hasTarget: true,
-        selectable: true
+        selectable: true,
+        winCondition: ({ player, playersOut, getStorageJson }) => {
+            const myTarget = getStorageJson('guardian_angelTargets', {})[player.player_name];
+            return !playersOut.includes(myTarget); // Win if target is not voted out
+        }
     },
     alphas: {
         label: 'Alpha',
         class: 'alpha',
-        tip: 'If you get even 1 vote, you lose!',
+        tip: 'If you get even 1 vote, you lose! But you win if you dont receive any votes.',
         grad: 'linear-gradient(135deg, #C8C8C8 0%, #646464 100%)',
         textColor: 'white',
         showWord: true, 
-        roleType: 'innocent',
-        selectable: true
+        roleType: 'innocent', 
+        selectable: true,
+        winCondition: ({ player, votes }) => {
+            const votesForMe = (votes[player.player_name] || []).length; // This vote count is before the plusAbility is applied
+            return votesForMe === 0; // Win if you get 0 votes, lose otherwise.
+        },
+        plusAbility: (voters, { getRoleOfPlayer, ROLE_DATA, INNOCENT_CONFIG }) => {
+            return voters.filter(voterName => (ROLE_DATA[getRoleOfPlayer(voterName)] || INNOCENT_CONFIG).roleType !== 'imposter');
+        }
     },
     inspectors: {
         label: 'Inspector Goole',
@@ -555,7 +580,7 @@ export const ROLE_DATA = {
     divine_art: {
         label: 'Divine Arts',
         class: 'divine_art',
-        tip: 'Any votes cast against you dont count.',
+        tip: 'Any votes cast against you are nullified.',
         grad: 'linear-gradient(135deg, #ddd800, #e3e236, #e9ec53, #f0f56c, #f7ff83)',
         textColor: '#FFFDAA',
         showWord: true,
@@ -565,7 +590,7 @@ export const ROLE_DATA = {
     gold_roger: {
         label: 'Gol D. Roger',
         class: 'gold_roger',
-        tip: 'Choose someone to give your vote to.\nYou will die but they will get your vote.',
+        tip: 'Choose someone to give your will to.\nYou will die, but they will gain an extra vote.',
         grad: 'linear-gradient(135deg, #ddd800, #e3e236, #e9ec53, #f0f56c, #f7ff83)',
         textColor: '#FFFDAA',
         showWord: false,
@@ -577,7 +602,10 @@ export const ROLE_DATA = {
         revealText: "<player> HAS GIVEN THEIR WILL TO",
         selectionListColor: 'rgba(180, 80, 50, 0.7)',
         selectionText: "SELECT SOMEONE TO GIVE YOUR WILL TO",
-        alsoKillsSelf: true
+        alsoKillsSelf: true,
+        winCondition: ({ gameOutcome }) => {
+            return gameOutcome === 'innocents_win'; // Wins with the innocents
+        }
     },
     epstein: {
         label: 'Epstein',
@@ -594,6 +622,11 @@ export const ROLE_DATA = {
         revealText: "EPSTEIN HAS BROUGHT HIS VICTIM TO HIS ISLAND",
         selectionListColor: 'rgba(200, 200, 200, 0.7)',
         selectionText: "SELECT A VICTIM TO ENTER YOUR ISLAND",
+        winCondition: ({ player, votes, getStorageJson }) => {
+            const victim = getStorageJson('epsteinSelectedTargets', {})[player.player_name];
+            const votesForEpstein = votes[player.player_name] || [];
+            return !votesForEpstein.includes(victim);
+        },
         selectionRevealEffects: [
             {
                 'text': '<player> was diddled to death. RIP',

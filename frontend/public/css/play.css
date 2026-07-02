@@ -19,7 +19,7 @@
     font-weight: bold;
     color: #ff4d4d;
     text-shadow: 0 0 5px #000;
-    margin-top: 4px;
+    align-self: flex-start;
 }
 
 .role-type-summary {
@@ -53,9 +53,9 @@
 
 /* --- Shared Button/Interaction Styles --- */
 #back-button,
-#view-roles,
 #start-vote,
 #close-reveal-btn,
+#confirm-vote-btn,
 #ready-button {
     padding: 10px 20px;
     font-size: 1.5rem;
@@ -70,21 +70,24 @@
 }
 
 #back-button,
-#view-roles,
 #start-vote,
 #ready-button,
 #close-reveal-btn,
+#confirm-vote-btn,
 .player-view-role,
 .shapeshifter-role-selection button {
     transition: transform 0.1s ease, filter 0.1s ease;
 }
 
-#back-button, #close-reveal-btn {
-    background-color: rgb(128, 0, 0);
+#back-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 100;
 }
 
-#view-roles {
-    background-color: rgb(128, 0, 128);
+#back-button, #close-reveal-btn {
+    background-color: rgb(128, 0, 0);
 }
 
 #start-vote {
@@ -92,14 +95,18 @@
 }
 
 #ready-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
     background-color: rgb(0, 128, 0);
 }
 
 #ready-button:hover,
 #back-button:hover,
-#view-roles:hover,
 #start-vote:hover,
-#close-reveal-btn,
+#close-reveal-btn:hover,
+#confirm-vote-btn:hover,
 .player-view-role:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
@@ -107,8 +114,8 @@
 
 #ready-button:active,
 #back-button:active,
-#view-roles:active,
 #start-vote:active,
+#confirm-vote-btn:active,
 #close-reveal-btn:active,
 .player-view-role:active {
     transform: scale(0.95);
@@ -159,17 +166,133 @@
 
 #roles-list, #vote-container {
     width: 90%;
-    background: radial-gradient(ellipse, #667eea 0%, #764ba2 100%);
+    max-width: 800px;
+    background: radial-gradient(ellipse, #4a4e69 0%, #2a2a40 100%);
     margin-top: 20px;
     border: 3px solid black;
     border-radius: 10px;
     display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 15px;
-    padding: 15px;
+    gap: 25px;
+    padding: 25px;
     text-align: left;
+}
+
+#vote-players-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+#vote-result {
+    width: 90%;
+    max-width: 600px;
+    margin-top: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 3px solid black;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    align-items: center;
+}
+
+.player-vote-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #4a4e69, #2a2a40);
+    border-radius: 8px;
+    border: 2px solid #9a8c98;
+    transition: all 0.3s ease;
+}
+
+.player-vote-result.is-winner {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.7);
+    background: linear-gradient(135deg, #4dff88, #00b33c);
+}
+
+.player-vote-result.is-max-vote {
+    background: linear-gradient(135deg, #ff4d4d, #b30000);
+    transform: scale(1.1);
+    border-color: #ff8080;
+    box-shadow: 0 0 15px rgba(255, 77, 77, 0.6);
+}
+
+#word-display-result {
+    font-size: 1.5rem;
+    color: white;
+    text-shadow: 0 2px 4px #000;
+    margin-bottom: 10px;
+}
+
+#event-display-result {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.vote-count {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f2e9e4;
+}
+
+.player-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.player-role-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.player-role-info .badge:first-child {
+    font-size: 1rem; /* Main role slightly bigger */
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.win-loss-badge {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.win-loss-badge.winner {
+    background: linear-gradient(135deg, #28a745, #218838);
+    border: 1px solid #86e39b;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.7);
+}
+
+.win-loss-badge.loser {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border: 1px solid #e8828d;
+    opacity: 0.8;
 }
 
 /* --- Player & Role Elements --- */
@@ -450,10 +573,35 @@
 
 /* --- Utilities --- */
 .vote-player-btn.is-selected {
-    background-color: lime !important;
-    color: black !important;
-    border: 3px solid white !important;
-    box-shadow: 0 0 15px lime;
+    box-shadow: 0 0 15px white;
+}
+
+.vote-player-btn.is-killed {
+    filter: grayscale(1) brightness(0.6);
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: #555;
+}
+
+#confirm-vote-btn {
+    padding: 12px 30px;
+    font-size: 1.8rem;
+    background-color: #28a745;
+    color: white;
+}
+
+#confirm-vote-btn:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.8);
+}
+
+.vote-player-btn.is-killed {
+    filter: grayscale(1) brightness(0.6);
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: #555;
 }
 
 @media (max-width: 900px) {

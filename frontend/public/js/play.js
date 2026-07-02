@@ -11,6 +11,7 @@ let data, selectedTopic, words, selectedWord = null;
 let currentIndex = 1;
 let viewingRoles = false;
 let gameTimer = null;
+let selectedVoteTarget = null;
 const main = document.getElementById('main');
 const roleDisplay = document.getElementById('role-display');
 
@@ -312,7 +313,7 @@ function displayRole(playerIndex) {
             roleTypeEl.innerHTML = configUi.roleType ? `TYPE: ${configUi.roleType}` : '';
         }
 
-        roleTitle.innerHTML = `Player ${playerIndex} role:`;
+        roleTitle.innerHTML = `${playerName}'s role:`;
         
         roleStatus.innerHTML = configUi.displayLabel || configUi.label;
         roleStatus.classList.add(configUi.class);
@@ -486,11 +487,12 @@ function displayRole(playerIndex) {
                 const wasShapeshifter = getStorageJson('shapeshifters').includes(playerName);
                 const playerRole = wasShapeshifter ? 'shapeshifters' : (baseRoleKey || 'innocents');
                 tipText += '\n\n<span style="text-decoration: underline;">PLUS ABILITY:</span>\n';
-                roleStatus.innerHTML += `<span style="color: #29D1FF; font-weight: bold; font-size: 150%;"> +</span>`
+                roleStatus.innerHTML += `<span style="color: #29D1FF; font-weight: bold; font-size: 150%;"> +</span>`;
+                const playerRoleConfig = ROLE_DATA[playerRole] || INNOCENT_CONFIG;
 
                 if (playerRole === "innocents") {
                     tipText += `[All other innocents know you are innocent]`
-                } else if (playerRole === "imposters") {
+                } else if (playerRoleConfig.roleType === "imposter") {
                     tipText += `[Your final vote count will be 1 less]`
                 } else if (playerRole === "shapeshifters") {
                     if (getStorageJson('unselected_shapeshifters').includes(playerName)) {
@@ -499,7 +501,11 @@ function displayRole(playerIndex) {
                         tipText += `[Used to select extra modifier]`
                     }
                 } else if (playerRole === "divine_art") {
-                    tipText += `[You can redirect any votes cast onto you]`
+                    tipText += `[You can redirect any votes cast onto you to whoever you vote for]`
+                } else if (playerRole === "gold_roger") {
+                    tipText += `[The player you give your will to will receive 2 votes instead of 1]`
+                } else if (playerRole === "alphas") {
+                    tipText += `[Votes from Imposter roles against you are ignored]`
                 } else {
                     tipText += `[NONE]`
                 }
@@ -765,6 +771,9 @@ function displayRole(playerIndex) {
 // Reset UI between player turns
 function hideRole(playerIndex) {
     sessionStorage.setItem('current_player_is_ready', 'false');
+    const players = getStorageJson('current_players');
+    const playerName = players[playerIndex - 1]?.player_name || "Player";
+
     const roleStatus = document.getElementById('role-status');
     const wordDisplay = document.getElementById('word');
 
@@ -782,157 +791,21 @@ function hideRole(playerIndex) {
     roleStatus.innerHTML = '???';
     document.getElementById('role-tip').innerHTML = 'Turn the device away from other players.';
     document.getElementById('role-tip').style.fontSize = '2em';
-    document.getElementById('role-title').innerHTML = `Player ${playerIndex} role:`;
+    document.getElementById('role-title').innerHTML = `${playerName}'s role:`;
     wordDisplay.innerHTML = "Click 'Next' to reveal!";
     roleDisplay.style.backgroundImage = 'radial-gradient(circle, #FFFF00 0%, #808000 100%)';
 }
 
-// Show summary of all roles
-function viewRoles() {
-    if (viewingRoles) {
-        document.getElementById('roles-list')?.remove();
-        document.getElementById('word-display')?.remove();
-        document.getElementById('event-display')?.remove();
-        viewingRoles = false;
-        return;
-    }
-    viewingRoles = true;
-
-    const activeEvents = JSON.parse(localStorage.getItem('active_random_events') || '[]');
-    const hiddenEvents = activeEvents.filter(k => RANDOM_EVENTS[k]?.displayEventOnShowRoles);
-
-    if (hiddenEvents.length > 0) {
-        const eventInfo = document.createElement('div');
-        eventInfo.id = 'event-display';
-
-        hiddenEvents.forEach(k => {
-            const eventCfg = RANDOM_EVENTS[k];
-            const badge = document.createElement('div');
-            badge.className = 'random-event-badge titan-one-regular';
-            badge.innerHTML = (eventCfg?.label || k).toUpperCase();
-            badge.style.background = eventCfg?.grad || 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)';
-            badge.style.color = eventCfg?.textColor || 'white';
-            badge.style.border = `1px solid ${eventCfg?.textColor || '#FFD700'}`;
-            eventInfo.appendChild(badge);
-        });
-        main.insertBefore(eventInfo, document.getElementById('view-roles'));
-    }
-
-    const players = getStorageJson('current_players');
-    const listContainer = document.createElement('div');
-    listContainer.id = 'roles-list';
-
-    const wordInfo = document.createElement('div');
-    wordInfo.id = 'word-display';
-    wordInfo.innerHTML = `Word: ${selectedWord}`;
-    main.insertBefore(wordInfo, document.getElementById('view-roles'));
-
-    players.forEach(p => {
-        const killedPlayers = Object.values(getStorageJson('ninjaSelectedTargets', {}));
-        const el = document.createElement('div');
-        el.className = 'player-view-role';
-        const name = p.player_name;
-        
-        const activeRoleKeys = Object.keys(ROLE_DATA).filter(k => k !== 'shapeshifters');
-        let foundKey = activeRoleKeys.find(key => getStorageJson(key).includes(name));
-        
-        const isshapeshifter = getStorageJson('shapeshifters').includes(name);
-        const isUnselected = getStorageJson('unselected_shapeshifters').includes(name);
-
-        if (!foundKey && isshapeshifter && isUnselected) {
-            foundKey = 'shapeshifters';
-        }
-
-        const roleConfig = (foundKey && ROLE_DATA[foundKey]) ? ROLE_DATA[foundKey] : INNOCENT_CONFIG;
-
-        // Player Name
-        const nameSpan = document.createElement('span');
-        nameSpan.innerHTML = name;
-        nameSpan.className = 'player-name'
-        el.appendChild(nameSpan);
-
-        if (killedPlayers.includes(name)) {
-            const killedSpan = document.createElement('span');
-            killedSpan.innerHTML = '(KILLED)';
-            killedSpan.className = 'player-killed-status';
-            el.appendChild(killedSpan);
-        }
-
-        // Add roleType text in summary
-        if (roleConfig.roleType) {
-            const alignSpan = document.createElement('span');
-            alignSpan.innerHTML = `${roleConfig.roleType.toUpperCase()}`;
-            alignSpan.className = 'role-type-summary'
-            el.appendChild(alignSpan);
-        }
-
-        // Wrapper for badges
-        const badgeWrapper = document.createElement('div');
-        badgeWrapper.className = "badge-wrapper"
-
-        const createBadge = (label, config) => {
-            const badge = document.createElement('div');
-            badge.innerHTML = label.toUpperCase();
-            badge.style.background = config.grad;
-            badge.style.color = config.textColor || 'white';
-            badge.style.border = `1px solid ${config.textColor === 'white' ? 'rgba(255,255,255,0.3)' : config.textColor}`;
-            badge.className = 'badge titan-one-regular'
-            return badge;
-        };
-
-        // Add Role Badge
-        const roleName = foundKey ? ROLE_DATA[foundKey].label : 'Innocent';
-        badgeWrapper.appendChild(createBadge(roleName, roleConfig));
-
-        // Add Modifier Badges
-        Object.keys(ROLE_MODIFIERS).forEach(modKey => {
-            if (getStorageJson(modKey).includes(name)) {
-                badgeWrapper.appendChild(createBadge(ROLE_MODIFIERS[modKey].label, ROLE_MODIFIERS[modKey]));
-            }
-        });
-
-        el.appendChild(badgeWrapper);
-
-        let roleExtra = '';
-        
-        const wasVenom = getStorageJson('original_venom').includes(name);
-        const isStillVenom = getStorageJson('venom').includes(name);
-
-        if (isshapeshifter && !isUnselected) {
-            roleExtra += ' (Shapeshifter)';
-        }
-        if (wasVenom && !isStillVenom) {
-            roleExtra += ' (Venom)';
-        }
-        
-        Object.keys(ROLE_DATA).forEach(key => {
-            if (ROLE_DATA[key].hasTarget) {
-                const target = getStorageJson(`${getBaseRoleId(key)}Targets`, {})[name];
-                if (target) roleExtra += ` [TARGET: ${target}]`;
-            }
-        });
-
-        const inspectorClues = getStorageJson('inspectorClues', {});
-        if (inspectorClues[name]) {
-            roleExtra += ` [CLUE: ${inspectorClues[name]}]`;
-        }
-
-        if (roleExtra) {
-            const extraEl = document.createElement('div');
-            extraEl.innerHTML = roleExtra.trim();
-            extraEl.className = "role-extra"
-            el.appendChild(extraEl);
-        }
-
-        listContainer.appendChild(el);
-    });
-    main.appendChild(listContainer);
+// Helper to get players who are not killed
+function getLivingPlayers() {
+    const allPlayers = getStorageJson('current_players');
+    const killedPlayers = Object.values(getStorageJson('ninjaSelectedTargets', {}));
+    return allPlayers.filter(p => !killedPlayers.includes(p.player_name));
 }
 
-// Starts the voting process
+// Start vote
 function startVote() {
-    document.getElementById('start-vote')?.remove();
-    document.getElementById('view-roles')?.remove();
+    document.getElementById('start-vote')?.remove();;
     document.getElementById('big-text').innerHTML = 'VOTE';
 
     localStorage.setItem('votes', JSON.stringify({}));
@@ -941,21 +814,63 @@ function startVote() {
     const voteContainer = document.createElement('div');
     voteContainer.id = 'vote-container';
 
-    const playerContainer = document.createElement('div');
-    playerContainer.id = 'vote-players';
     const players = getStorageJson('current_players');
+    const playerButtonsContainer = document.createElement('div');
+    playerButtonsContainer.id = 'vote-players-grid';
+    const killedPlayers = Object.values(getStorageJson('ninjaSelectedTargets', {}));
 
     players.forEach(p => {
         const playerBtn = document.createElement('div');
-        playerBtn.className = 'player-view-role';
+        playerBtn.className = 'player-view-role vote-player-btn';
+        playerBtn.dataset.playerName = p.player_name;
         playerBtn.innerHTML = p.player_name;
-        playerBtn.onclick = () => castVote(p.player_name);
-        playerContainer.appendChild(playerBtn);
+        if (killedPlayers.includes(p.player_name)) {
+            playerBtn.classList.add('is-killed');
+        } else {
+            playerBtn.onclick = () => selectVoteTarget(p.player_name);
+        }
+        playerButtonsContainer.appendChild(playerBtn);
     });
 
-    voteContainer.appendChild(playerContainer);
+    voteContainer.appendChild(playerButtonsContainer);
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.id = 'confirm-vote-btn';
+    confirmBtn.className = 'titan-one-regular';
+    confirmBtn.innerHTML = 'CONFIRM VOTE';
+    confirmBtn.disabled = true;
+    confirmBtn.onclick = () => {
+        if (selectedVoteTarget) {
+            castVote(selectedVoteTarget);
+            // Reset selection for next voter
+            document.querySelectorAll('.vote-player-btn.is-selected').forEach(btn => btn.classList.remove('is-selected'));
+            selectedVoteTarget = null;
+            confirmBtn.disabled = true;
+        }
+    };
+    voteContainer.appendChild(confirmBtn);
+
     main.appendChild(voteContainer);
     updateVoterPrompt();
+}
+
+// Handles selecting a player to vote for
+function selectVoteTarget(playerName) {
+    // Clear previous selection
+    document.querySelectorAll('.vote-player-btn.is-selected').forEach(btn => btn.classList.remove('is-selected'));
+
+    // Select new target
+    const targetBtn = document.querySelector(`.vote-player-btn[data-player-name="${playerName}"]`);
+    if (targetBtn) {
+        targetBtn.classList.add('is-selected');
+        selectedVoteTarget = playerName;
+    }
+
+    // Enable confirm button
+    const confirmBtn = document.getElementById('confirm-vote-btn');
+    if (confirmBtn) {
+        confirmBtn.disabled = false;
+    }
 }
 
 // Update the prompt showing who is currently voting
@@ -968,12 +883,12 @@ function updateVoterPrompt() {
         main.insertBefore(voterPrompt, document.getElementById('vote-container'));
     }
 
-    const players = getStorageJson('current_players');
+    const livingPlayers = getLivingPlayers();
     const votedPlayers = getStorageJson('voted_players');
-    const nextVoter = players.find(p => !votedPlayers.includes(p.player_name));
+    const nextVoter = livingPlayers.find(p => !votedPlayers.includes(p.player_name));
 
     if (nextVoter) {
-        voterPrompt.innerHTML = `${nextVoter.player_name}, please cast your vote.`;
+        voterPrompt.innerHTML = `${nextVoter.player_name}'s VOTE:`;
     } else {
         voterPrompt.remove();
     }
@@ -981,26 +896,45 @@ function updateVoterPrompt() {
 
 // Handles a player casting their vote
 function castVote(votedFor) {
-    const players = getStorageJson('current_players');
+    const livingPlayers = getLivingPlayers();
     const votedPlayers = getStorageJson('voted_players');
-    const nextVoter = players.find(p => !votedPlayers.includes(p.player_name));
+    const nextVoter = livingPlayers.find(p => !votedPlayers.includes(p.player_name));
 
-    if (!nextVoter) return; // All votes are in
+    if (!nextVoter) return; // All votes are done
 
     const votes = getStorageJson('votes', {});
-    votes[votedFor] = (votes[votedFor] || 0) + 1;
+    if (!votes[votedFor]) {
+        votes[votedFor] = [];
+    }
+    votes[votedFor].push(nextVoter.player_name);
+
     localStorage.setItem('votes', JSON.stringify(votes));
 
     votedPlayers.push(nextVoter.player_name);
     localStorage.setItem('voted_players', JSON.stringify(votedPlayers));
 
-    alert(`${nextVoter.player_name} voted for ${votedFor}.`);
+    //alert(`${nextVoter.player_name} voted for ${votedFor}.`);
 
-    if (votedPlayers.length >= players.length) {
+    if (votedPlayers.length >= livingPlayers.length) {
         tallyVotes();
     } else {
         updateVoterPrompt();
     }
+}
+
+// Helper to get the primary role of a player
+function getRoleOfPlayer(playerName) {
+    const activeRoleKeys = Object.keys(ROLE_DATA).filter(k => k !== 'shapeshifters');
+    let roleKey = activeRoleKeys.find(key => getStorageJson(key).includes(playerName));
+
+    const isUnselectedShapeshifter = getStorageJson('unselected_shapeshifters').includes(playerName);
+    if (!roleKey && getStorageJson('shapeshifters').includes(playerName) && !isUnselectedShapeshifter) {
+        // This player was a shapeshifter but has chosen a role.
+        // The above find should have caught it. If it doesnt default to innocent shapeshifter.
+    } else if (isUnselectedShapeshifter) {
+        roleKey = 'shapeshifters';
+    }
+    return roleKey || 'innocents';
 }
 
 // Tally votes and display the result
@@ -1009,23 +943,312 @@ function tallyVotes() {
     document.getElementById('voter-prompt')?.remove();
     document.getElementById('big-text').innerHTML = 'VOTE RESULTS';
 
-    const votes = getStorageJson('votes', {});
-    let maxVotes = 0;
-    let playersOut = [];
-
-    for (const player in votes) {
-        if (votes[player] > maxVotes) {
-            maxVotes = votes[player];
-            playersOut = [player];
-        } else if (votes[player] === maxVotes) {
-            playersOut.push(player);
-        }
-    }
-
     const resultContainer = document.createElement('div');
     resultContainer.id = 'vote-result';
-    resultContainer.innerHTML = `<h2 class="titan-one-regular">Voted Out:</h2><p>${playersOut.join(', ')} with ${maxVotes} votes.</p>`;
     main.appendChild(resultContainer);
+
+    // Display word
+    const wordInfo = document.createElement('div');
+    wordInfo.id = 'word-display-result';
+    wordInfo.className = 'titan-one-regular';
+    wordInfo.innerHTML = `The Word Was: <span style="color: #ffeb3b;">${selectedWord}</span>`;
+    resultContainer.appendChild(wordInfo);
+
+    // Display hidden random events
+    const activeEvents = getStorageJson('active_random_events', []);
+    const hiddenEvents = activeEvents.filter(k => RANDOM_EVENTS[k]?.displayEventOnShowRoles);
+    if (hiddenEvents.length > 0) {
+        const eventInfo = document.createElement('div');
+        eventInfo.id = 'event-display-result';
+        hiddenEvents.forEach(k => {
+            const eventCfg = RANDOM_EVENTS[k];
+            const badge = document.createElement('div');
+            badge.className = 'random-event-badge titan-one-regular';
+            badge.innerHTML = (eventCfg?.label || k).toUpperCase();
+            badge.style.background = eventCfg?.grad || 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)';
+            badge.style.color = eventCfg?.textColor || 'white';
+            badge.style.border = `1px solid ${eventCfg?.textColor || '#FFD700'}`;
+            eventInfo.appendChild(badge);
+        });
+        resultContainer.appendChild(eventInfo);
+    }
+
+    const votes = getStorageJson('votes', {});
+
+    // Create a mutable copy of votes to process abilities like Alpha+
+    const processedVotes = JSON.parse(JSON.stringify(votes));
+
+    // Pre-process votes for roles that modify incoming votes (e.g., Alpha+)
+    Object.keys(processedVotes).forEach(votedForPlayer => {
+        const playerRole = getRoleOfPlayer(votedForPlayer);
+        const playerModifiers = Object.keys(ROLE_MODIFIERS).filter(modKey => getStorageJson(modKey).includes(votedForPlayer));
+        const roleConfig = ROLE_DATA[playerRole] || INNOCENT_CONFIG;
+
+        if (roleConfig.plusAbility && playerModifiers.includes('plus')) {
+            const originalVoters = processedVotes[votedForPlayer];
+            const filteredVoters = roleConfig.plusAbility(originalVoters, { getRoleOfPlayer, ROLE_DATA, INNOCENT_CONFIG });
+            processedVotes[votedForPlayer] = filteredVoters;
+        }
+    });
+
+
+    // --- Divine Arts logic ---
+    const divinePlayers = getStorageJson('divine_art');
+    const plusPlayers = getStorageJson('plus');
+
+    divinePlayers.forEach(divinePlayerName => {
+        const isPlus = plusPlayers.includes(divinePlayerName);
+
+        if (isPlus) { // Divine Arts+ redirects votes
+            // Find who the divine player voted for
+            let divineTarget = null;
+            for (const target in processedVotes) {
+                if (processedVotes[target].includes(divinePlayerName)) {
+                    divineTarget = target;
+                    break;
+                }
+            }
+
+            if (divineTarget && divineTarget !== divinePlayerName) {
+                const votesForDivine = processedVotes[divinePlayerName] || [];
+                if (votesForDivine.length > 0) {
+                    if (!processedVotes[divineTarget]) processedVotes[divineTarget] = [];
+                    processedVotes[divineTarget].push(...votesForDivine);
+                    processedVotes[divinePlayerName] = []; // Clear votes after redirecting
+                }
+            }
+        } else { // Base Divine Arts nullifies votes
+            if (processedVotes[divinePlayerName]) {
+                processedVotes[divinePlayerName] = [];
+            }
+        }
+    });
+
+    const voteEntries = Object.entries(processedVotes).map(([player, finalVoters]) => {
+        // Recalculate total votes based on the potentially filtered voter list
+        let totalVotes = 0;
+        finalVoters.forEach(voterName => {
+            let voteValue = 1; // Base vote
+            const voterRole = getRoleOfPlayer(voterName);
+            const activeModifiers = Object.keys(ROLE_MODIFIERS).filter(modKey => getStorageJson(modKey).includes(voterName));
+
+            // Apply modifiers with extraVotes
+            activeModifiers.forEach(modKey => {
+                const modConfig = ROLE_MODIFIERS[modKey];
+                if (modConfig.extraVotes) {
+                    voteValue += modConfig.extraVotes;
+                }
+            });
+
+            // --- Gol D. Roger vote transfer logic ---
+            const rogerPlayers = getStorageJson('gold_roger');
+            const rogerTargets = getStorageJson('gold_rogerSelectedTargets', {});
+            const rogerPlusPlayers = getStorageJson('plus');
+
+            // Check if the current voter is a target of any Gol D. Roger
+            for (const rogerName of rogerPlayers) {
+                if (rogerTargets[rogerName] === voterName) {
+                    const isPlus = rogerPlusPlayers.includes(rogerName);
+                    voteValue += isPlus ? 2 : 1;
+                    break; // A player can only be a target once
+                }
+            }
+
+            // Apply Imposter+ modifier
+            if ((ROLE_DATA[voterRole] || INNOCENT_CONFIG).roleType === 'imposter' && activeModifiers.includes('plus')) {
+                voteValue -= 1;
+            }
+            // Apply Jester+ modifier
+            if (voterRole === 'jesters' && activeModifiers.includes('plus')) {
+                voteValue += 1;
+            }
+            totalVotes += Math.max(0, voteValue); // vote count doesnt go negative
+        });
+        return [player, totalVotes];
+    });
+
+    if (voteEntries.length === 0) {
+        resultContainer.innerHTML = `<p>No votes were cast.</p>`;
+        return;
+    }
+
+    // Sort by votes descending
+    voteEntries.sort(([, countA], [, countB]) => countB - countA);
+
+    const maxVotes = voteEntries[0][1];
+
+    // Determine game outcome based on who was voted out
+    let gameOutcome = 'in_progress';
+    let playersOut = voteEntries.filter(([, count]) => count === maxVotes).map(([player]) => player);
+    let tieBroken = false;
+
+    if (playersOut.length > 1) {
+        // Randomly selecting player for ties
+        tieBroken = true;
+        const randomIndex = Math.floor(Math.random() * playersOut.length);
+        const votedOutPlayer = playersOut[randomIndex];
+        playersOut = [votedOutPlayer]; // playersOut will only have one player
+    }
+
+    if (playersOut.length === 1) {
+        const votedOutPlayer = playersOut[0];
+        const votedOutRole = getRoleOfPlayer(votedOutPlayer);
+        const roleConfig = ROLE_DATA[votedOutRole] || INNOCENT_CONFIG;
+
+        if (roleConfig.roleType === 'imposter') {
+            gameOutcome = 'innocents_win';
+        } else if (votedOutRole === 'jesters') {
+            gameOutcome = 'jester_wins';
+        } else if (getStorageJson('terrorist').includes(votedOutPlayer)) {
+            gameOutcome = 'terrorist_event';
+        } else {
+            gameOutcome = 'imposters_win';
+        }
+    } else {
+        // This case handles no votes or a 0-0 tie where no one is out.
+        gameOutcome = 'tie';
+    }
+
+    const title = document.createElement('h2');
+    title.className = 'titan-one-regular';
+    if (tieBroken) {
+        title.innerHTML = `TIE-BREAKER! <span style="font-size: 1rem; opacity: 0.8;">(Randomly Selected)</span>`;
+    } else {
+        title.textContent = 'Total Votes';
+    }
+    title.textContent = 'Total Votes';
+    resultContainer.appendChild(title);
+
+    const allWinStates = {};
+    const allPlayers = getStorageJson('current_players');
+
+    allPlayers.forEach(player => {
+        const playerName = player.player_name;
+        const votesForPlayer = (votes[playerName] || []).length;
+        const playerRole = getRoleOfPlayer(playerName);
+        const roleConfig = ROLE_DATA[playerRole] || INNOCENT_CONFIG; 
+
+        // Determine individual win/loss
+        let playerWins = false;
+        if (roleConfig.winCondition) {
+            playerWins = roleConfig.winCondition({
+                player: player,
+                playersOut: playersOut,
+                votes: processedVotes, // Use the processed votes for win conditions
+                gameOutcome: gameOutcome,
+                allPlayers: allPlayers,
+                getStorageJson: getStorageJson
+            });
+        } else {
+            // Default team-based win conditions
+            if (gameOutcome === 'jester_wins') {
+                // Jester already handled by its winCondition, so non-jesters lose
+                playerWins = false;
+            } else if (gameOutcome === 'innocents_win') {
+                playerWins = roleConfig.roleType === 'innocent';
+            } else if (gameOutcome === 'imposters_win') {
+                playerWins = roleConfig.roleType === 'imposter';
+            } else if (gameOutcome === 'terrorist_event') {
+                playerWins = false; // Everyone loses
+            }
+        }
+
+        allWinStates[playerName] = playerWins;
+    });
+
+    allPlayers.forEach(player => {
+        const playerName = player.player_name;
+        // Find the final calculated vote count for this player from voteEntries
+        const voteEntry = voteEntries.find(([pName]) => pName === playerName);
+        const finalVoteCount = voteEntry ? voteEntry[1] : 0;
+
+        const playerRole = getRoleOfPlayer(playerName);
+        const roleConfig = ROLE_DATA[playerRole] || INNOCENT_CONFIG;
+        let playerWins = allWinStates[playerName];
+        const killedPlayers = Object.values(getStorageJson('ninjaSelectedTargets', {}));
+        const isKilled = killedPlayers.includes(playerName);
+
+        if (isKilled) playerWins = false; // Killed players can't win
+
+        // Special win conditions
+        if (playerRole === 'hitmans' && playersOut.includes(getStorageJson('hitmanTargets', {})[playerName])) {
+            playerWins = true; // Hitman wins if their target is voted out
+        }
+
+        const isVotedOut = playersOut.includes(playerName);
+        const playerVoteDiv = document.createElement('div');
+        playerVoteDiv.className = 'player-vote-result';
+        if (isVotedOut) {
+            playerVoteDiv.classList.add('is-max-vote');
+        }
+        if (playerWins) {
+            playerVoteDiv.classList.add('is-winner');
+        }
+
+        const createBadgeHTML = (label, config) => {
+            const bgColor = config.grad;
+            const textColor = config.textColor || 'white';
+            const borderColor = textColor === 'white' ? 'rgba(255,255,255,0.3)' : textColor;
+            return `<div class="badge titan-one-regular" style="background: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor};">${label.toUpperCase()}</div>`;
+        };
+
+        // Get modifiers
+        const activeModifiers = Object.keys(ROLE_MODIFIERS).filter(modKey => getStorageJson(modKey).includes(playerName));
+
+        let roleAndModsHTML = `<div class="player-role-info">`;
+        roleAndModsHTML += createBadgeHTML(roleConfig.label, roleConfig);
+
+        if (activeModifiers.length > 0) {
+            activeModifiers.forEach(modKey => {
+                const modConfig = ROLE_MODIFIERS[modKey];
+                roleAndModsHTML += createBadgeHTML(modConfig.label, modConfig);
+            });
+        }
+        roleAndModsHTML += `</div>`;
+
+        let extraInfoHTML = '';
+        const wasShapeshifter = getStorageJson('shapeshifters').includes(playerName);
+        const isUnselected = getStorageJson('unselected_shapeshifters').includes(playerName);
+        const wasVenom = getStorageJson('original_venom').includes(playerName);
+        const isStillVenom = getStorageJson('venom').includes(playerName);
+
+        let roleExtra = '';
+        if (wasShapeshifter && !isUnselected) roleExtra += ' (Shapeshifter)';
+        if (wasVenom && !isStillVenom) roleExtra += ' (Venom)';
+        
+        Object.keys(ROLE_DATA).forEach(key => {
+            if (ROLE_DATA[key].hasTarget) {
+                const target = getStorageJson(`${getBaseRoleId(key)}Targets`, {})[playerName];
+                if (target) roleExtra += ` [TARGET: ${target}]`;
+            }
+        });
+
+        const inspectorClues = getStorageJson('inspectorClues', {});
+        if (inspectorClues[playerName]) {
+            roleExtra += ` [CLUE: ${inspectorClues[playerName]}]`;
+        }
+
+        if (roleExtra) {
+            extraInfoHTML = `<div class="player-extra-info">${roleExtra.trim()}</div>`;
+        }
+
+        let killedStatusHTML = '';
+        if (isKilled && !isVotedOut) {
+            killedStatusHTML = `<div class="player-killed-status">KILLED</div>`;
+        }
+
+        const winLossBadge = `<span class="win-loss-badge ${playerWins ? 'winner' : 'loser'}">${playerWins ? 'WINNER' : 'LOSER'}</span>`;
+
+        playerVoteDiv.innerHTML = `
+            <div class="player-details">
+                <div class="player-info">${winLossBadge}<span class="player-name">${playerName}</span></div>
+                ${killedStatusHTML}
+                ${roleAndModsHTML}
+                ${extraInfoHTML}
+            </div>
+            <span class="vote-count">${finalVoteCount} vote${finalVoteCount !== 1 ? 's' : ''}</span>`;
+        resultContainer.appendChild(playerVoteDiv);
+    });
 }
 
 // Trigger the discussion phase
@@ -1037,20 +1260,12 @@ async function startGame(updateStats = true) {
     timerDisplay.innerHTML = `Time Remaining: ${time}s`;
     timerDisplay.style.fontSize = '1.5rem';
     main.insertBefore(timerDisplay, document.getElementById('back-button'));
-
-    const viewRolesBtn = document.createElement('button');
-    viewRolesBtn.id = 'view-roles';
-    viewRolesBtn.className = 'titan-one-regular';
-    viewRolesBtn.innerHTML = 'View Roles';
-    viewRolesBtn.onclick = viewRoles;
-
     const startVoteBtn = document.createElement('button');
     startVoteBtn.id = 'start-vote';
     startVoteBtn.className = 'titan-one-regular';
     startVoteBtn.innerHTML = 'Start Vote';
     startVoteBtn.onclick = startVote;
 
-    main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
     main.insertBefore(startVoteBtn, document.getElementById('back-button'));
 
     document.getElementById('big-text').innerHTML = 'DISCUSS';

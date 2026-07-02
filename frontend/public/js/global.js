@@ -49,7 +49,7 @@ if (!window.debugLogs) {
 
         const toggleBtn = document.createElement('button');
         toggleBtn.innerText = "DEBUG LOGS";
-        toggleBtn.style = "position: fixed; bottom: 10px; right: 10px; z-index: 99999; font-size: 10px; padding: 5px 10px; opacity: 0.5; border-radius: 5px; background: #222; color: #fff; border: 1px solid #444; font-family: sans-serif;";
+        toggleBtn.style = "position: fixed; top: 10px; right: 10px; z-index: 99999; font-size: 10px; padding: 5px 10px; opacity: 0.5; border-radius: 5px; background: #222; color: #fff; border: 1px solid #444; font-family: sans-serif;";
         toggleBtn.onclick = () => {
             overlay.style.display = 'block';
             logContainer.innerHTML = window.debugLogs.map(log => {
