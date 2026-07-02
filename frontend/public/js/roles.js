@@ -665,7 +665,7 @@ export const ROLE_DATA = {
     recruited_imposters: {
         label: 'Recruited Imposter',
         class: 'imposter',
-        tip: 'You have been recruited by the Mastermind! You are now an Imposter. Help them win!',
+        tip: 'You have been recruited by the Mastermind! You are now an Imposter.',
         grad: 'linear-gradient(135deg, #c04540, #ae5654, #986565, #493333)',
         textColor: '#FF9090',
         showWord: false,
