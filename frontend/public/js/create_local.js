@@ -405,7 +405,7 @@ function init() {
             
             if (percentInput) {
                 // base imposter is 100%
-                percentInput.value = (roleId === 'imposter') ? "100%" : (isSubImposter ? "10%" : "10%"); // first 10% is default for sub-imposters, second 10% is default for other roles 
+                percentInput.value = (roleId === 'imposter') ? "100%" : (isSubImposter ? "10%" : "7%"); // first 7% is default for sub-imposters, second 7% is default for other roles
             }
         });
         saveAllSettings();
