@@ -176,6 +176,36 @@ function decidePlayerList(playersJson, roleCounts = {}) {
 
     runDefaultModifierAssignment();
 
+    // Handle Mastermind recruitment
+    const masterminds = assignedRolesData['mastermind'] || [];
+    if (masterminds.length > 0) {
+        const innocentPlayers = players.filter(p => {
+            // Check if player has any role other than innocent
+            for (const roleKey in assignedRolesData) {
+                if (roleKey === 'innocents') continue;
+                if (assignedRolesData[roleKey].includes(p.player_name)) {
+                    return false;
+                }
+            }
+            return true;
+        }).map(p => p.player_name);
+
+        if (innocentPlayers.length > 0) {
+            const mastermindTargets = {};
+            masterminds.forEach(mastermindName => {
+                const availableTargets = innocentPlayers.filter(p => p !== mastermindName && !Object.values(mastermindTargets).includes(p));
+                if (availableTargets.length > 0) {
+                    const targetName = availableTargets[Math.floor(Math.random() * availableTargets.length)];
+                    mastermindTargets[mastermindName] = targetName;
+
+                    // Change target's role to Recruited Imposter
+                    assignedRolesData['recruited_imposters'].push(targetName);
+                }
+            });
+            localStorage.setItem('mastermindTargets', JSON.stringify(mastermindTargets));
+        }
+    }
+
     localStorage.removeItem('inspectorClues');
     localStorage.removeItem('innocents');
     Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
