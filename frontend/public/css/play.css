@@ -54,6 +54,7 @@
 /* --- Shared Button/Interaction Styles --- */
 #back-button,
 #view-roles,
+#start-vote,
 #close-reveal-btn,
 #ready-button {
     padding: 10px 20px;
@@ -70,6 +71,7 @@
 
 #back-button,
 #view-roles,
+#start-vote,
 #ready-button,
 #close-reveal-btn,
 .player-view-role,
@@ -85,6 +87,10 @@
     background-color: rgb(128, 0, 128);
 }
 
+#start-vote {
+    background-color: rgb(189, 151, 98);
+}
+
 #ready-button {
     background-color: rgb(0, 128, 0);
 }
@@ -92,6 +98,7 @@
 #ready-button:hover,
 #back-button:hover,
 #view-roles:hover,
+#start-vote:hover,
 #close-reveal-btn,
 .player-view-role:hover {
     transform: scale(1.05);
@@ -101,7 +108,8 @@
 #ready-button:active,
 #back-button:active,
 #view-roles:active,
-#close-reveal-btn,
+#start-vote:active,
+#close-reveal-btn:active,
 .player-view-role:active {
     transform: scale(0.95);
     filter: brightness(0.8);
@@ -149,7 +157,7 @@
     width: 50%;
 }
 
-#roles-list {
+#roles-list, #vote-container {
     width: 90%;
     background: radial-gradient(ellipse, #667eea 0%, #764ba2 100%);
     margin-top: 20px;

@@ -929,6 +929,105 @@ function viewRoles() {
     main.appendChild(listContainer);
 }
 
+// Starts the voting process
+function startVote() {
+    document.getElementById('start-vote')?.remove();
+    document.getElementById('view-roles')?.remove();
+    document.getElementById('big-text').innerHTML = 'VOTE';
+
+    localStorage.setItem('votes', JSON.stringify({}));
+    localStorage.setItem('voted_players', JSON.stringify([]));
+
+    const voteContainer = document.createElement('div');
+    voteContainer.id = 'vote-container';
+
+    const playerContainer = document.createElement('div');
+    playerContainer.id = 'vote-players';
+    const players = getStorageJson('current_players');
+
+    players.forEach(p => {
+        const playerBtn = document.createElement('div');
+        playerBtn.className = 'player-view-role';
+        playerBtn.innerHTML = p.player_name;
+        playerBtn.onclick = () => castVote(p.player_name);
+        playerContainer.appendChild(playerBtn);
+    });
+
+    voteContainer.appendChild(playerContainer);
+    main.appendChild(voteContainer);
+    updateVoterPrompt();
+}
+
+// Update the prompt showing who is currently voting
+function updateVoterPrompt() {
+    let voterPrompt = document.getElementById('voter-prompt');
+    if (!voterPrompt) {
+        voterPrompt = document.createElement('h2');
+        voterPrompt.id = 'voter-prompt';
+        voterPrompt.className = 'titan-one-regular';
+        main.insertBefore(voterPrompt, document.getElementById('vote-container'));
+    }
+
+    const players = getStorageJson('current_players');
+    const votedPlayers = getStorageJson('voted_players');
+    const nextVoter = players.find(p => !votedPlayers.includes(p.player_name));
+
+    if (nextVoter) {
+        voterPrompt.innerHTML = `${nextVoter.player_name}, please cast your vote.`;
+    } else {
+        voterPrompt.remove();
+    }
+}
+
+// Handles a player casting their vote
+function castVote(votedFor) {
+    const players = getStorageJson('current_players');
+    const votedPlayers = getStorageJson('voted_players');
+    const nextVoter = players.find(p => !votedPlayers.includes(p.player_name));
+
+    if (!nextVoter) return; // All votes are in
+
+    const votes = getStorageJson('votes', {});
+    votes[votedFor] = (votes[votedFor] || 0) + 1;
+    localStorage.setItem('votes', JSON.stringify(votes));
+
+    votedPlayers.push(nextVoter.player_name);
+    localStorage.setItem('voted_players', JSON.stringify(votedPlayers));
+
+    alert(`${nextVoter.player_name} voted for ${votedFor}.`);
+
+    if (votedPlayers.length >= players.length) {
+        tallyVotes();
+    } else {
+        updateVoterPrompt();
+    }
+}
+
+// Tally votes and display the result
+function tallyVotes() {
+    document.getElementById('vote-container')?.remove();
+    document.getElementById('voter-prompt')?.remove();
+    document.getElementById('big-text').innerHTML = 'VOTE RESULTS';
+
+    const votes = getStorageJson('votes', {});
+    let maxVotes = 0;
+    let playersOut = [];
+
+    for (const player in votes) {
+        if (votes[player] > maxVotes) {
+            maxVotes = votes[player];
+            playersOut = [player];
+        } else if (votes[player] === maxVotes) {
+            playersOut.push(player);
+        }
+    }
+
+    const resultContainer = document.createElement('div');
+    resultContainer.id = 'vote-result';
+    resultContainer.innerHTML = `<h2 class="titan-one-regular">Voted Out:</h2><p>${playersOut.join(', ')} with ${maxVotes} votes.</p>`;
+    main.appendChild(resultContainer);
+}
+
 // Trigger the discussion phase
 async function startGame(updateStats = true) {
     const maxTime = 120;
@@ -942,9 +1041,17 @@ async function startGame(updateStats = true) {
     const viewRolesBtn = document.createElement('button');
     viewRolesBtn.id = 'view-roles';
     viewRolesBtn.className = 'titan-one-regular';
-    viewRolesBtn.innerHTML = "View Roles";
+    viewRolesBtn.innerHTML = 'View Roles';
     viewRolesBtn.onclick = viewRoles;
+
+    const startVoteBtn = document.createElement('button');
+    startVoteBtn.id = 'start-vote';
+    startVoteBtn.className = 'titan-one-regular';
+    startVoteBtn.innerHTML = 'Start Vote';
+    startVoteBtn.onclick = startVote;
+
     main.insertBefore(viewRolesBtn, document.getElementById('back-button'));
+    main.insertBefore(startVoteBtn, document.getElementById('back-button'));
 
     document.getElementById('big-text').innerHTML = 'DISCUSS';
 
