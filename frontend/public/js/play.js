@@ -3,6 +3,18 @@ import getWords from './words.js';
 import { getURLParameter, getRandomInt, toTitleCase, getRandomLetter, getRandomLetterOrNumber } from '../js/global.js';
 import { ROLE_MODIFIERS, ROLE_DATA, INNOCENT_CONFIG, getBaseRoleId, RANDOM_EVENTS } from './roles.js';
 
+// === VARIABLES ===
+const RULES = [
+    "1. No cheating or revealing your role to other players.",
+    "2. No saying single letters",
+    "3. No saying opinions",
+    "4. No saying 'food' or 'drink' (unless NPC modifier)",
+    "5. No saying sizes (unless NPC modifier)",
+    "6. No saying colours (unless NPC modifier)",
+    "7. No saying 67 (sorry elijah)",
+    "8. No dying"
+]
+
 // === DEBUG ===
 const FORCE_ALL_MODIFIERS = false;
 
@@ -1251,6 +1263,22 @@ function tallyVotes() {
     });
 }
 
+function createRulesList() {
+    const rulesContainer = document.createElement('div');
+    rulesContainer.id = 'rules-container';
+    rulesContainer.className = 'titan-one-regular';
+    main.insertBefore(rulesContainer, document.getElementById('start-vote'));
+
+    const rulesTitle = document.createElement('h2');
+    rulesTitle.textContent = 'Game Rules';
+    rulesContainer.appendChild(rulesTitle);
+
+    const rulesList = document.createElement('ul');
+    rulesList.id = 'rules-list';
+    rulesList.innerHTML = `${RULES.map(rule => `<li>${rule}</li>`).join('')}`;
+    rulesContainer.appendChild(rulesList);
+}
+
 // Trigger the discussion phase
 async function startGame(updateStats = true) {
     const maxTime = 120;
@@ -1269,6 +1297,8 @@ async function startGame(updateStats = true) {
     main.insertBefore(startVoteBtn, document.getElementById('back-button'));
 
     document.getElementById('big-text').innerHTML = 'DISCUSS';
+
+    createRulesList();
 
     // Display active global events
     const activeEvents = JSON.parse(localStorage.getItem('active_random_events') || '[]');
