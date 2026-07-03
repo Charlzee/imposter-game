@@ -735,6 +735,18 @@ export const ROLE_DATA = {
             },
         ]
     },
+    pirate: {
+        label: 'Pirate',
+        class: 'pirate',
+        tip: 'Rock paper scissors',
+        grad: 'linear-gradient(135deg, #d80000, #ce2e27, #c04540, #ae5654, #986565)',
+        textColor: '#FF6565',
+        showWord: false,
+        roleType: 'imposter',
+        selectable: true,
+        doesRecruit: true,
+        hasTarget: true // To store the recruited player
+    },
 };
 
 // Default configuration for innocent players
