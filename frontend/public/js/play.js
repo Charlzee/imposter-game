@@ -8,7 +8,7 @@ const RULES = [
     "1. No cheating or revealing your role to other players.",
     "2. No saying single letters",
     "3. No saying opinions",
-    "4. No saying 'food' or 'drink' (unless NPC modifier)",
+    "4. No saying 'food' or 'drink' or 'good'or 'bad' (unless NPC modifier)",
     "5. No saying sizes (unless NPC modifier)",
     "6. No saying colours (unless NPC modifier)",
     "7. No saying 67 (sorry elijah)",
