@@ -741,7 +741,7 @@ export const ROLE_DATA = {
     pirate: {
         label: 'Pirate',
         class: 'pirate',
-        tip: 'Rock paper scissors',
+        tip: 'Choose 2 people to do Rock Paper Scissors, whoever loses dies.',
         grad: 'linear-gradient(135deg, #d80000, #ce2e27, #c04540, #ae5654, #986565)',
         textColor: '#FF6565',
         showWord: false,
