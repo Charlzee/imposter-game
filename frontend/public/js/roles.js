@@ -813,6 +813,19 @@ export const ROLE_DATA = {
             });
         },
     },
+    thanos: {
+        label: 'Thanos',
+        class: 'thanos',
+        tip: '<p style="font-size:100px">[NOT FINISHED YET]</p><br><br><br>You have the choice between the infinity stones.<br>They all have different effects and win conditions.',
+        grad: 'linear-gradient(135deg, #4a148c 0%, #7e57c2 40%, #fbc02d 100%)',
+        textColor: '#00f2ff',
+        showWord: false,
+        roleType: 'neutral',
+        selectable: true,
+        selectPlayer: true,
+        canSelectSelf: false,
+        selectionListColor: '#5900ff',
+    },
 };
 
 // Default configuration for innocent players
