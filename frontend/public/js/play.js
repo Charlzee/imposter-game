@@ -1066,16 +1066,22 @@ function tallyVotes() {
                 }
             }
 
-            // Apply Imposter+ modifier
-            if ((ROLE_DATA[voterRole] || INNOCENT_CONFIG).roleType === 'imposter' && activeModifiers.includes('plus')) {
-                voteValue -= 1;
-            }
-            // Apply Jester+ modifier
-            if (voterRole === 'jesters' && activeModifiers.includes('plus')) {
-                voteValue += 1;
-            }
             totalVotes += Math.max(0, voteValue); // vote count doesnt go negative
         });
+        return [player, totalVotes];
+    }).map(([player, totalVotes]) => {
+        // Post-process total votes for abilities of the player being voted for
+        const playerRole = getRoleOfPlayer(player);
+        const playerModifiers = Object.keys(ROLE_MODIFIERS).filter(modKey => getStorageJson(modKey).includes(player));
+        
+        // Apply Imposter+ modifier
+        if ((ROLE_DATA[playerRole] || INNOCENT_CONFIG).roleType === 'imposter' && playerModifiers.includes('plus')) {
+            totalVotes = Math.max(0, totalVotes - 1);
+        }
+        // Apply Jester+ modifier
+        if (playerRole === 'jesters' && playerModifiers.includes('plus')) {
+            totalVotes += 1;
+        }
         return [player, totalVotes];
     });
 
