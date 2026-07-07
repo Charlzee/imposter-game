@@ -49,9 +49,9 @@ export const ROLE_MODIFIERS = {
         subTextColor: '#FFFF96',
         roleType: 'neutral',
         chance: 0.001,
-        winCondition: ({ player, allPlayers }) => {
-            // Cheater wins if they are the ONLY winner.
-            // This is a placeholder; the final check needs to happen in tallyVotes after all win conditions are evaluated.
+        winCondition: ({ player, allWinStates }) => {
+            // Cheater wins, everyone else loses.
+            Object.keys(allWinStates).forEach(pName => allWinStates[pName] = false);
             return true;
         }
     },
@@ -60,8 +60,11 @@ export const ROLE_MODIFIERS = {
         tip: 'EVERYONE WINS!!! (Only reveal at the end of the game)', 
         grad: 'linear-gradient(135deg, red 0%, orange 20%, yellow 40%, green 60%, blue 80%, violet 100%)',
         textColor: '#FFFF00',
-        subTextColor: '#FFFF96', 
-        winCondition: () => true, // Everyone wins
+        subTextColor: '#FFFF96',
+        winCondition: ({ allWinStates }) => {
+            Object.keys(allWinStates).forEach(pName => allWinStates[pName] = true);
+            return true;
+        },
         roleType: 'neutral',
         chance: 0.0001
     },
@@ -77,7 +80,7 @@ export const ROLE_MODIFIERS = {
     },
     unlucky: {
         label: 'Unlucky', class: 'unlucky', 
-        tip: 'You lose your vote!', 
+        tip: 'You lose a vote!', 
         grad: 'linear-gradient(135deg, green 0%, darkgreen 100%)',
         textColor: '#5EA000',
         subTextColor: '#37C841',
@@ -237,7 +240,7 @@ export const ROLE_MODIFIERS = {
     glazer: {
         label: 'Glazer',
         class: 'glazer',
-        tip: 'Glaze this person, exaggerating their words to be really good: ',
+        tip: 'You must glaze this person: ',
         grad: 'linear-gradient(135deg, #fff561, #ffeb60, #ffe261, #ffd962, #ffd063)',
         textColor: '#FFFFFF',
         subTextColor: '#ffec46',
@@ -743,9 +746,6 @@ export const ROLE_DATA = {
         textColor: '#FF6565',
         showWord: false,
         roleType: 'imposter',
-        selectable: true,
-        doesRecruit: true,
-        hasTarget: true // To store the recruited player
     },
 };
 

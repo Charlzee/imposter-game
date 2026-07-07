@@ -899,8 +899,24 @@ function updateVoterPrompt() {
     const votedPlayers = getStorageJson('voted_players');
     const nextVoter = livingPlayers.find(p => !votedPlayers.includes(p.player_name));
 
+    // Reset all buttons
+    document.querySelectorAll('.vote-player-btn').forEach(btn => {
+        btn.classList.remove('disabled');
+    });
+
     if (nextVoter) {
         voterPrompt.innerHTML = `${nextVoter.player_name}'s VOTE:`;
+
+        // Disable voting for target
+        const femboyPlayers = getStorageJson('femboy');
+        if (femboyPlayers.includes(nextVoter.player_name)) {
+            const femboyTargets = getStorageJson('femboyTargets', {});
+            const targetName = femboyTargets[nextVoter.player_name];
+            if (targetName) {
+                const targetBtn = document.querySelector(`.vote-player-btn[data-player-name="${targetName}"]`);
+                if (targetBtn) targetBtn.classList.add('disabled');
+            }
+        }
     } else {
         voterPrompt.remove();
     }
@@ -1142,38 +1158,54 @@ function tallyVotes() {
 
     allPlayers.forEach(player => {
         const playerName = player.player_name;
-        const votesForPlayer = (votes[playerName] || []).length;
-        const playerRole = getRoleOfPlayer(playerName);
-        const roleConfig = ROLE_DATA[playerRole] || INNOCENT_CONFIG; 
-
-        // Determine individual win/loss
-        let playerWins = false;
-        if (roleConfig.winCondition) {
-            playerWins = roleConfig.winCondition({
-                player: player,
-                playersOut: playersOut,
-                votes: processedVotes, // Use the processed votes for win conditions
-                gameOutcome: gameOutcome,
-                allPlayers: allPlayers,
-                getStorageJson: getStorageJson
-            });
-        } else {
-            // Default team-based win conditions
-            if (gameOutcome === 'jester_wins') {
-                // Jester already handled by its winCondition, so non-jesters lose
-                playerWins = false;
-            } else if (gameOutcome === 'innocents_win') {
-                playerWins = roleConfig.roleType === 'innocent';
-            } else if (gameOutcome === 'imposters_win') {
-                playerWins = roleConfig.roleType === 'imposter';
-            } else if (gameOutcome === 'terrorist_event') {
-                playerWins = false; // Everyone loses
-            }
-        }
-
-        allWinStates[playerName] = playerWins;
+        allWinStates[playerName] = false; // Default to loss
     });
 
+    // Handle game-overriding modifiers (Cheater, Happy)
+    const cheaters = getStorageJson('cheater');
+    const happyPlayers = getStorageJson('happy');
+
+    if (cheaters.length > 0) {
+        // If a cheater exists, only they win.
+        cheaters.forEach(cheaterName => allWinStates[cheaterName] = true);
+    } else if (happyPlayers.length > 0) {
+        // If a happy person exists (and no cheater), everyone wins.
+        Object.keys(allWinStates).forEach(pName => allWinStates[pName] = true);
+    } else {
+        // --- REGULAR WIN CONDITION LOGIC ---
+        allPlayers.forEach(player => {
+            const playerRole = getRoleOfPlayer(player.player_name);
+            const roleConfig = ROLE_DATA[playerRole] || INNOCENT_CONFIG; 
+
+            // Determine individual win/loss
+            let playerWins = false;
+            if (roleConfig.winCondition) {
+                playerWins = roleConfig.winCondition({
+                    player: player,
+                    playersOut: playersOut,
+                    votes: processedVotes, // Use the processed votes for win conditions
+                    gameOutcome: gameOutcome,
+                    allWinStates: allWinStates, // For roles like cheater/happy
+                    getStorageJson: getStorageJson
+                });
+            } else {
+                // Default team-based win conditions
+                if (gameOutcome === 'jester_wins') {
+                    // Jester already handled by its winCondition, so non-jesters lose
+                    playerWins = false;
+                } else if (gameOutcome === 'innocents_win') {
+                    playerWins = roleConfig.roleType === 'innocent';
+                } else if (gameOutcome === 'imposters_win') {
+                    playerWins = roleConfig.roleType === 'imposter';
+                } else if (gameOutcome === 'terrorist_event') {
+                    playerWins = false; // Everyone loses
+                }
+            }
+
+            allWinStates[player.player_name] = playerWins;
+        });
+    }
+    
     allPlayers.forEach(player => {
         const playerName = player.player_name;
         // Find the final calculated vote count for this player from voteEntries
