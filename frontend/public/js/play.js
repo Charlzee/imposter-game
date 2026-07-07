@@ -430,31 +430,59 @@ function displayRole(playerIndex) {
         // === CUSTOM PLAYER SELECTION ===
         if (config.selectPlayer) {
             const storageKey = `${getBaseRoleId(baseRoleKey)}SelectedTargets`;
-            const targets = getStorageJson(storageKey, {});
-            if (!targets[playerName]) {
+            const selectionAmount = config.selectionAmount || 1;
+            const currentSelections = getStorageJson(storageKey, {});
+            const playerSelections = currentSelections[playerName] || (selectionAmount > 1 ? [] : null);
+
+            const isSelectionComplete = selectionAmount > 1 ? playerSelections.length >= selectionAmount : !!playerSelections;
+
+            if (!isSelectionComplete) {
                 const selectionList = document.createElement('div');
                 selectionList.id = 'roles-list';
                 if (config.selectionListColor) selectionList.style.background = config.selectionListColor;
-                const promptText = config.selectionText || (config.revealText ? `SELECT SOMEONE TO MAKE THEM \"${config.revealText}\"` : 'SELECT A PLAYER');
-                selectionList.innerHTML = `<h3 class="titan-one-regular" style="color: ${config.textColor || '#fff'}; width: 100%; text-align: center; margin-bottom: 10px; text-shadow: 5px 5px 3px rgba(0,0,0,0.5);">${promptText}</h3>`;
+                
+                const updatePrompt = () => {
+                    const remaining = selectionAmount - (Array.isArray(playerSelections) ? playerSelections.length : 0);
+                    const promptText = `${config.selectionText || 'SELECT A PLAYER'} ${selectionAmount > 1 ? `(${remaining} REMAINING)` : ''}`;
+                    selectionList.querySelector('h3').innerHTML = promptText;
+                };
+
+                selectionList.innerHTML = `<h3 class="titan-one-regular manual-button-selection" style="color: ${config.textColor || '#fff'}"></h3>`;
 
                 const players = getStorageJson('current_players');
                 players.forEach(p => {
                     if (p.player_name === playerName && !config.canSelectSelf) return;
                     const btn = document.createElement('div');
                     btn.className = 'player-view-role';
+                    btn.dataset.playerName = p.player_name;
                     btn.innerHTML = p.player_name;
                     btn.style.background = config.grad;
                     btn.onclick = () => {
-                        targets[playerName] = p.player_name;
-                        localStorage.setItem(storageKey, JSON.stringify(targets));
-                        displayRole(playerIndex); // Refresh card
+                        if (selectionAmount > 1) {
+                            if (!playerSelections.includes(p.player_name)) {
+                                playerSelections.push(p.player_name);
+                                btn.classList.add('disabled');
+                            }
+                            if (playerSelections.length >= selectionAmount) {
+                                currentSelections[playerName] = playerSelections;
+                                localStorage.setItem(storageKey, JSON.stringify(currentSelections));
+                                displayRole(playerIndex);
+                            } else {
+                                updatePrompt();
+                            }
+                        } else {
+                            currentSelections[playerName] = p.player_name;
+                            localStorage.setItem(storageKey, JSON.stringify(currentSelections));
+                            displayRole(playerIndex);
+                        }
                     };
                     selectionList.appendChild(btn);
                 });
+                updatePrompt(); // Initial prompt text
                 roleDisplay.insertBefore(selectionList, document.getElementById("role-tip"));
             } else {
-                wordDisplay.innerHTML += `\n\nSELECTED PLAYER: ${targets[playerName]}`;
+                const selectedDisplay = Array.isArray(playerSelections) ? playerSelections.join(', ') : playerSelections;
+                wordDisplay.innerHTML += `\n\nSELECTED: ${selectedDisplay}`;
             }
         }
 
@@ -1365,6 +1393,32 @@ async function startGame(updateStats = true) {
         main.insertBefore(eventBanner, timerDisplay);
     }
 
+    // Display Manual Action Buttons for roles like Pirate
+    Object.keys(ROLE_DATA).forEach(roleKey => {
+        const roleCfg = ROLE_DATA[roleKey];
+        if (roleCfg.enableManualButton) {
+            const playersWithRole = getStorageJson(roleKey);
+            playersWithRole.forEach(playerName => {
+                const manualBtn = document.createElement('button');
+                manualBtn.id = `manual-action-btn-${playerName}`;
+                manualBtn.className = 'titan-one-regular manual-action-btn';
+                manualBtn.innerHTML = roleCfg.buttonText || 'Perform Action';
+                manualBtn.onclick = () => {
+                    // Call the function defined in roles.js
+                    roleCfg.manualActionFunction({
+                        playerName,
+                        roleCfg,
+                        getStorageJson,
+                        getBaseRoleId,
+                        manualBtn // Pass the button itself so it can be removed
+                    });
+                };
+
+                main.insertBefore(manualBtn, startVoteBtn);
+            });
+        }
+    });
+
     // Display Role Reveal Popups
     const reveals = [];
     Object.keys(ROLE_DATA).forEach(roleKey => {
@@ -1378,65 +1432,52 @@ async function startGame(updateStats = true) {
                         labelText = labelText.replace('<player>', sourcePlayer.toUpperCase());
                     }
 
-                    reveals.push({
+                    const currentReveal = {
                         label: labelText,
                         names: targetPlayer,
                         grad: roleCfg.grad,
                         textColor: roleCfg.textColor
-                    });
+                    };
 
                     if (roleCfg.selectionRevealEffects) {
                         const effects = roleCfg.selectionRevealEffects;
-                        const rand = Math.random();
                         let cumulativeChance = 0;
-                        let chosenEffect = null;
-
-                        for (const effect of effects) {
-                            cumulativeChance += effect.chance;
-                            if (rand < cumulativeChance) {
-                                chosenEffect = effect;
-                                break;
-                            }
-                        }
+                        const chosenEffect = effects.find(effect => Math.random() < (cumulativeChance += effect.chance));
 
                         if (chosenEffect) {
-                            const lastReveal = reveals[reveals.length - 1];
-                            if (lastReveal) {
-                                lastReveal.names = chosenEffect.text.replace('<player>', targetPlayer.toUpperCase());
+                            currentReveal.names = chosenEffect.text.replace('<player>', targetPlayer.toUpperCase());
 
-                                if (lastReveal.names.includes('<otherPlayer>')) {
-                                    const allPlayers = getStorageJson('current_players');
-                                    const otherPlayers = allPlayers.filter(p => p.player_name !== sourcePlayer && p.player_name !== targetPlayer);
-                                    let randomPlayerName = 'NO ONE ELSE';
-                                    if (otherPlayers.length > 0) {
-                                        const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-                                        randomPlayerName = randomPlayer.player_name;
-                                    }
-                                    lastReveal.names = lastReveal.names.replace('<otherPlayer>', randomPlayerName.toUpperCase());
-
-                                    if (chosenEffect.killOtherPlayer && randomPlayerName !== 'NO ONE ELSE') {
-                                        const ninjaConfig = ROLE_DATA['ninja'];
-                                        reveals.push({
-                                            label: ninjaConfig.revealText,
-                                            names: randomPlayerName,
-                                            grad: ninjaConfig.grad,
-                                            textColor: ninjaConfig.textColor
-                                        });
-                                    }
+                            if (currentReveal.names.includes('<otherPlayer>')) {
+                                const allPlayers = getStorageJson('current_players');
+                                const otherPlayers = allPlayers.filter(p => p.player_name !== sourcePlayer && p.player_name !== targetPlayer);
+                                let randomPlayerName = 'NO ONE ELSE';
+                                if (otherPlayers.length > 0) {
+                                    const randomPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+                                    randomPlayerName = randomPlayer.player_name;
                                 }
+                                currentReveal.names = currentReveal.names.replace('<otherPlayer>', randomPlayerName.toUpperCase());
 
-                                if (chosenEffect.killPlayer) {
-                                    lastReveal.label = ROLE_DATA['ninja'].revealText;
-                                    lastReveal.names = targetPlayer;
-                                    lastReveal.grad = ROLE_DATA['ninja'].grad;
-                                    lastReveal.textColor = ROLE_DATA['ninja'].textColor;
-                                    const ninjaKills = getStorageJson('ninjaSelectedTargets', {});
-                                    ninjaKills[`kill_${targetPlayer}`] = targetPlayer;
-                                    localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
+                                if (chosenEffect.killOtherPlayer && randomPlayerName !== 'NO ONE ELSE') {
+                                    const ninjaConfig = ROLE_DATA['ninja'];
+                                    reveals.push({
+                                        label: ninjaConfig.revealText,
+                                        names: randomPlayerName,
+                                        grad: ninjaConfig.grad,
+                                        textColor: ninjaConfig.textColor
+                                    });
                                 }
+                            }
+
+                            if (chosenEffect.killPlayer) {
+                                currentReveal.label = ROLE_DATA['ninja'].revealText;
+                                currentReveal.names = targetPlayer;
+                                currentReveal.grad = ROLE_DATA['ninja'].grad;
+                                currentReveal.textColor = ROLE_DATA['ninja'].textColor;
                             }
                         }
                     }
+
+                    reveals.push(currentReveal);
 
                     if (roleCfg.alsoKillsSelf) {
                         const ninjaConfig = ROLE_DATA['ninja'];

@@ -75,6 +75,7 @@
 #close-reveal-btn,
 #confirm-vote-btn,
 .player-view-role,
+.manual-action-btn,
 .shapeshifter-role-selection button {
     transition: transform 0.1s ease, filter 0.1s ease;
 }
@@ -107,6 +108,7 @@
 #start-vote:hover,
 #close-reveal-btn:hover,
 #confirm-vote-btn:hover,
+.manual-action-btn:hover,
 .player-view-role:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
@@ -117,6 +119,7 @@
 #start-vote:active,
 #confirm-vote-btn:active,
 #close-reveal-btn:active,
+.manual-action-btn:active,
 .player-view-role:active {
     transform: scale(0.95);
     filter: brightness(0.8);
@@ -164,7 +167,7 @@
     width: 50%;
 }
 
-#roles-list, #vote-container {
+#roles-list, #vote-container, #manual-action-container, .manual-action-button-container{
     width: 90%;
     max-width: 800px;
     background: radial-gradient(ellipse, #4a4e69 0%, #2a2a40 100%);
@@ -172,12 +175,14 @@
     border: 3px solid black;
     border-radius: 10px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row; 
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: 25px;
     padding: 25px;
     text-align: left;
+    overflow: hidden;
 }
 
 #vote-players-grid {
@@ -296,7 +301,7 @@
 }
 
 /* --- Player & Role Elements --- */
-.player-view-role {
+.player-view-role, .manual-action-btn {
     min-height: 140px;
     min-width: 140px;
     padding: 12px;
@@ -401,7 +406,7 @@
     transition: opacity 0.6s ease;
 }
 
-#reveal-container {
+#reveal-container, #manual-action-container {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -583,6 +588,13 @@
     border-color: #555;
 }
 
+.manual-button-selection {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 5px 5px 3px rgba(0,0,0,0.5);
+}
+
 #confirm-vote-btn {
     padding: 12px 30px;
     font-size: 1.8rem;
@@ -591,6 +603,13 @@
 }
 
 #confirm-vote-btn:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.8);
+}
+
+.player-view-role.disabled {
     background-color: #555;
     cursor: not-allowed;
     transform: none;

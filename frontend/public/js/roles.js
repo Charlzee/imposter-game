@@ -746,6 +746,72 @@ export const ROLE_DATA = {
         textColor: '#FF6565',
         showWord: false,
         roleType: 'imposter',
+        selectable: true,
+        selectPlayer: true,
+        selectionAmount: 2,
+        selectionText: "CHOOSE 2 PLAYERS",
+        revealSelectedPlayer: true,
+        revealText: "2 PLAYERS HAVE BEEN SELECTED TO PLAY ROCK PAPER SCISSORS:",
+        enableManualButton: true,
+        buttonText: "SELECT ROCK PAPER SCISSORS<br>LOSER",
+        manualActionFunction: ({ playerName, roleCfg, getStorageJson, getBaseRoleId, manualBtn }) => {
+            // Create an overlay for the action
+            const overlay = document.createElement('div');
+            overlay.id = 'reveal-overlay';
+            document.body.appendChild(overlay);
+
+            const container = document.createElement('div');
+            container.id = 'manual-action-container';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.alignItems = 'center';
+            document.body.appendChild(container);
+
+            const closePopup = () => {
+                container.style.opacity = '0';
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    container.remove();
+                    overlay.remove();
+                }, 500);
+            };
+
+            const prompt = document.createElement('h2');
+            prompt.className = 'titan-one-regular';
+            prompt.style.color = 'white';
+            prompt.textContent = "SELECT THE LOSER";
+            container.appendChild(prompt);
+
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'manual-action-button-container';
+            container.appendChild(buttonContainer);
+
+            const baseRoleId = getBaseRoleId(roleCfg.class);
+            const selectedTargets = getStorageJson(`${baseRoleId}SelectedTargets`, {})[playerName] || [];
+
+            if (selectedTargets.length > 0) {
+                selectedTargets.forEach(targetName => {
+                    const targetBtn = document.createElement('div');
+                    targetBtn.className = 'player-view-role titan-one-regular';
+                    targetBtn.innerHTML = targetName;
+                    targetBtn.style.background = roleCfg.grad;
+                    targetBtn.onclick = () => {
+                        const ninjaKills = getStorageJson('ninjaSelectedTargets', {});
+                        ninjaKills[`kill_${targetName}`] = targetName;
+                        localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
+                        alert(`${targetName} has been killed!`);
+                        manualBtn.remove();
+                        closePopup();
+                    };
+                    buttonContainer.appendChild(targetBtn);
+                });
+            }
+
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                container.style.opacity = '1';
+            });
+        },
     },
 };
 
