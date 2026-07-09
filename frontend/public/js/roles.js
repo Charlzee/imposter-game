@@ -749,6 +749,7 @@ export const ROLE_DATA = {
         selectable: true,
         selectPlayer: true,
         selectionAmount: 2,
+        canSelectSelf: true,
         selectionText: "CHOOSE 2 PLAYERS",
         revealSelectedPlayer: true,
         revealText: "2 PLAYERS HAVE BEEN SELECTED TO PLAY ROCK PAPER SCISSORS:",
