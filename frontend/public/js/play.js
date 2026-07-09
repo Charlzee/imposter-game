@@ -486,6 +486,10 @@ function displayRole(playerIndex) {
             }
         }
 
+        if (config.selectCustom) {
+            const customSelectionKey = `${getBaseRoleId(baseRoleKey)}CustomSelection`;
+        }
+
         let modsWrapper = null;
         if (activeModifiers.length > 0) {
             modsWrapper = document.createElement('div');
