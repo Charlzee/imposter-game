@@ -487,7 +487,60 @@ function displayRole(playerIndex) {
         }
 
         if (config.selectCustom) {
-            const customSelectionKey = `${getBaseRoleId(baseRoleKey)}CustomSelection`;
+            const storageKey = `${getBaseRoleId(baseRoleKey)}CustomSelection`;
+            const selectionAmount = config.selectionAmount || 1;
+            const currentSelections = getStorageJson(storageKey, {});
+            const optionSelections = currentSelections[playerName] || (selectionAmount > 1 ? [] : null);
+
+            const isSelectionComplete = selectionAmount > 1 ?optionSelections.length >= selectionAmount : !!optionSelections;
+
+            if (!isSelectionComplete) {
+                const selectionList = document.createElement('div');
+                selectionList.id = 'roles-list';
+                if (config.selectionListColor) selectionList.style.background = config.selectionListColor;
+                
+                const updatePrompt = () => {
+                    const remaining = selectionAmount - (Array.isArray(optionSelections) ? optionSelections.length : 0);
+                    const promptText = `${config.selectionText || 'SELECT AN OPTION'} ${selectionAmount > 1 ? `(${remaining} REMAINING)` : ''}`;
+                    selectionList.querySelector('h3').innerHTML = promptText;
+                };
+
+                selectionList.innerHTML = `<h3 class="titan-one-regular manual-button-selection" style="color: ${config.textColor || '#fff'}"></h3>`;
+
+                const options = config.customOptions || [];
+                options.forEach(option => {
+                    const btn = document.createElement('div');
+                    btn.className = 'player-view-role';
+                    btn.dataset.optionName = option.display;
+                    btn.innerHTML = option.display;
+                    btn.style.background = config.grad;
+                    btn.onclick = () => {
+                        if (selectionAmount > 1) {
+                            if (!optionSelections.includes(option.dislay)) {
+                                optionSelections.push(option.display);
+                                btn.classList.add('disabled');
+                            }
+                            if (optionSelections.length >= selectionAmount) {
+                                currentSelections[playerName] = optionSelections;
+                                localStorage.setItem(storageKey, JSON.stringify(currentSelections));
+                                displayRole(playerIndex);
+                            } else {
+                                updatePrompt();
+                            }
+                        } else {
+                            currentSelections[playerName] = option.display;
+                            localStorage.setItem(storageKey, JSON.stringify(currentSelections));
+                            displayRole(playerIndex);
+                        }
+                    };
+                    selectionList.appendChild(btn);
+                });
+                updatePrompt(); // Initial prompt text
+                roleDisplay.insertBefore(selectionList, document.getElementById("role-tip"));
+            } else {
+                const selectedDisplay = Array.isArray(optionSelections) ? optionSelections.join(', ') : optionSelections;
+                wordDisplay.innerHTML += `\n\nSELECTED: ${selectedDisplay}`;
+            }
         }
 
         let modsWrapper = null;
