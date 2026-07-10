@@ -8,7 +8,7 @@ const RULES = [
     "1. No cheating or revealing your role to other players.",
     "2. No saying single letters",
     "3. No saying opinions",
-    "4. No saying 'food' or 'drink' or 'good'or 'bad' (unless NPC modifier)",
+    "4. No saying 'food' or 'drink' or 'good' or 'bad' (unless NPC modifier)",
     "5. No saying sizes (unless NPC modifier)",
     "6. No saying colours (unless NPC modifier)",
     "7. No saying 67 (sorry elijah)",
@@ -226,6 +226,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     localStorage.removeItem('original_venom');
     Object.keys(ROLE_MODIFIERS).forEach(k => { if (ROLE_MODIFIERS[k].hasTarget) localStorage.removeItem(`${getBaseRoleId(k)}Targets`); });
     Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].selectPlayer) localStorage.removeItem(`${getBaseRoleId(k)}SelectedTargets`); });
+    Object.keys(ROLE_DATA).forEach(k => { if (ROLE_DATA[k].selectCustom) localStorage.removeItem(`${getBaseRoleId(k)}CustomSelection`); });
 
 
     const assignTargets = (roleArray, storageKey) => {
@@ -488,11 +489,14 @@ function displayRole(playerIndex) {
 
         if (config.selectCustom) {
             const storageKey = `${getBaseRoleId(baseRoleKey)}CustomSelection`;
+            const storageKeyTip = `${getBaseRoleId(baseRoleKey)}CustomSelectionTip`;
             const selectionAmount = config.selectionAmount || 1;
             const currentSelections = getStorageJson(storageKey, {});
             const optionSelections = currentSelections[playerName] || (selectionAmount > 1 ? [] : null);
 
             const isSelectionComplete = selectionAmount > 1 ?optionSelections.length >= selectionAmount : !!optionSelections;
+
+            let selectedOptionTip = 'hi';
 
             if (!isSelectionComplete) {
                 const selectionList = document.createElement('div');
@@ -513,10 +517,13 @@ function displayRole(playerIndex) {
                     btn.className = 'player-view-role';
                     btn.dataset.optionName = option.display;
                     btn.innerHTML = option.display;
-                    btn.style.background = config.grad;
+                    btn.style.background = option.color || '#fff';
+                    btn.style.color = '#fff'
                     btn.onclick = () => {
+                        localStorage.setItem(storageKeyTip, option.tip || 'no text');
+                        console.log("Selected option tip:", localStorage.getItem(storageKeyTip));
                         if (selectionAmount > 1) {
-                            if (!optionSelections.includes(option.dislay)) {
+                            if (!optionSelections.includes(option.display)) {
                                 optionSelections.push(option.display);
                                 btn.classList.add('disabled');
                             }
@@ -540,6 +547,8 @@ function displayRole(playerIndex) {
             } else {
                 const selectedDisplay = Array.isArray(optionSelections) ? optionSelections.join(', ') : optionSelections;
                 wordDisplay.innerHTML += `\n\nSELECTED: ${selectedDisplay}`;
+                wordDisplay.innerHTML += `\n\n${localStorage.getItem(storageKeyTip) || 'error'}`;
+                console.log(localStorage.getItem(storageKeyTip))
             }
         }
 

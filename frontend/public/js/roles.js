@@ -823,8 +823,40 @@ export const ROLE_DATA = {
         showWord: false,
         roleType: 'neutral',
         selectable: true,
-        selectOption: true,
+        selectCustom: true,
         selectionListColor: '#5900ff',
+        customOptions: [
+            {
+                display: 'SPACE',
+                color: '#3D85C6',
+                tip: 'Select 2 players and have them swapped during voting. (voting target 1 would put your vote as target 2).\nPredict who will be voted out win if the stone changes the eliminated player to your prediction.'
+            },
+            {
+                display: 'MIND',
+                color: '#FFFF00',
+                tip: 'Select 2 players and figure out whether they are on the same team. If they are on the same team, win if one of them get voted out. If they are not on the same team then win with imposter conditions.'
+            },
+            {
+                display: 'REALITY',
+                color: '#E06666',
+                tip: 'Select a player and any ability used by them will be redirected at themself win by them being voted out or if they kill themself 💀💀. If the player has no abilities then their vote will instead be deleted.'
+            },
+            {
+                display: 'POWER',
+                color: '#8E7CC3',
+                tip: 'Half of the players in the game will be snapped therefore not being able to talk, gesture or do anything except vote. Thanos can be affected, win from survival. If Thanos gets voted out then imposter team and innocent team both win'
+            },
+            {
+                display: 'TIME',
+                color: '#93C47D',
+                tip: 'Select a target and any abilities activated on them will be rewinded and a special text will appear on the screen to show what happened. Win if you successfully rewinded an event or/and target receives no votes.'
+            },
+            {
+                display: 'SOUL',
+                color: '#F6B26B',
+                tip: 'Claim the soul of any player giving you a random role from their team, win with the conditions of that role.'
+            }
+        ]
     },
 };
 
