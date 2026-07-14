@@ -11,8 +11,9 @@ const RULES = [
     "4. No saying 'food' or 'drink' or 'good' or 'bad' (unless NPC modifier)",
     "5. No saying sizes (unless NPC modifier)",
     "6. No saying colours (unless NPC modifier)",
-    "7. No saying 67 (sorry elijah)",
-    "8. No dying"
+    "7. No saying 67 or charlie kirk (sorry elijah)",
+    "8. No teaming",
+    "9. No dying"
 ]
 
 // === DEBUG ===
