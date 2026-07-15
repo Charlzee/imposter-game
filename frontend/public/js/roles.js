@@ -737,7 +737,8 @@ export const ROLE_DATA = {
         textColor: '#FF9090',
         showWord: false,
         roleType: 'imposter',
-        selectable: false
+        selectable: false,
+        showInSettings: false,
     },
     witch: {
         label: 'Witch',
@@ -853,7 +854,7 @@ export const ROLE_DATA = {
         textColor: '#F0C7F9',
         showWord: false,
         roleType: 'neutral',
-        selectable: false,
+        selectable: true,
         selectCustom: true,
         selectionListColor: '#5900ff',
         customOptions: [
@@ -892,7 +893,7 @@ export const ROLE_DATA = {
     weird: {
         label: 'Weird',
         class: 'weird',
-        tip: 'Wanna do something crazy?',
+        tip: 'Wanna do \"something crazy?\"',
         grad: 'linear-gradient(135deg, rgba(252, 128, 255, 1) 0%, rgba(255, 255, 0, 1) 100%)',
         textColor: '#FEBD83',
         showWord: false, 

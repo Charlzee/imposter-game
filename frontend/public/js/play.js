@@ -931,11 +931,9 @@ function startVote() {
         playerBtn.className = 'player-view-role vote-player-btn';
         playerBtn.dataset.playerName = p.player_name;
         playerBtn.innerHTML = p.player_name;
-        if (killedPlayers.includes(p.player_name)) {
-            //playerBtn.classList.add('is-killed');
-        } else {
-            playerBtn.onclick = () => selectVoteTarget(p.player_name);
-        }
+        playerBtn.onclick = () => selectVoteTarget(p.player_name);
+        // if (killedPlayers.includes(p.player_name)) {
+        // }
         playerButtonsContainer.appendChild(playerBtn);
     });
 
@@ -1378,8 +1376,8 @@ function tallyVotes() {
         }
 
         let killedStatusHTML = '';
-        if (isKilled && !isVotedOut) {
-            killedStatusHTML = `<div class="player-killed-status">KILLED</div>`;
+        if (isKilled) {
+            killedStatusHTML = `<div class="player-killed-status">KILLED</div>`; // Always show if killed
         }
 
         const winLossBadge = `<span class="win-loss-badge ${playerWins ? 'winner' : 'loser'}">${playerWins ? 'WINNER' : 'LOSER'}</span>`;
