@@ -848,7 +848,7 @@ export const ROLE_DATA = {
     thanos: {
         label: 'Thanos',
         class: 'thanos',
-        tip: 'You have the choice between the infinity stones.<br>They all have different effects and win conditions.',
+        tip: '<p style="font-size:100px">[NOT FINISHED YET]</p><br><br><br>You have the choice between the infinity stones.<br>They all have different effects and win conditions.',
         grad: 'linear-gradient(135deg, #f784ff, #da6de6, #be56cd, #a33fb4, #88279c)',
         textColor: '#F0C7F9',
         showWord: false,
@@ -860,72 +860,32 @@ export const ROLE_DATA = {
             {
                 display: 'SPACE',
                 color: '#3D85C6',
-                tip: 'Select 2 players to have their votes swapped. Win if you survive.',
-                selectPlayer: true,
-                selectionAmount: 2,
-                selectionText: "SELECT 2 PLAYERS TO SWAP VOTES",
-                winCondition: ({ player, playersOut }) => !playersOut.includes(player.player_name)
+                tip: 'Select 2 players and have them swapped during voting. (voting target 1 would put your vote as target 2).\nPredict who will be voted out win if the stone changes the eliminated player to your prediction.'
             },
             {
                 display: 'MIND',
                 color: '#FFFF00',
-                tip: 'Select 2 players. You will be told if they are on the same team (Innocent/Imposter). Win if you survive.',
-                selectPlayer: true,
-                selectionAmount: 2,
-                selectionText: "SELECT 2 PLAYERS TO READ THEIR MINDS",
-                winCondition: ({ player, playersOut }) => !playersOut.includes(player.player_name)
+                tip: 'Select 2 players and figure out whether they are on the same team. If they are on the same team, win if one of them get voted out. If they are not on the same team then win with imposter conditions.'
             },
             {
                 display: 'REALITY',
                 color: '#E06666',
-                tip: 'Select a player. Any ability they use is reflected. If they have no ability, their vote is nullified. Win if they are voted out.',
-                selectPlayer: true,
-                selectionAmount: 1,
-                selectionText: "SELECT A PLAYER TO WARP THEIR REALITY",
-                winCondition: ({ player, playersOut, getStorageJson }) => {
-                    const realityTarget = getStorageJson('thanos_reality_stone_targets', {})[player.player_name];
-                    return playersOut.includes(realityTarget);
-                }
+                tip: 'Select a player and any ability used by them will be redirected at themself win by them being voted out or if they kill themself 💀💀. If the player has no abilities then their vote will instead be deleted.'
             },
             {
                 display: 'POWER',
                 color: '#8E7CC3',
-                tip: 'Snap your fingers, wiping out half of all players (they cannot speak or act, but can vote). Win if you survive.',
-                onSelection: ({ player, getStorageJson }) => {
-                    const allPlayers = getStorageJson('current_players');
-                    const otherPlayers = allPlayers.filter(p => p.player_name !== player.player_name);
-                    const playersToSnap = [];
-                    const snapCount = Math.floor(otherPlayers.length / 2);
-
-                    // Shuffle and pick half
-                    const shuffled = otherPlayers.sort(() => 0.5 - Math.random());
-                    for (let i = 0; i < snapCount; i++) {
-                        playersToSnap.push(shuffled[i].player_name);
-                    }
-                    localStorage.setItem('thanos_power_stone_snap', JSON.stringify(playersToSnap));
-                },
-                winCondition: ({ player, playersOut }) => !playersOut.includes(player.player_name)
+                tip: 'Half of the players in the game will be snapped therefore not being able to talk, gesture or do anything except vote. Thanos can be affected, win from survival. If Thanos gets voted out then imposter team and innocent team both win'
             },
             {
                 display: 'TIME',
                 color: '#93C47D',
-                tip: 'Select a target. Any negative abilities used on them are nullified. Win if your target is not voted out.',
-                selectPlayer: true,
-                selectionAmount: 1,
-                selectionText: "SELECT A PLAYER TO PROTECT WITH TIME",
-                winCondition: ({ player, playersOut, getStorageJson }) => {
-                    const timeTarget = getStorageJson('thanos_time_stone_targets', {})[player.player_name];
-                    return !playersOut.includes(timeTarget);
-                }
+                tip: 'Select a target and any abilities activated on them will be rewinded and a special text will appear on the screen to show what happened. Win if you successfully rewinded an event or/and target receives no votes.'
             },
             {
                 display: 'SOUL',
                 color: '#F6B26B',
-                tip: 'Select a player to claim their soul. You will be told their exact role. Win if you survive.',
-                selectPlayer: true,
-                selectionAmount: 1,
-                selectionText: "SELECT A PLAYER TO CLAIM THEIR SOUL",
-                winCondition: ({ player, playersOut }) => !playersOut.includes(player.player_name)
+                tip: 'Claim the soul of any player giving you a random role from their team, win with the conditions of that role.'
             }
         ]
     },
@@ -945,17 +905,7 @@ export const INNOCENT_CONFIG = {
 // Helper Functions
 
 // Helper to strip plural suffixes
-export const getBaseRoleId = (configKey) => {
-    if (!configKey) return '';
-    // Handle specific cases first
-    if (configKey === 'guardian_angels') return 'guardian_angel';
-    if (configKey.endsWith('s')) {
-        // Handle cases like 'thanos' which shouldn't be 'thano'
-        if (['thanos', 'epstein', 'plus'].includes(configKey)) return configKey;
-        return configKey.slice(0, -1);
-    }
-    return configKey;
-};
+export const getBaseRoleId = (configKey) => configKey.replace(/s$/, '').replace('guardian_angel', 'guardian_angel');
 
 // Helper to create plural keys
 export const getPluralKey = (role) => role.endsWith('s') ? role : (role === 'guardian_angel' ? 'guardian_angels' : `${role}s`);
