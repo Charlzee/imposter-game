@@ -932,7 +932,7 @@ function startVote() {
         playerBtn.dataset.playerName = p.player_name;
         playerBtn.innerHTML = p.player_name;
         if (killedPlayers.includes(p.player_name)) {
-            playerBtn.classList.add('is-killed');
+            //playerBtn.classList.add('is-killed');
         } else {
             playerBtn.onclick = () => selectVoteTarget(p.player_name);
         }
@@ -1009,7 +1009,7 @@ function updateVoterPrompt() {
             const targetName = femboyTargets[nextVoter.player_name];
             if (targetName) {
                 const targetBtn = document.querySelector(`.vote-player-btn[data-player-name="${targetName}"]`);
-                if (targetBtn) targetBtn.classList.add('disabled');
+                if (targetBtn) targetBtn.classList.add('is-killed');
             }
         }
     } else {
@@ -1313,7 +1313,7 @@ function tallyVotes() {
         const killedPlayers = Object.values(getStorageJson('ninjaSelectedTargets', {}));
         const isKilled = killedPlayers.includes(playerName);
 
-        if (isKilled) playerWins = false; // Killed players can't win
+        //if (isKilled) playerWins = false; // Killed players can't win
 
         // Special win conditions
         if (playerRole === 'hitmans' && playersOut.includes(getStorageJson('hitmanTargets', {})[playerName])) {
