@@ -903,7 +903,7 @@ export const ROLE_DATA = {
         canSelectSelf: true,
         revealSelectedPlayer: true,
         revealText: "???",
-        selectionListColor: 'rgba(255, 130, 100, 0.7)'
+        selectionListColor: 'rgba(255, 33, 33, 0.7)'
     },
 };
 
