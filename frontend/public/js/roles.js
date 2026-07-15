@@ -609,7 +609,7 @@ export const ROLE_DATA = {
             }
         ],
         roleType: 'innocent',
-        selectable: true
+        selectable: false
     },
     divine_art: {
         label: 'Divine Arts',
@@ -725,7 +725,7 @@ export const ROLE_DATA = {
         textColor: '#FF6565',
         showWord: false,
         roleType: 'imposter',
-        selectable: true,
+        selectable: false,
         doesRecruit: true,
         hasTarget: true // To store the recruited player
     },
@@ -853,7 +853,7 @@ export const ROLE_DATA = {
         textColor: '#F0C7F9',
         showWord: false,
         roleType: 'neutral',
-        selectable: true,
+        selectable: false,
         selectCustom: true,
         selectionListColor: '#5900ff',
         customOptions: [
@@ -888,6 +888,22 @@ export const ROLE_DATA = {
                 tip: 'Claim the soul of any player giving you a random role from their team, win with the conditions of that role.'
             }
         ]
+    },
+    weird: {
+        label: 'Weird',
+        class: 'weird',
+        tip: 'Wanna do something crazy?',
+        grad: 'linear-gradient(135deg, rgba(252, 128, 255, 1) 0%, rgba(255, 255, 0, 1) 100%)',
+        textColor: '#FEBD83',
+        showWord: false, 
+        roleType: 'imposter',
+        selectable: false,
+        immuneToAmnesia: true,
+        selectPlayer: true,
+        canSelectSelf: true,
+        revealSelectedPlayer: true,
+        revealText: "???",
+        selectionListColor: 'rgba(255, 130, 100, 0.7)'
     },
 };
 
