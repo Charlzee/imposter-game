@@ -1101,6 +1101,20 @@ function tallyVotes() {
     // Create a mutable copy of votes to process abilities like Alpha+
     const processedVotes = JSON.parse(JSON.stringify(votes));
 
+    // --- Thanos Space Stone Logic ---
+    const thanosPlayers = getStorageJson('thanos');
+    const thanosSelections = getStorageJson('thanosCustomSelection', {});
+    thanosPlayers.forEach(thanosPlayer => {
+        if (thanosSelections[thanosPlayer] === 'SPACE') {
+            const spaceTargets = getStorageJson('thanos_space_stone_targets', {})[thanosPlayer] || [];
+            if (spaceTargets.length === 2) {
+                const [target1, target2] = spaceTargets;
+                // Swap votes between target1 and target2
+                [processedVotes[target1], processedVotes[target2]] = [processedVotes[target2] || [], processedVotes[target1] || []];
+            }
+        }
+    });
+
     // Pre-process votes for roles that modify incoming votes (e.g., Alpha+)
     Object.keys(processedVotes).forEach(votedForPlayer => {
         const playerRole = getRoleOfPlayer(votedForPlayer);
@@ -1113,7 +1127,6 @@ function tallyVotes() {
             processedVotes[votedForPlayer] = filteredVoters;
         }
     });
-
 
     // --- Divine Arts logic ---
     const divinePlayers = getStorageJson('divine_art');
@@ -1560,6 +1573,23 @@ async function startGame(updateStats = true) {
         }
     });
 
+    // --- Thanos Power Stone Snap ---
+    const powerStoneSnaps = getStorageJson('thanos_power_stone_snap', []);
+    if (powerStoneSnaps.length > 0) {
+        const snapReveal = {
+            label: "THE SNAP",
+            names: powerStoneSnaps.join(', '),
+            grad: ROLE_DATA['thanos'].grad,
+            textColor: ROLE_DATA['thanos'].textColor
+        };
+        // Add to the start of the reveals so it shows first
+        reveals.unshift(snapReveal);
+
+        // Also mark them as "killed" for game logic purposes
+        powerStoneSnaps.forEach(snappedPlayer => {
+            ninjaKills[`snap_${snappedPlayer}`] = snappedPlayer;
+        });
+    }
     const ninjaKills = getStorageJson('ninjaSelectedTargets', {});
     reveals.forEach(reveal => {
         if (reveal.label === ROLE_DATA['ninja'].revealText) {
