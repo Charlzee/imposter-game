@@ -108,7 +108,7 @@
     width: 90px;
 }
 
-#role-settings-container, #modifier-settings-container {
+#role-settings-container, #modifier-settings-container, #event-settings-container {
     display: grid;
 
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 

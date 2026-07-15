@@ -303,6 +303,21 @@ export const RANDOM_EVENTS = {
             players.forEach((_, idx) => setRole(idx, 'shapeshifters'));
         }
     },
+    e_p_stien: {
+        label: "E. P. Stein",
+        chance: 0.01,
+        onTrigger: ({ players, setRole }) => {
+            players.forEach((_, idx) => setRole(idx, 'epstein'));
+        }
+    },
+    one_v_one: {
+        label: "1v1",
+        chance: 0.01,
+        displayEventOnShowRoles: true,
+        onTrigger: ({ players, setRole }) => {
+            players.forEach((_, idx) => setRole(idx, 'pirate'));
+        }
+    },
 
     // MODIFIER RANDOM EVENTS:
     all_mime: {
@@ -325,6 +340,22 @@ export const RANDOM_EVENTS = {
         chance: 0.01,
         onTrigger: ({ players, addModifier }) => {
             players.forEach((_, idx) => addModifier(idx, 'glazer'));
+        }
+    },
+    neglection: {
+        label: "Neglection",
+        chance: 0.01,
+        displayEventOnShowRoles: true,
+        onTrigger: ({ players, addModifier }) => {
+            players.forEach((_, idx) => addModifier(idx, 'neglected'));
+        }
+    },
+    uh_oh: {
+        label: "Uh oh",
+        chance: 0.01,
+        displayEventOnShowRoles: true,
+        onTrigger: ({ players, addModifier }) => {
+            players.forEach((_, idx) => addModifier(idx, 'terrorist'));
         }
     },
 }
