@@ -5,6 +5,7 @@ import { ROLE_MODIFIERS, ROLE_DATA, INNOCENT_CONFIG, getBaseRoleId, RANDOM_EVENT
 
 // === VARIABLES ===
 const RULES = [
+    "<p style='font-size: 32px'>BREAKING ANY OF THESE RULES WILL MAKE YOU INSTANTLY LOSE AND YOU WILL GET SHOT AND DIE </p>",
     "1. No cheating or revealing your role to other players.",
     "2. No saying single letters",
     "3. No saying opinions",
@@ -13,7 +14,7 @@ const RULES = [
     "6. No saying colours (unless NPC modifier)",
     "7. No saying 67 or charlie kirk (sorry elijah)",
     "8. No teaming",
-    "9. No dying"
+    "9. No saying who you know is innocent (e.g. Inspector, Innocent+, King, etc.)"
 ]
 
 // === DEBUG ===
