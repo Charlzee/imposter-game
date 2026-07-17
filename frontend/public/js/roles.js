@@ -361,7 +361,7 @@ export const RANDOM_EVENTS = {
 }
 
 // Main game role definitions
-export const ROLE_DATA = {
+const ALL_ROLE_DATA = {
     innocents: {
         label: 'Innocent',
         class: 'innocent',
@@ -571,6 +571,7 @@ export const ROLE_DATA = {
         selectionListColor: 'rgba(180, 80, 50, 0.7)'
     },
     gambler: {
+        DISABLED: true,
         label: 'Gambler',
         class: 'gambler',
         tip: 'You can gamble',
@@ -608,8 +609,7 @@ export const ROLE_DATA = {
                 }
             }
         ],
-        roleType: 'innocent',
-        selectable: false
+        roleType: 'innocent'
     },
     divine_art: {
         label: 'Divine Arts',
@@ -847,6 +847,7 @@ export const ROLE_DATA = {
         },
     },
     thanos: {
+        DISABLED: true,
         label: 'Thanos',
         class: 'thanos',
         tip: '<p style="font-size:100px">[NOT FINISHED YET]</p><br><br><br>You have the choice between the infinity stones.<br>They all have different effects and win conditions.',
@@ -895,7 +896,7 @@ export const ROLE_DATA = {
         class: 'weird',
         tip: 'Wanna do \"something crazy?\"',
         grad: 'linear-gradient(135deg, rgba(252, 128, 255, 1) 0%, rgba(255, 255, 0, 1) 100%)',
-        textColor: '#FEBD83',
+        textColor: '#FF0000',
         showWord: false, 
         roleType: 'imposter',
         selectable: false,
@@ -904,10 +905,15 @@ export const ROLE_DATA = {
         canSelectSelf: true,
         revealSelectedPlayer: true,
         revealText: "???",
-        selectionListColor: 'rgba(255, 33, 33, 0.7)',
+        selectionListColor: 'rgb(255, 0, 0)',
+        selectionText: "Do it.",
         animation: 'anim_weird.mp4'
     },
 };
+
+export const ROLE_DATA = Object.fromEntries(
+    Object.entries(ALL_ROLE_DATA).filter(([, value]) => !value.DISABLED)
+);
 
 // Default configuration for innocent players
 export const INNOCENT_CONFIG = {

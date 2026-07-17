@@ -1,8 +1,8 @@
 import getWords from './words.js';
-import { ROLE_MODIFIERS, BASE_ROLE_IDS, RANDOM_EVENTS, ROLE_DATA as ROLE_DEFS, getBaseRoleId } from './roles.js';
+import { ROLE_MODIFIERS, BASE_ROLE_IDS, RANDOM_EVENTS, ROLE_DATA, getBaseRoleId } from './roles.js';
 
 // === CONFIG ===
-const ROLE_DATA = BASE_ROLE_IDS;
+const ROLE_IDS = BASE_ROLE_IDS;
 
 let cachedPlayers = null;
 let topic_container;
@@ -181,7 +181,7 @@ function removePlayer(index) {
 // ==== Settings Saving Logic ====
 function saveAllSettings() {
     // Save role settings
-    ROLE_DATA.forEach(role => {
+    ROLE_IDS.forEach(role => {
         const countInput = document.getElementById(`${role}-count`);
         const percentInput = document.getElementById(`${role}-percent`);
         if (countInput) localStorage.setItem(`${role}_count`, countInput.value);
@@ -221,7 +221,7 @@ async function startGame() {
     saveAllSettings();
 
     // Initialize plural keys for the round
-    ROLE_DATA.forEach(role => {
+    Object.keys(ROLE_DATA).forEach(role => {
         const pluralKey = role.endsWith('s') ? role : (role === 'guardian_angel' ? 'guardian_angels' : `${role}s`);
         localStorage.setItem(pluralKey, JSON.stringify([]));
     });
@@ -250,11 +250,11 @@ function init() {
     if (settingsGroup) {
         const categories = { imposter: [], neutral: [], innocent: [] };
 
-        ROLE_DATA.forEach(roleId => {
-            const roleKey = Object.keys(ROLE_DEFS).find(k => getBaseRoleId(k) === roleId);
-            const type = ROLE_DEFS[roleKey]?.roleType || 'innocent';
+        ROLE_IDS.forEach(roleId => {
+            const roleKey = Object.keys(ROLE_DATA).find(k => getBaseRoleId(k) === roleId);
+            const type = ROLE_DATA[roleKey]?.roleType || 'innocent';
             // Do not show non-selectable roles in the settings UI
-            if (ROLE_DEFS[roleKey]?.showInSettings === false) return;
+            if (ROLE_DATA[roleKey]?.selectable === false) return;
 
             if (categories[type]) categories[type].push(roleId);
         });
@@ -264,8 +264,8 @@ function init() {
             if (roles.length === 0) return;
             settingsHtml += `<h3 class="titan-one-regular category-header" style="color: #fff; margin: 20px 0 10px 0; text-align: center; width: 100%; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 5px;">${type.toUpperCase()} ROLES</h3>`;
             settingsHtml += roles.map(roleId => {
-                const roleKey = Object.keys(ROLE_DEFS).find(k => getBaseRoleId(k) === roleId);
-                const isSubImposter = ROLE_DEFS[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
+                const roleKey = Object.keys(ROLE_DATA).find(k => getBaseRoleId(k) === roleId);
+                const isSubImposter = ROLE_DATA[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
                 
                 const labelText = roleId.replace('_', ' ').toUpperCase();
                 const labelType = isSubImposter ? 'CHANCE' : 'AMOUNT';
@@ -311,9 +311,9 @@ function init() {
         }
 
         // Load saved counts and percentages
-        ROLE_DATA.forEach(roleId => {
-            const roleKey = Object.keys(ROLE_DEFS).find(k => getBaseRoleId(k) === roleId);
-            const isSubImposter = ROLE_DEFS[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
+        ROLE_IDS.forEach(roleId => {
+            const roleKey = Object.keys(ROLE_DATA).find(k => getBaseRoleId(k) === roleId);
+            const isSubImposter = ROLE_DATA[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
 
             const input = document.getElementById(`${roleId}-count`);
             const percent_input = document.getElementById(`${roleId}-percent`);
@@ -397,9 +397,9 @@ function init() {
 
     // Revert roles to defaults
     const resetRoles = () => {
-        ROLE_DATA.forEach(roleId => {
-            const roleKey = Object.keys(ROLE_DEFS).find(k => getBaseRoleId(k) === roleId);
-            const isSubImposter = ROLE_DEFS[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
+        ROLE_IDS.forEach(roleId => {
+            const roleKey = Object.keys(ROLE_DATA).find(k => getBaseRoleId(k) === roleId);
+            const isSubImposter = ROLE_DATA[roleKey]?.roleType === 'imposter' && roleKey !== 'imposters';
 
             const input = document.getElementById(`${roleId}-count`);
             const percentInput = document.getElementById(`${roleId}-percent`);

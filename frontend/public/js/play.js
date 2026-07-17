@@ -160,7 +160,7 @@ function decidePlayerList(playersJson, roleCounts = {}) {
 
     const upgradeImposters = () => {
         const subImposterRoles = Object.keys(ROLE_DATA).filter(k => 
-            ROLE_DATA[k].roleType === 'imposter' && k !== 'imposters'
+            ROLE_DATA[k].roleType === 'imposter' && k !== 'imposters' && ROLE_DATA[k].selectable
         );
         const baseImposterNames = [...assignedRolesData['imposters']];
         assignedRolesData['imposters'] = [];
