@@ -1021,6 +1021,7 @@ function updateVoterPrompt() {
     // Reset all buttons
     document.querySelectorAll('.vote-player-btn').forEach(btn => {
         btn.classList.remove('disabled');
+        btn.classList.remove('is-killed');
     });
 
     if (nextVoter) {
@@ -1488,12 +1489,16 @@ async function startGame(updateStats = true) {
     Object.keys(ROLE_DATA).forEach(roleKey => {
         const roleCfg = ROLE_DATA[roleKey];
         if (roleCfg.enableManualButton) {
+            const baseRoleId = getBaseRoleId(roleCfg.class);
+            if (sessionStorage.getItem(`manualActionCompleted_${baseRoleId}`) === 'true') return;
+
             const playersWithRole = getStorageJson(roleKey);
             playersWithRole.forEach(playerName => {
                 const manualBtn = document.createElement('button');
                 manualBtn.id = `manual-action-btn-${playerName}`;
                 manualBtn.className = 'titan-one-regular manual-action-btn';
                 manualBtn.innerHTML = roleCfg.buttonText || 'Perform Action';
+
                 manualBtn.onclick = () => {
                     // Call the function defined in roles.js
                     roleCfg.manualActionFunction({
@@ -1600,7 +1605,7 @@ async function startGame(updateStats = true) {
             .map(roleKey => ROLE_DATA[roleKey]?.animation)
             .find(path => path);
 
-        if (!animationPath) return resolve();
+        if (!animationPath || sessionStorage.getItem('globalAnimationPlayed') === 'true') return resolve();
 
         const video = document.createElement('video');
         video.id = 'role-animation-video';
@@ -1614,6 +1619,7 @@ async function startGame(updateStats = true) {
             setTimeout(() => {
                 video.style.opacity = '0';
                 setTimeout(() => {
+                    sessionStorage.setItem('globalAnimationPlayed', 'true');
                     video.remove();
                     resolve();
                 }, 500);
@@ -1647,7 +1653,8 @@ async function startGame(updateStats = true) {
     // Wait for the animation to finish before proceeding with timed popups
     await playGlobalAnimation();
 
-    if (reveals.length > 0) {
+    if (reveals.length > 0 && sessionStorage.getItem('revealContainerShown') !== 'true') {
+        sessionStorage.setItem('revealContainerShown', 'true');
         const overlay = document.createElement('div');
         overlay.id = 'reveal-overlay';
         document.body.appendChild(overlay);
@@ -1746,6 +1753,10 @@ async function init() {
         startGame(false);
         return;
     }
+
+    // Clear session flags for a new game
+    sessionStorage.removeItem('globalAnimationPlayed');
+    sessionStorage.removeItem('revealContainerShown');
 
     const dynamicCounts = {};
     Object.keys(ROLE_DATA).forEach(key => {

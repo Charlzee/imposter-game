@@ -2,23 +2,103 @@
 // Captures all console logs into a window-level array for the overlay to display
 if (!window.debugLogs) {
     window.debugLogs = [];
-    const originalLog = console.log;
-    const originalWarn = console.warn;
-    const originalError = console.error;
 
-    const capture = (type, original) => {
-        return (...args) => {
-            const msg = args.map(arg => {
-                return typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg;
+    const consoleMethodsToCapture = {
+        log: 'LOG',
+        warn: 'WARN',
+        error: 'ERROR',
+        info: 'INFO',
+        debug: 'DEBUG',
+        trace: 'TRACE',
+        dir: 'DIR',
+        table: 'TABLE'
+    };
+
+    Object.entries(consoleMethodsToCapture).forEach(([method, type]) => {
+        const original = console[method];
+        console[method] = (...args) => {
+            let msg = args.map(arg => {
+                try {
+                    return typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg);
+                } catch (e) {
+                    return '[Unserializable Object]';
+                }
             }).join(' ');
+
             window.debugLogs.push({ type, msg, time: new Date().toLocaleTimeString() });
             original.apply(console, args);
         };
+    });
+
+    // === GLOBAL FETCH INTERCEPTOR ===
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+        const [url, options] = args;
+        const method = options?.method?.toUpperCase() || 'GET';
+        const shortUrl = typeof url === 'string' ? url.split('/').slice(-3).join('/') : 'Request Object';
+
+        window.debugLogs.push({ type: 'FETCH', msg: `=> ${method} ${shortUrl}`, time: new Date().toLocaleTimeString() });
+
+        try {
+            const response = await originalFetch(...args);
+            const status = response.status;
+            const statusType = status >= 400 ? 'ERROR' : (status >= 300 ? 'WARN' : 'FETCH');
+            window.debugLogs.push({ type: statusType, msg: `<= ${status} ${method} ${shortUrl}`, time: new Date().toLocaleTimeString() });
+            return response;
+        } catch (error) {
+            window.debugLogs.push({ type: 'ERROR', msg: `<= FAILED ${method} ${shortUrl}\n  ${error.message}`, time: new Date().toLocaleTimeString() });
+            throw error;
+        }
     };
 
-    console.log = capture('LOG', originalLog);
-    console.warn = capture('WARN', originalWarn);
-    console.error = capture('ERROR', originalError);
+    // === GLOBAL XHR INTERCEPTOR ===
+    const originalXhrOpen = XMLHttpRequest.prototype.open;
+    const originalXhrSend = XMLHttpRequest.prototype.send;
+
+    XMLHttpRequest.prototype.open = function(method, url) {
+        this._method = method;
+        this._url = url;
+        originalXhrOpen.apply(this, arguments);
+    };
+
+    XMLHttpRequest.prototype.send = function() {
+        const xhr = this;
+        const method = xhr._method?.toUpperCase() || 'XHR';
+        const shortUrl = typeof xhr._url === 'string' ? xhr._url.split('/').slice(-3).join('/') : 'Request';
+
+        const logRequest = () => {
+            window.debugLogs.push({ type: 'XHR', msg: `=> ${method} ${shortUrl}`, time: new Date().toLocaleTimeString() });
+        };
+
+        const logResponse = () => {
+            const status = xhr.status;
+            const statusType = status >= 400 ? 'ERROR' : (status >= 300 ? 'WARN' : 'XHR');
+            window.debugLogs.push({ type: statusType, msg: `<= ${status} ${method} ${shortUrl}`, time: new Date().toLocaleTimeString() });
+        };
+
+        this.addEventListener('load', logResponse);
+        this.addEventListener('error', () => window.debugLogs.push({ type: 'ERROR', msg: `<= FAILED ${method} ${shortUrl}`, time: new Date().toLocaleTimeString() }));
+        logRequest();
+        return originalXhrSend.apply(this, arguments);
+    };
+
+    // === GLOBAL ERROR HANDLER for uncaught exceptions ===
+    window.onerror = function(message, source, lineno, colno, error) {
+        const sourceFile = source ? source.split('/').pop() : 'unknown';
+        const formattedMsg = `Uncaught ${error ? error.name : 'Error'}: ${message}\n  at ${sourceFile}:${lineno}:${colno}`;
+        
+        window.debugLogs.push({ type: 'ERROR', msg: formattedMsg, time: new Date().toLocaleTimeString() });
+        return false; // Let the browser's default error handler run as well.
+    };
+
+    // === GLOBAL HANDLER for unhandled promise rejections ===
+    window.onunhandledrejection = function(event) {
+        const reason = event.reason || {};
+        const message = reason.message || 'No message provided.';
+        const stack = reason.stack ? `\n${reason.stack}` : '';
+        const formattedMsg = `Unhandled Promise Rejection: ${message}${stack}`;
+        window.debugLogs.push({ type: 'ERROR', msg: formattedMsg, time: new Date().toLocaleTimeString() });
+    };
 
     // === DEBUG OVERLAY UI ===
     const setupLogOverlay = () => {
@@ -27,8 +107,8 @@ if (!window.debugLogs) {
         overlay.style = `
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); z-index: 100000; padding: 20px;
-            color: #00ff00; font-family: monospace; overflow-y: auto; box-sizing: border-box;
-            font-size: 12px; line-height: 1.4;
+            color: #ffffff; font-family: monospace; overflow-y: auto; box-sizing: border-box;
+            font-size: 18px; line-height: 1.4;
         `;
         
         const header = document.createElement('div');
@@ -56,6 +136,8 @@ if (!window.debugLogs) {
                 let color = '#ccc';
                 if (log.type === 'WARN') color = '#ffcc00';
                 if (log.type === 'ERROR') color = '#ff4444';
+                if (log.type === 'FETCH') color = '#66aaff';
+                if (log.type === 'XHR') color = '#88aaff';
                 return `<div style="margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 4px;">
                     <span style="color: #666;">[${log.time}]</span> 
                     <span style="color: ${color}; font-weight: bold;">${log.type}:</span> 

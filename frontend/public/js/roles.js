@@ -832,6 +832,7 @@ const ALL_ROLE_DATA = {
                         const ninjaKills = getStorageJson('ninjaSelectedTargets', {});
                         ninjaKills[`kill_${targetName}`] = targetName;
                         localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
+                        sessionStorage.setItem(`manualActionCompleted_${baseRoleId}`, 'true');
                         alert(`${targetName} has been killed!`);
                         manualBtn.remove();
                         closePopup();
@@ -892,6 +893,7 @@ const ALL_ROLE_DATA = {
         ]
     },
     weird: {
+        DISABLED: true,
         label: '', // 'Weird',
         class: 'weird',
         tip: '', // 'Wanna do \"something crazy?\"',
