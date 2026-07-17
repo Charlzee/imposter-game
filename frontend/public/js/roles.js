@@ -892,22 +892,25 @@ const ALL_ROLE_DATA = {
         ]
     },
     weird: {
-        label: 'Weird',
+        label: '', // 'Weird',
         class: 'weird',
-        tip: 'Wanna do \"something crazy?\"',
-        grad: 'linear-gradient(135deg, rgba(252, 128, 255, 1) 0%, rgba(255, 255, 0, 1) 100%)',
+        tip: '', // 'Wanna do \"something crazy?\"',
+        //grad: 'linear-gradient(135deg, rgba(255, 128, 255, 1) 0%, rgba(255, 255, 0, 1) 100%)',
+        grad: 'linear-gradient(135deg, rgba(252, 0, 0, 1) 0%, rgba(255, 0, 0, 1) 100%)',
         textColor: '#FF0000',
         showWord: false, 
         roleType: 'imposter',
         selectable: false,
         immuneToAmnesia: true,
+        immuneToModifiers: true,
         selectPlayer: true,
         canSelectSelf: true,
         revealSelectedPlayer: true,
         revealText: "???",
         selectionListColor: 'rgb(255, 0, 0)',
-        selectionText: "Do it.",
-        animation: 'anim_weird.mp4'
+        selectionText: ' ', //'Do it.',
+        animation: 'assets/videos/anim_weird.mp4',
+        hideAllText: true
     },
 };
 

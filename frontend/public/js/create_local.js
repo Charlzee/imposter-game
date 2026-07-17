@@ -254,7 +254,7 @@ function init() {
             const roleKey = Object.keys(ROLE_DATA).find(k => getBaseRoleId(k) === roleId);
             const type = ROLE_DATA[roleKey]?.roleType || 'innocent';
             // Do not show non-selectable roles in the settings UI
-            if (ROLE_DATA[roleKey]?.selectable === false) return;
+            if (ROLE_DATA[roleKey]?.showInSettings === false) return;
 
             if (categories[type]) categories[type].push(roleId);
         });

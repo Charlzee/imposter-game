@@ -144,11 +144,13 @@ function decidePlayerList(playersJson, roleCounts = {}) {
     const runDefaultModifierAssignment = () => {
         if (localStorage.getItem("role_modifers_enabled") === "true" || FORCE_ALL_MODIFIERS) {
             players.forEach((p, idx) => {
+                const roleKey = Object.keys(assignedRolesData).find(rk => (assignedRolesData[rk] || []).includes(p.player_name));
+                const roleConfig = ROLE_DATA[roleKey];
+
+                if (roleConfig?.immuneToModifiers) return;
+
                 Object.keys(ROLE_MODIFIERS).forEach(modKey => {
-                    if (modKey === 'amnesias') {
-                        const roleKey = Object.keys(assignedRolesData).find(rk => (assignedRolesData[rk] || []).includes(p.player_name));
-                        if (ROLE_DATA[roleKey]?.immuneToAmnesia) return;
-                    }
+                    if (modKey === 'amnesias' && roleConfig?.immuneToAmnesia) return;
 
                     const saved = localStorage.getItem(`${modKey}_percent`);
                     const chance = FORCE_ALL_MODIFIERS ? 1 : (saved ? parseFloat(saved) / 100 : ROLE_MODIFIERS[modKey].chance);
@@ -315,6 +317,7 @@ function displayRole(playerIndex) {
         roleStatus.classList.remove(...allRoleClasses);
         
         document.getElementById('modifiers-wrapper')?.remove();
+        document.getElementById('role-animation-video')?.remove();
         document.getElementById('roles-list')?.remove();
 
         // Display roleType above the role name
@@ -326,6 +329,20 @@ function displayRole(playerIndex) {
                 roleStatus.parentNode.insertBefore(roleTypeEl, roleStatus);
             }
             roleTypeEl.innerHTML = configUi.roleType ? `TYPE: ${configUi.roleType}` : '';
+        }
+
+        // Hide all text
+        const roleTypeEl = document.getElementById('role-type');
+        if (configUi.hideAllText) {
+            if (roleTypeEl) roleTypeEl.style.display = 'none';
+            roleTitle.style.display = 'none';
+            roleStatus.style.display = 'none';
+            roleTip.style.display = 'none';
+        } else {
+            if (roleTypeEl) roleTypeEl.style.display = 'block';
+            roleTitle.style.display = 'block';
+            roleStatus.style.display = 'block';
+            roleTip.style.display = 'block';
         }
 
         roleTitle.innerHTML = `${playerName}'s role:`;
@@ -883,23 +900,31 @@ function hideRole(playerIndex) {
     const playerName = players[playerIndex - 1]?.player_name || "Player";
 
     const roleStatus = document.getElementById('role-status');
+    const roleTip = document.getElementById('role-tip');
+    const roleTitle = document.getElementById('role-title');
     const wordDisplay = document.getElementById('word');
 
     const roleTypeEl = document.getElementById('role-type');
     if (roleTypeEl) roleTypeEl.innerHTML = '';
 
+    if (roleTypeEl) roleTypeEl.style.display = 'block';
+    roleTitle.style.display = 'block';
+    roleStatus.style.display = 'block';
+    roleTip.style.display = 'block';
+
     roleStatus.style.color = '';
     roleStatus.style.textShadow = '';
     
     document.querySelectorAll('.modifier-container').forEach(el => el.remove());
+    document.getElementById('role-animation-video')?.remove();
     document.getElementById('roles-list')?.remove();
     document.getElementById('gamble-container')?.remove();
 
     roleStatus.className = 'hidden';
     roleStatus.innerHTML = '???';
-    document.getElementById('role-tip').innerHTML = 'Turn the device away from other players.';
-    document.getElementById('role-tip').style.fontSize = '2em';
-    document.getElementById('role-title').innerHTML = `${playerName}'s role:`;
+    roleTip.innerHTML = 'Turn the device away from other players.';
+    roleTip.style.fontSize = '2em';
+    roleTitle.innerHTML = `${playerName}'s role:`;
     wordDisplay.innerHTML = "Click 'Next' to reveal!";
     roleDisplay.style.backgroundImage = 'radial-gradient(circle, #FFFF00 0%, #808000 100%)';
 }
@@ -1568,6 +1593,37 @@ async function startGame(updateStats = true) {
     });
     localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
 
+    // Promise-based function to handle the global animation
+    const playGlobalAnimation = () => new Promise(resolve => {
+        const allPlayers = getStorageJson('current_players');
+        const animationPath = allPlayers.map(p => getRoleOfPlayer(p.player_name))
+            .map(roleKey => ROLE_DATA[roleKey]?.animation)
+            .find(path => path);
+
+        if (!animationPath) return resolve();
+
+        const video = document.createElement('video');
+        video.id = 'role-animation-video';
+        video.src = animationPath;
+        video.autoplay = true;
+        video.muted = true;
+        video.playsInline = true;
+        document.body.appendChild(video);
+
+        const onFinish = (duration = 4000) => {
+            setTimeout(() => {
+                video.style.opacity = '0';
+                setTimeout(() => {
+                    video.remove();
+                    resolve();
+                }, 500);
+            }, duration);
+        };
+
+        video.onloadedmetadata = () => onFinish(video.duration ? video.duration * 1000 : 4000);
+        video.onerror = () => { console.warn("Video failed to load."); onFinish(); };
+    });
+
     // Move all "KILLED" reveals into one box
     const consolidatedReveals = [];
     const killedPlayers = new Set();
@@ -1587,6 +1643,9 @@ async function startGame(updateStats = true) {
         const names = Array.from(killedPlayers).join(', ');
         consolidatedReveals.unshift({ label: ninjaConfig.revealText, names, grad: ninjaConfig.grad, textColor: ninjaConfig.textColor });
     }
+
+    // Wait for the animation to finish before proceeding with timed popups
+    await playGlobalAnimation();
 
     if (reveals.length > 0) {
         const overlay = document.createElement('div');
