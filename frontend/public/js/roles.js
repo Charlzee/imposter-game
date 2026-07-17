@@ -8,7 +8,7 @@ export const ROLE_MODIFIERS = {
         grad: 'linear-gradient(135deg, #27B4F5 0%, #145A7B 100%)',
         textColor: '#B0E2FF',
         subTextColor: '#E0F5FF',
-        image: 'assets/amnesia-bg.png',
+        image: 'assets/images/amnesia-bg.png',
         showWord: false,
         overrideWordVisibility: true,
         overrideRoleDisplay: true,
@@ -904,7 +904,8 @@ export const ROLE_DATA = {
         canSelectSelf: true,
         revealSelectedPlayer: true,
         revealText: "???",
-        selectionListColor: 'rgba(255, 33, 33, 0.7)'
+        selectionListColor: 'rgba(255, 33, 33, 0.7)',
+        animation: 'anim_weird.mp4'
     },
 };
 
