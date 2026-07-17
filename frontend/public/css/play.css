@@ -637,6 +637,39 @@
     border-color: #555;
 }
 
+/* --- Gambler UI --- */
+#gamble-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+#gamble-btn {
+    padding: 10px 20px;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #ff3e50 0%, #ffa100 100%);
+    color: white;
+    border: 2px solid white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#gamble-chance-display {
+    font-size: 1.2rem;
+    color: white;
+}
+
+#gamble-history {
+    width: 90%;
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 8px;
+    color: #ccc;
+}
+
 @media (max-width: 900px) {
     .game-layout {
         flex-direction: column;

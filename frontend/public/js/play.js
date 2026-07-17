@@ -824,6 +824,12 @@ function displayRole(playerIndex) {
     if (config.isGambler) { // Gamble logic
         let gambleContainer = document.getElementById('gamble-container');
         let gambleBtn;
+        let gambleChanceDisplay;
+        let gambleHistoryContainer;
+
+        const deathChanceKey = `gambler_death_chance_${playerName}`;
+        const historyKey = `gambler_history_${playerName}`;
+        const effectsKey = `gambler_effects`;
         let gambleHistory;
 
         if (!gambleContainer) {
@@ -834,16 +840,22 @@ function displayRole(playerIndex) {
             gambleBtn.id = 'gamble-btn';
             gambleBtn.className = 'titan-one-regular';
             gambleBtn.innerHTML = 'Gamble';
+            
+            gambleChanceDisplay = document.createElement('div');
+            gambleChanceDisplay.id = 'gamble-chance-display';
+            gambleChanceDisplay.className = 'titan-one-regular';
 
-            gambleHistory = document.createElement('div');
-            gambleHistory.id = 'gamble-history';
+            gambleHistoryContainer = document.createElement('div');
+            gambleHistoryContainer.id = 'gamble-history';
 
             gambleContainer.appendChild(gambleBtn);
-            gambleContainer.appendChild(gambleHistory);
+            gambleContainer.appendChild(gambleChanceDisplay);
+            gambleContainer.appendChild(gambleHistoryContainer);
             roleDisplay.insertBefore(gambleContainer, document.getElementById("role-tip"));
         } else {
             gambleBtn = document.getElementById('gamble-btn');
-            gambleHistory = document.querySelector('#gamble-container div');
+            gambleChanceDisplay = document.getElementById('gamble-chance-display');
+            gambleHistoryContainer = document.getElementById('gamble-history');
         }
 
         const gambleActions = config.gambleActions || [];
@@ -852,17 +864,77 @@ function displayRole(playerIndex) {
                 gambleHistory.innerHTML += `No gamble actions defined!<br>`;
                 return;
             }
+
+            // Check for death
+            let currentDeathChance = parseFloat(localStorage.getItem(deathChanceKey) || '0');
+            if (Math.random() < currentDeathChance) {
+                const ninjaKills = getStorageJson('ninjaSelectedTargets', {});
+                ninjaKills[`kill_${playerName}`] = playerName;
+                localStorage.setItem('ninjaSelectedTargets', JSON.stringify(ninjaKills));
+                alert("You gambled and died! WOMP WOMP");
+                displayRole(playerIndex); // Refresh UI to show death
+                return;
+            }
+
+            // Increase death chance for next time
+            localStorage.setItem(deathChanceKey, Math.min(1, currentDeathChance + 0.10));
+
             const action = gambleActions[Math.floor(Math.random() * gambleActions.length)];
-            gambleHistory.innerHTML += `You got: ${action.name}<br>`;
+            
+            const history = getStorageJson(historyKey, []);
+            history.push(action.name);
+            localStorage.setItem(historyKey, JSON.stringify(history));
+
             if (action.action) {
                 const liveHelpers = {
                     players,
                     playerIndex: playerIndex - 1, // 0-based index for logic
+                    playerName,
+                    getImposter: () => {
+                        const imposterRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].roleType === 'imposter');
+                        const allImposters = imposterRoles.flatMap(k => getStorageJson(k));
+                        return allImposters.length > 0 ? allImposters[Math.floor(Math.random() * allImposters.length)] : 'No One';
+                    },
+                    getInnocent: () => {
+                        const allPlayers = getStorageJson('current_players').map(p => p.player_name);
+                        const goodPlayerRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].roleType === 'innocent');
+                        const allGoodPlayers = goodPlayerRoles.flatMap(k => getStorageJson(k));
+                        // Fallback to find players not in other teams if they are just 'innocent'
+                        const baseInnocents = allPlayers.filter(p => getRoleOfPlayer(p) === 'innocents');
+                        const combinedGood = [...new Set([...allGoodPlayers, ...baseInnocents])];
+                        const potentialTargets = combinedGood.filter(p => p !== playerName);
+
+                        return potentialTargets.length > 0 ? potentialTargets[Math.floor(Math.random() * potentialTargets.length)] : 'No One';
+                    },
+                    displayRole: () => displayRole(playerIndex),
+                    addHistory: (text) => {
+                        const h = getStorageJson(historyKey, []);
+                        h.push(text);
+                        localStorage.setItem(historyKey, JSON.stringify(h));
+                    },
+                    setGambleEffect: (targetPlayer, effect) => {
+                        const effects = getStorageJson(effectsKey, {});
+                        if (!effects[targetPlayer]) effects[targetPlayer] = [];
+                        if (!effects[targetPlayer].includes(effect)) {
+                            effects[targetPlayer].push(effect);
+                        }
+                        localStorage.setItem(effectsKey, JSON.stringify(effects));
+                    },
+                    modifyDeathChance: (pName, amount) => {
+                        const key = `gambler_death_chance_${pName}`;
+                        const current = parseFloat(localStorage.getItem(key) || '0');
+                        localStorage.setItem(key, Math.max(0, current + amount));
+                    },
+                    killPlayer: (pName) => {
+                        const kills = getStorageJson('ninjaSelectedTargets', {});
+                        kills[`kill_${pName}`] = pName;
+                        localStorage.setItem('ninjaSelectedTargets', JSON.stringify(kills));
+                    },
                     setRole: (idx, roleKey) => {
                         const name = players[idx]?.player_name;
                         if (!name) return;
                         // Remove player from all existing role lists
-                        Object.keys(ROLE_DATA).forEach(rk => {
+                        Object.keys(ROLE_DATA).forEach(rk => { // This may need a refactor
                             const list = getStorageJson(rk).filter(n => n !== name);
                             localStorage.setItem(rk, JSON.stringify(list));
                         });
@@ -888,7 +960,31 @@ function displayRole(playerIndex) {
                 };
                 action.action(liveHelpers);
             }
-            displayRole(playerIndex);
+            displayRole(playerIndex); // Refresh UI
+        };
+
+        // Update UI elements
+        const currentDeathChance = parseFloat(localStorage.getItem(deathChanceKey) || '0');
+        gambleChanceDisplay.innerHTML = `CHANCE OF DEATH: <span style="color: #ff4444;">${(currentDeathChance * 100).toFixed(0)}%</span>`;
+
+        const history = getStorageJson(historyKey, []);
+        gambleHistoryContainer.innerHTML = '<h3>Gamble History:</h3>' + (history.length > 0 ? `<ul>${history.map(item => `<li>${item}</li>`).join('')}</ul>` : '<p>No gambles yet.</p>');
+
+        const effects = getStorageJson(effectsKey, {});
+        const playerEffects = effects[playerName] || [];
+
+        if (playerEffects.includes('no_more_gambling')) {
+            gambleBtn.disabled = true;
+            gambleBtn.innerHTML = 'No More Gambling';
+            gambleBtn.style.filter = 'grayscale(1)';
+        }
+
+        const killedPlayers = Object.values(getStorageJson('ninjaSelectedTargets', {}));
+        if (killedPlayers.includes(playerName)) {
+            gambleBtn.disabled = true;
+            gambleBtn.innerHTML = 'You are Dead';
+            gambleBtn.style.filter = 'grayscale(1)';
+            gambleChanceDisplay.style.display = 'none';
         }
     }
 }
@@ -1757,6 +1853,25 @@ async function init() {
     // Clear session flags for a new game
     sessionStorage.removeItem('globalAnimationPlayed');
     sessionStorage.removeItem('revealContainerShown');
+        Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('gambler_')) {
+            if (key != "gambler_count" && key != "gambler_percent") {
+                localStorage.removeItem(key);
+            }
+        }
+    });
+
+    // Clear all game-specific data from the previous round
+    localStorage.removeItem('inspectorClues');
+    localStorage.removeItem('innocents');
+    localStorage.removeItem('justificationWords');
+    localStorage.removeItem('original_venom');
+    Object.keys(ROLE_DATA).forEach(k => {
+        const baseId = getBaseRoleId(k);
+        if (ROLE_DATA[k].hasTarget) localStorage.removeItem(`${baseId}Targets`);
+        if (ROLE_DATA[k].selectPlayer) localStorage.removeItem(`${baseId}SelectedTargets`);
+        if (ROLE_DATA[k].selectCustom) localStorage.removeItem(`${baseId}CustomSelection`);
+    });
 
     const dynamicCounts = {};
     Object.keys(ROLE_DATA).forEach(key => {

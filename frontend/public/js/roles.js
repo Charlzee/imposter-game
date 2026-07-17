@@ -571,45 +571,111 @@ const ALL_ROLE_DATA = {
         selectionListColor: 'rgba(180, 80, 50, 0.7)'
     },
     gambler: {
-        DISABLED: true,
         label: 'Gambler',
         class: 'gambler',
-        tip: 'You can gamble',
+        tip: 'You can choose to gamble. Each time you do, your chance of dying increases by 10%.',
         grad: 'linear-gradient(135deg, #ff3e50 0%, #ffa100 100%)',
         textColor: '#FFA600',
         showWord: false,
         isGambler: true,
+        roleType: 'innocent',
+        selectable: true,
         gambleActions: [
             {
-                'name': 'Meow :3',
+                name: 'I JUST HIT THE JACKPOT!',
+                action: ({ getImposter, addHistory }) => {
+                    const imposter = getImposter();
+                    addHistory(`[${imposter}] is an Imposter!`);
+                }
+            },
+            {
+                name: 'Congratulations, you are safe from being voted',
+                action: ({ playerName, setGambleEffect }) => {
+                    setGambleEffect(playerName, 'vote_immune');
+                }
+            },
+            {
+                name: 'The Imposter has received +1 vote to their name',
+                action: ({ getImposter, setGambleEffect }) => {
+                    const imposter = getImposter();
+                    setGambleEffect(imposter, 'extra_vote_received');
+                }
+            },
+            {
+                name: 'Someone has big boobies!!- wait I meant that they are your friend',
+                action: ({ getInnocent, addHistory }) => {
+                    const innocent = getInnocent();
+                    addHistory(`You know that [${innocent}] is a friend.`);
+                }
+            },
+            {
+                name: '-20% chance of dying, Happy Gambling!!',
+                action: ({ playerName, modifyDeathChance }) => {
+                    modifyDeathChance(playerName, -0.20);
+                }
+            },
+            {
+                name: 'Select a player and control their vote, put it to good use mate',
+                action: ({ playerName, setGambleEffect }) => {
+                    setGambleEffect(playerName, 'control_vote');
+                }
+            },
+            {
+                name: 'Hahahaha, you got nothing noob',
+                action: () => {}
+            },
+            {
+                name: 'Meow :3',
                 action: ({ playerIndex, addModifier }) => {
                     addModifier(playerIndex, 'furry');
                 }
             },
             {
-                'name': 'Keep going bro, you will get there one day',
-                action: ({}) => {return 0}
+                name: 'Keep going bro, you will get there one day',
+                action: () => {}
             },
             {
-                'name': 'You have been given a random modifier, mwuahahaha',
+                name: 'Oopsies, the game has cast a vote against you lol',
+                action: ({ playerName, setGambleEffect }) => {
+                    setGambleEffect(playerName, 'voted_against_self');
+                }
+            },
+            {
+                name: 'You have been given a random modifier, mwuahahaha',
                 action: ({ playerIndex, addModifier }) => {
                     const bad = ['cheater', 'happy'];
-
-                    const availableKeys = Object.keys(ROLE_MODIFIERS).filter(
-                        key => !bad.includes(key)
-                    );
-
+                    const availableKeys = Object.keys(ROLE_MODIFIERS).filter(key => !bad.includes(key));
                     if (availableKeys.length > 0) {
                         const randomKey = availableKeys[Math.floor(Math.random() * availableKeys.length)];
                         addModifier(playerIndex, randomKey);
-                        console.log(`GAVE PLAYER ${playerIndex+1} ${randomKey}`);
-                    } else {
-                        console.warn("No available keys found after filtering.");
                     }
                 }
-            }
-        ],
-        roleType: 'innocent'
+            },
+            {
+                name: 'Wheww, the imposter now controls your vote',
+                action: ({ playerName, setGambleEffect }) => {
+                    setGambleEffect(playerName, 'vote_controlled_by_imposter');
+                }
+            },
+            {
+                name: 'The Imposter is now immune to getting voted by you, Big L bro',
+                action: ({ playerName, setGambleEffect }) => {
+                    setGambleEffect(playerName, 'imposter_vote_immune');
+                }
+            },
+            {
+                name: 'You cannot gamble anymore, mb bro',
+                action: ({ playerName, setGambleEffect }) => {
+                    setGambleEffect(playerName, 'no_more_gambling');
+                }
+            },
+            {
+                name: 'You gambled too much and went bankrupt, now ur dead womp womp. You cannot say interact with anything for the entire round.',
+                action: ({ playerName, killPlayer }) => {
+                    killPlayer(playerName);
+                }
+            },
+        ]
     },
     divine_art: {
         label: 'Divine Arts',
