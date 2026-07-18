@@ -877,7 +877,7 @@ function displayRole(playerIndex) {
             }
 
             // Increase death chance for next time
-            localStorage.setItem(deathChanceKey, Math.min(1, currentDeathChance + 0.10));
+            localStorage.setItem(deathChanceKey, Math.min(1, currentDeathChance + 0.07));
 
             const action = gambleActions[Math.floor(Math.random() * gambleActions.length)];
             
@@ -915,9 +915,7 @@ function displayRole(playerIndex) {
                     setGambleEffect: (targetPlayer, effect) => {
                         const effects = getStorageJson(effectsKey, {});
                         if (!effects[targetPlayer]) effects[targetPlayer] = [];
-                        if (!effects[targetPlayer].includes(effect)) {
-                            effects[targetPlayer].push(effect);
-                        }
+                        effects[targetPlayer].push(effect);
                         localStorage.setItem(effectsKey, JSON.stringify(effects));
                     },
                     modifyDeathChance: (pName, amount) => {
@@ -1146,15 +1144,53 @@ function castVote(votedFor) {
 
     if (!nextVoter) return; // All votes are done
 
-    const votes = getStorageJson('votes', {});
-    if (!votes[votedFor]) {
-        votes[votedFor] = [];
+    let finalVotedFor = votedFor;
+    const voterName = nextVoter.player_name;
+
+    // Check for gambler effects on the voter
+    const gamblerEffects = getStorageJson('gambler_effects', {});
+    const voterEffects = gamblerEffects[voterName] || [];
+
+    if (voterEffects.includes('vote_controlled_by_imposter')) {
+        const imposterRoles = Object.keys(ROLE_DATA).filter(k => ROLE_DATA[k].roleType === 'imposter');
+        const allImposters = imposterRoles.flatMap(k => getStorageJson(k));
+        const currentVotes = getStorageJson('votes', {});
+        let imposterTarget = null;
+
+        // Find a vote cast by an imposter
+        for (const target in currentVotes) {
+            const votersForTarget = currentVotes[target];
+            const imposterVoter = votersForTarget.find(v => allImposters.includes(v));
+            if (imposterVoter) {
+                imposterTarget = target;
+                break; // Found an imposter's vote, use it
+            }
+        }
+
+        if (imposterTarget) {
+            finalVotedFor = imposterTarget;
+        } else {
+            // Fallback
+            const allPlayers = getStorageJson('current_players').map(p => p.player_name);
+            const innocentPlayers = allPlayers.filter(p => !allImposters.includes(p) && p !== voterName);
+            
+            if (innocentPlayers.length > 0) {
+                const randomInnocent = innocentPlayers[Math.floor(Math.random() * innocentPlayers.length)];
+                finalVotedFor = randomInnocent;
+            }
+        }
     }
-    votes[votedFor].push(nextVoter.player_name);
+
+
+    const votes = getStorageJson('votes', {});
+    if (!votes[finalVotedFor]) {
+        votes[finalVotedFor] = [];
+    }
+    votes[finalVotedFor].push(voterName);
 
     localStorage.setItem('votes', JSON.stringify(votes));
 
-    votedPlayers.push(nextVoter.player_name);
+    votedPlayers.push(voterName);
     localStorage.setItem('voted_players', JSON.stringify(votedPlayers));
 
     //alert(`${nextVoter.player_name} voted for ${votedFor}.`);
@@ -1268,9 +1304,11 @@ function tallyVotes() {
         }
     });
 
-    const voteEntries = Object.entries(processedVotes).map(([player, finalVoters]) => {
-        // Recalculate total votes based on the potentially filtered voter list
+    const livingPlayers = getLivingPlayers().map(p => p.player_name);
+
+    const voteEntries = livingPlayers.map(player => {
         let totalVotes = 0;
+        const finalVoters = processedVotes[player] || [];
         finalVoters.forEach(voterName => {
             let voteValue = 1; // Base vote
             const voterRole = getRoleOfPlayer(voterName);
@@ -1300,12 +1338,25 @@ function tallyVotes() {
 
             totalVotes += Math.max(0, voteValue); // vote count doesnt go negative
         });
-        return [player, totalVotes];
-    }).map(([player, totalVotes]) => {
+
         // Post-process total votes for abilities of the player being voted for
         const playerRole = getRoleOfPlayer(player);
         const playerModifiers = Object.keys(ROLE_MODIFIERS).filter(modKey => getStorageJson(modKey).includes(player));
         
+        // Apply 'extra_vote_received' effect
+        const gamblerEffects = getStorageJson('gambler_effects', {});
+        const playerGambleEffects = gamblerEffects[player] || [];
+        const extraVotesFromGambler = playerGambleEffects.filter(e => e === 'extra_vote_received').length;
+        if (extraVotesFromGambler > 0) {
+            totalVotes += extraVotesFromGambler;
+        }
+
+        // Apply 'voted_against_self' effect
+        const selfVotesFromGambler = playerGambleEffects.filter(e => e === 'voted_against_self').length;
+        if (selfVotesFromGambler > 0) {
+            totalVotes += selfVotesFromGambler;
+        }
+
         // Apply Imposter+ modifier
         if ((ROLE_DATA[playerRole] || INNOCENT_CONFIG).roleType === 'imposter' && playerModifiers.includes('plus')) {
             totalVotes = Math.max(0, totalVotes - 1);

@@ -614,12 +614,12 @@ const ALL_ROLE_DATA = {
                     modifyDeathChance(playerName, -0.20);
                 }
             },
-            {
-                name: 'Select a player and control their vote, put it to good use mate',
-                action: ({ playerName, setGambleEffect }) => {
-                    setGambleEffect(playerName, 'control_vote');
-                }
-            },
+            // {
+            //     name: 'Select a player and control their vote, put it to good use mate',
+            //     action: ({ playerName, setGambleEffect }) => {
+            //         setGambleEffect(playerName, 'control_vote');
+            //     }
+            // },
             {
                 name: 'Hahahaha, you got nothing noob',
                 action: () => {}
