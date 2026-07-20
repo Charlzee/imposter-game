@@ -186,6 +186,15 @@ export function getRandomLetterOrNumber() {
     return characters.charAt(Math.floor(Math.random() * characters.length));
 }
 
+export function getRandomNumber(length = 1) {
+    const characters ='0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
 export function getRandomLetter() {
     const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     return characters.charAt(Math.floor(Math.random() * characters.length));

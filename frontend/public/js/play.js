@@ -1761,12 +1761,15 @@ async function startGame(updateStats = true) {
         video.muted = true;
         video.playsInline = true;
         document.body.appendChild(video);
+        video.play();
+        console.log("PLAYING ANIMATION")
 
         const onFinish = (duration = 4000) => {
             setTimeout(() => {
                 video.style.opacity = '0';
                 setTimeout(() => {
                     sessionStorage.setItem('globalAnimationPlayed', 'true');
+                    console.log("PLAYED")
                     video.remove();
                     resolve();
                 }, 500);
