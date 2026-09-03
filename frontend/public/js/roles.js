@@ -968,7 +968,7 @@ const ALL_ROLE_DATA = {
         textColor: '#FF0000',
         showWord: false, 
         roleType: 'imposter',
-        selectable: false,
+        selectable: true,
         immuneToAmnesia: true,
         immuneToModifiers: true,
         selectPlayer: true,
