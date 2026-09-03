@@ -959,7 +959,7 @@ const ALL_ROLE_DATA = {
         ]
     },
     weird: {
-        DISABLED: true,
+        DISABLED: false,
         label: '', // 'Weird',
         class: 'weird',
         tip: '', // 'Wanna do \"something crazy?\"',
